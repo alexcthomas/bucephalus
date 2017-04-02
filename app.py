@@ -1,8 +1,10 @@
 import os, pdb
 import random
 from flask import Flask, render_template, url_for, jsonify, app, request
-from flask.ext.bootstrap import Bootstrap
-from flask_bootstrap import WebCDN
+from flask_bootstrap import Bootstrap, WebCDN
+import ujson
+from views.viewbuilder import ViewBuilder
+
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -10,7 +12,10 @@ app = Flask(__name__)
 
 bootstrap = Bootstrap(app)
 
-# use jQuery2 instead of jQuery 1 shipped with Flask-Bootstrap
+view_defs = ViewBuilder()
+
+
+# use jQuery3 instead of jQuery 1 shipped with Flask-Bootstrap
 app.extensions['bootstrap']['cdns']['jquery'] = WebCDN('//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.0/')
 
 @app.errorhandler(404)
@@ -43,6 +48,17 @@ def get_nav_data():
     """
     return app.send_static_file(r'json/navdata.json')
 
+# return the individual view data
+@app.route('/view', methods=['GET'])
+def view():
+    """
+    Returns data for building the nav pane contents
+    These won't necessarily always be static
+    """
+    args = dict(request.args)
+    typ = args.pop('type')[0]
+    tags = {k:v[0] for k,v in args.items()}
+    return view_defs.build_view(typ, tags)
 
 
 if __name__ == '__main__':
