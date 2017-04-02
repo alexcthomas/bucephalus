@@ -22,7 +22,8 @@ class ViewBuilder(object):
         return ujson.dumps(ret)
 
     def overview_distribution(self, data):
-        return self.snsviews.get_view('overview_distribution', data)
+        img = self.snsviews.overview_distribution(data)
+        return ujson.dumps({'result': img})
 
     def build_view(self, viewname, tags):
         """
@@ -45,12 +46,7 @@ class ViewBuilder(object):
 
         if viewname == "overview_distribution":
             series = np.random.randn(1000)
-            return ujson.dumps({})
             return self.overview_distribution(series)
-            return self.overview_distribution(series)
-#        if viewname == "overview_bar":
-
-
 
 #    def get_view(viewname):
 #        """

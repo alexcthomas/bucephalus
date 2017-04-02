@@ -9,7 +9,8 @@ var ViewRenderers = {
 	},
 
 	imgRenderer: function(target, data) {
-		var a=1;
+		$('<img/>', {src: data.result})
+			.appendTo(target);
 	},
 
 	htmlRenderer: function(target, data) {
@@ -22,7 +23,9 @@ var ViewRenderers = {
 	
 	getRenderer: function(rendererName, target){
 		var renderer = this.renderers[rendererName];
-		return (function(data) {renderer(target, data);});
+		return (function(data) {
+			renderer(target, data);
+		});
 	}
 };
 

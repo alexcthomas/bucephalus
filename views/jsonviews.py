@@ -16,7 +16,6 @@ class JSONViewBuilder(object):
         self.build_views()
 
     def read_views(self):
-#        pdb.set_trace()
         for r, dirs, files in os.walk(self.location):
             for file_name in files:
 
@@ -42,7 +41,6 @@ class JSONViewBuilder(object):
                         continue
 
                 # read the view
-                print file_path
                 mtime = os.stat(file_path).st_mtime
                 v = self.read_view(typ, file_path)
                 obj = {'view': v, 'mtime': mtime, 'path': file_path}

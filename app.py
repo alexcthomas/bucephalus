@@ -1,8 +1,7 @@
 import os, pdb
 import random
-from flask import Flask, render_template, url_for, jsonify, app, request
+from flask import Flask, render_template, jsonify, app, request, make_response
 from flask_bootstrap import Bootstrap, WebCDN
-import ujson
 from views.viewbuilder import ViewBuilder
 
 
@@ -60,6 +59,12 @@ def view():
     tags = {k:v[0] for k,v in args.items()}
     return view_defs.build_view(typ, tags)
 
+@app.route("/img/<path:path>")
+def images(path):
+    fullpath = "./img/" + path
+    resp = make_response(open(fullpath).read())
+    resp.content_type = "image/jpeg"
+    return resp
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')

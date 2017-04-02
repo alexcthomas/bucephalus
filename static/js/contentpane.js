@@ -4,8 +4,7 @@ var renderView = function(target, info, tags) {
 	var params = Object.assign({}, tags, {type:info.viewtype});
 	var url = "/view?" + $.param(params);
 	
-	$.getJSON(url, renderer);
-	var a=1;
+	$.getJSON(url, renderer});
 };
 
 // figures out the content pane layout
