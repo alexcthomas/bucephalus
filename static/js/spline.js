@@ -8,23 +8,7 @@ $(function () {
 
         $('#container1').highcharts({
             chart: {
-                type: 'spline',
-                animation: Highcharts.svg,
-                marginRight: 10,
-                events: {
-                    load: function () {
-                        var series = this.series[0];
-                        setInterval(function () {
-                            var t = (new Date()).getTime();
-                            $.getJSON($SCRIPT_ROOT + '/rand', {
-                                t: t
-                            }, function(data){
-                                var x = t, y = data.result;
-                            series.addPoint([x, y], true, true);
-                            })
-                        }, 1000);
-                    }
-                }
+                type: 'spline'
             },
             title: {
                 text: 'Live random data'

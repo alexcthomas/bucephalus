@@ -1,0 +1,1 @@
+[{"views": [{"url": "/views?name=view1&tag1=value11&tag2=value21", "pane": "pane1"}], "tags": {"tag1": "value11", "tag2": "value21"}, "title": "Option1"}, {"views": [{"url": "/views?name=view1&tag1=value12&tag2=value22", "pane": "pane1"}], "tags": {"tag1": "value12", "tag2": "value22"}, "title": "Option2"}]
