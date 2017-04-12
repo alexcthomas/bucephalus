@@ -2,17 +2,19 @@
   {
     "views": [
       {
-        "viewtype": "overview_bar",
+        "viewtype": "basic_line",
         "renderer": "highcharts",
+        "tags": {"datatype": "solar"},
         "row": 1
       },
       {
         "viewtype": "overview_distribution",
+        "tags": {"datatype": "univariate_random"},
         "renderer": "img",
         "row": 2
       }
     ],
-    "tags": {},
+    "tags": {"level": "city"},
     "display": false,
     "title": "Root"
   },

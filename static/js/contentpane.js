@@ -1,7 +1,20 @@
+
+var buildTagString = function(tags){
+	var ret = [];
+	
+	$.each(tags, function(i, item) {
+		ret.push({"name":"tags",  "value":i+":"+item});
+	});
+	
+	return ret;
+}
+
 var renderView = function(target, info, tags) {
+	var alltags = Object.assign({}, tags, info.tags);
 	var rendererName = info.renderer;
 	var renderer = ViewRenderers.getRenderer(rendererName, target);
-	var params = Object.assign({}, tags, {type:info.viewtype});
+	var extra = buildTagString(alltags);
+	var params = [{"name":"type","value":info.viewtype}].concat(extra);
 	var url = "/view?" + $.param(params);
 	
 	$.getJSON(url, renderer);
@@ -21,7 +34,7 @@ var renderContentPane = function(pageName) {
 	var data = navData[title].views;
 	var tgt = $("#page-content");
 	tgt.html('');
-	var tags = navData[title].tags
+	var pagetags = navData[title].tags
 	
 	var rows = {};
 	
@@ -36,7 +49,7 @@ var renderContentPane = function(pageName) {
 		rows[item.row].push(viewTarget);
 		viewTarget.data("viewdata", item);
 		tgt.append(viewTarget);
-		renderView(viewTarget, item, tags) // could add an optional div size here
+		renderView(viewTarget, item, pagetags) // could add an optional div size here
 	});
 	tgt.data("rows", rows);
 };

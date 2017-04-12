@@ -1,55 +1,46 @@
-import os
-from jsonviews import JSONViewBuilder
-from mplviews import MPLViewBuilder
-from snsviews import SNSViewBuilder
-import numpy as np
+import os, pdb
 import ujson
+
+from jsonviews import HighChartsViewBuilder
+from mplviews import MPLViewBuilder
+
 
 class ViewBuilder(object):
     """
-    class for building and providing JSON view definitions
+    class for building and providing view definitions
     can do things like auto-rebuild when files change
     """
-    def __init__(self):
+    def __init__(self, dataprovider):
         jsonpath = os.path.realpath(os.path.join('static','views'))
-        self.jsonviews = JSONViewBuilder(jsonpath)
+
+        self.hcviews = HighChartsViewBuilder(jsonpath)
         self.mplviews = MPLViewBuilder()
-        self.snsviews = SNSViewBuilder()
 
-    def overview_bar(self, data):
-        ret = self.jsonviews.get_view('overview_bar')
-        ret['series'] = data
-        return ujson.dumps(ret)
+        self.dataprovider = dataprovider
 
-    def overview_distribution(self, data):
-        img = self.snsviews.overview_distribution(data)
-        return ujson.dumps({'result': img})
+        self.check_views()
 
-    def build_view(self, viewname, tags):
+    def check_views(self):
+        extra_views = set(self.hcviews.list_views()) & set(self.mplviews.list_views())
+        if len(extra_views):
+            msg = ','.join(extra_views)
+            raise RuntimeError('Found duplicated views: {}'.format(msg))
+
+    def build_view(self, viewname, tags, **kwargs):
         """
         uses tags to look up data
         then combines that with the view definition
         """
+        if self.hcviews.has_view(viewname):
+            provider = self.hcviews
+        elif self.mplviews.has_view(viewname):
+            provider = self.mplviews
 
-        if viewname == "overview_bar":
-            series = [{
-                        'name': 'Year 1800',
-                        'data': [107, 31, 635, 203, 2]
-                    }, {
-                        'name': 'Year 1900',
-                        'data': [133, 156, 947, 408, 6]
-                    }, {
-                        'name': 'Year 2012',
-                        'data': [1052, 954, 4250, 740, 38]
-                    }]
-            return self.overview_bar(series)
+        data = self.dataprovider.get_view_data(tags, **kwargs)
 
-        if viewname == "overview_distribution":
-            series = np.random.randn(1000)
-            return self.overview_distribution(series)
+        ret = provider.build_view(viewname, data, **kwargs)
 
-#    def get_view(viewname):
-#        """
-#        uses
-#        """
-#        pass
+        return ujson.dumps(ret)
+
+    def set_data_provider(self, provider):
+        self.dataprovider = provider

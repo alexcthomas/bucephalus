@@ -1,7 +1,8 @@
 import os, pdb, copy
 import ujson, yaml
+from baseviews import BaseViewBuilder
 
-class JSONViewBuilder(object):
+class JSONViewBuilder(BaseViewBuilder):
     """
     class for building and providing view definitions
     can do things like auto-rebuild when files change
@@ -13,7 +14,6 @@ class JSONViewBuilder(object):
         self.allowed_types = ['json','yaml']
 
         self.read_views()
-        self.build_views()
 
     def read_views(self):
         for r, dirs, files in os.walk(self.location):
@@ -46,7 +46,6 @@ class JSONViewBuilder(object):
                 obj = {'view': v, 'mtime': mtime, 'path': file_path}
                 self.views_cache[view_name] = obj
 
-
     def read_view(self, typ, pth):
         with open(pth, 'r') as fh:
             if typ == 'json':
@@ -55,13 +54,14 @@ class JSONViewBuilder(object):
                 return yaml.load(fh)
 
 
-    def build_views(self):
-        """
-        function for building view definitions
-        recursive templating not yet implemented
-        """
-        pass
+class HighChartsViewBuilder(JSONViewBuilder):
+    """
+    Contains logic for combining config details from the JSONViewBuilder
+    with data from the dataprovider
+    Different highcharts chart types can need the data labelled in different ways
+    """
 
-
-    def get_view(self, viewname):
-        return copy.deepcopy(self.views_cache[viewname]['view'])
+    def build_view(self, viewname, data):
+        ret = copy.deepcopy(self.views_cache[viewname]['view'])
+        ret['series'] = data
+        return ret
