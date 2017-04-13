@@ -8,9 +8,9 @@
         "row": 1
       },
       {
-        "viewtype": "overview_distribution",
-        "tags": {"datatype": "univariate_random"},
-        "renderer": "img",
+        "viewtype": "prices",
+        "renderer": "highstock",
+        "tags": {"datatype": "random_timeseries", "market": "Random"},
         "row": 2
       }
     ],
@@ -23,6 +23,7 @@
       {
         "viewtype": "prices",
         "renderer": "highcharts",
+        "tags": {"datatype": "solar"},
         "row": 1
       },
       {
@@ -53,6 +54,12 @@
         "viewtype": "parabola",
         "renderer": "img",
         "row": 1
+      },
+      {
+        "viewtype": "overview_distribution",
+        "tags": {"datatype": "univariate_random"},
+        "renderer": "img",
+        "row": 2
       }
     ],
     "tags": {

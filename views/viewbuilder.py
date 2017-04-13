@@ -38,9 +38,12 @@ class ViewBuilder(object):
 
         data = self.dataprovider.get_view_data(tags, **kwargs)
 
-        ret = provider.build_view(viewname, data, **kwargs)
+        ret = provider.build_view(viewname, tags, data, **kwargs)
 
         return ujson.dumps(ret)
 
     def set_data_provider(self, provider):
         self.dataprovider = provider
+
+    def reload_views(self):
+        self.hcviews.reload_views()

@@ -1,8 +1,9 @@
 import os, pdb
-from flask import Flask, render_template, jsonify, app, request, make_response
+from flask import Flask, render_template, request, make_response
 from flask_bootstrap import Bootstrap, WebCDN
 from views.viewbuilder import ViewBuilder
 from views.viewdata import ViewDataProvider
+from views.viewtools import parse_tags
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -16,14 +17,6 @@ view_defs = ViewBuilder(data_provider)
 # use jQuery3 instead of jQuery 1 shipped with Flask-Bootstrap
 app.extensions['bootstrap']['cdns']['jquery'] = WebCDN('//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.0/')
 
-def parse_tags(tags):
-    ret = {}
-    for t in tags:
-        item = t.split(':')
-        if not len(item) == 2:
-            raise RuntimeError('Invalid tag {}'.format(t))
-        ret[item[0]] = item[1]
-    return ret
 
 @app.errorhandler(404)
 def page_not_found(e):
@@ -70,11 +63,9 @@ def images(path):
     resp.content_type = "image/jpeg"
     return resp
 
-
 def reload_views_provider(path):
     """For reloading the views"""
-    global view_defs
-    view_defs = ViewBuilder(data_provider)
+    view_defs.reload_views()
 
 def reload_data_provider(path):
     """

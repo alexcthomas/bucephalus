@@ -19,7 +19,7 @@ class MPLViewBuilder(BaseViewBuilder):
     def list_views(self):
         return sorted(self.views_cache.keys())
 
-    def build_view(self, viewname, data):
+    def build_view(self, viewname, tags, data):
         func = self.views_cache[viewname]
         return {'result': func(data)}
 

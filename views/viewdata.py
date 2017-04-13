@@ -1,10 +1,11 @@
 import numpy as np
-import pdb
+import pandas as pd
+from viewtools import encode_series
 
 class ViewDataProvider(object):
     """
-    Base view class
-    provides a common interface
+    This class maps from tags to datasets
+    Could be e.g. from a database
     """
 
     def get_view_data(self, tags, **kwargs):
@@ -48,5 +49,14 @@ class ViewDataProvider(object):
         if typ == "univariate_random":
             series = np.random.randn(200)
             return series
+
+        if typ == "random_timeseries":
+            data = np.cumsum(np.random.randn(2000))
+            dates = pd.bdate_range('2000-01-01', periods=2000, freq='B')
+            ret = [{
+                        'name': 'Random',
+                        'data': encode_series(dates, data)
+                    }]
+            return ret
 
         raise RuntimeError('No data found for type {}'.format(typ))
