@@ -6,13 +6,13 @@ var renderNavPane = function(callafter) {
 		var viewdata = {};
 		
 		$.each(data, function(key, val) {
-			if (val.title!="Root"){
-				$('<li/>', {id: val.title})	// create a list element
-					.append($('<a/>', {text: val.title, href: '#'}))	//add a link
-					.appendTo(tgt);	// append to the nav pane
-			}
-			viewdata[val.title] = val;
+			viewdata[val.text] = val;
 		});
-		tgt.data("viewdata", viewdata);	//bind the data to the list element
+		
+		tgt.treeview({
+			data: data
+		});
+		
+		tgt.data("viewdata", viewdata);	//bind the data to the div element
 	}).done(callafter);
 };

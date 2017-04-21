@@ -25,7 +25,7 @@ var renderView = function(target, info, tags) {
 var renderContentPane = function(pageName) {
 	
 	if (pageName == undefined) {
-		var title = 'Root';
+		var title = 'Parent1';
 	} else {
 		var title = pageName;
 	}

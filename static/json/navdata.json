@@ -1,5 +1,7 @@
 [
   {
+    "text": "Parent1",
+    "tags": {"level": "city"},
     "views": [
       {
         "viewtype": "basic_line",
@@ -14,11 +16,35 @@
         "row": 2
       }
     ],
-    "tags": {"level": "city"},
-    "display": false,
-    "title": "Root"
+    "nodes": [
+      {
+        "text": "Child1",
+        "tags": {
+          "tag1": "value12",
+          "tag2": "value22"
+        },
+        "views": [
+          {
+            "viewtype": "parabola",
+            "renderer": "img",
+            "row": 1
+          },
+          {
+            "viewtype": "overview_distribution",
+            "tags": {"datatype": "univariate_random"},
+            "renderer": "img",
+            "row": 2
+          }
+        ]
+      }
+    ]
   },
   {
+    "text": "Parent2",
+    "tags": {
+      "tag1": "value11",
+      "tag2": "value21"
+    },
     "views": [
       {
         "viewtype": "prices",
@@ -41,31 +67,6 @@
         "renderer": "highcharts",
         "row": 2
       }
-    ],
-    "tags": {
-      "tag1": "value11",
-      "tag2": "value21"
-    },
-    "title": "Option1"
-  },
-  {
-    "views": [
-      {
-        "viewtype": "parabola",
-        "renderer": "img",
-        "row": 1
-      },
-      {
-        "viewtype": "overview_distribution",
-        "tags": {"datatype": "univariate_random"},
-        "renderer": "img",
-        "row": 2
-      }
-    ],
-    "tags": {
-      "tag1": "value12",
-      "tag2": "value22"
-    },
-    "title": "Option2"
+    ]
   }
 ]

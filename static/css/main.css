@@ -3,5 +3,14 @@ div.view_row_start {
 }
 
 div.view_row_cont {
-    float: right;
+	float: right;
+}
+
+#sidebar-header {
+	width: 100%;
+	height: 50px;
+}
+
+#sidebar-wrapper {
+	padding: 5px;
 }
