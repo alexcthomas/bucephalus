@@ -10,6 +10,7 @@ var renderNavPane = function(callafter) {
 		});
 		
 		tgt.treeview({
+			levels: 1,
 			data: data
 		});
 		
