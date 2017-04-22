@@ -1,5 +1,17 @@
 [
   {
+    "text": "Root",
+    "tags": {},
+    "views": [
+      {
+        "viewtype": "basic_bar",
+        "renderer": "highcharts",
+        "tags": {"datatype": "univariate_random_bar"},
+        "row": 1
+      }
+    ]
+  },
+  {
     "text": "Parent1",
     "tags": {"level": "city"},
     "views": [

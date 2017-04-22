@@ -49,8 +49,14 @@ class ViewDataProvider(object):
             return ret
 
         if typ == "univariate_random":
-            series = np.random.randn(200)
-            return series
+            return np.random.randn(200)
+
+        if typ == "univariate_random_bar":
+            ret = [{
+                        'name': 'Random',
+                        'data': np.random.randn(100)
+                    }]
+            return ret
 
         if typ == "random_timeseries":
             data = np.cumsum(np.random.randn(2000))

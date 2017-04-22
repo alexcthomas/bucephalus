@@ -421,7 +421,7 @@
 			// Unselect node
 			node.state.selected = false;
 			if (!options.silent) {
-				this.$element.trigger('nodeUnselected', $.extend(true, {}, node), otherSelected);
+				this.$element.trigger('nodeUnselected', $.extend(true, {unselected:otherSelected!=true}, node), otherSelected);
 			}
 		}
 	};

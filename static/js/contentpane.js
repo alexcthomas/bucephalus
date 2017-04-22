@@ -29,8 +29,8 @@ var renderContentPane = function(views, tags) {
 	var viewdata, pagetags;
 	
 	if (views == undefined) {
-		viewdata = navData['Parent1'].views;
-	var pagetags = navData['Parent1'].tags
+		viewdata = navData['Root'].views;
+		pagetags = navData['Root'].tags
 	} else {
 		viewdata = views
 		pagetags = tags
