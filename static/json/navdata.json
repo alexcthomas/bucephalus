@@ -10,7 +10,7 @@
         "row": 1
       },
       {
-        "viewtype": "prices",
+        "viewtype": "price",
         "renderer": "highstock",
         "tags": {"datatype": "random_timeseries", "market": "Random"},
         "row": 2
@@ -47,24 +47,20 @@
     },
     "views": [
       {
-        "viewtype": "prices",
-        "renderer": "highcharts",
-        "tags": {"datatype": "solar"},
+        "viewtype": "price",
+        "renderer": "highstock",
+        "tags": {"datatype": "random_timeseries", "market": "Random"},
         "row": 1
       },
       {
-        "viewtype": "volatilities",
+        "viewtype": "volatility",
         "renderer": "highcharts",
+        "tags": {"datatype": "random_vol", "market": "Random"},
         "row": 1
       },
       {
         "viewtype": "explanation",
         "renderer": "html",
-        "row": 2
-      },
-      {
-        "viewtype": "curve",
-        "renderer": "highcharts",
         "row": 2
       }
     ]

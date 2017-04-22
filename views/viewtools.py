@@ -1,4 +1,5 @@
 import copy, pdb
+import pandas as pd
 
 def parse_tags(tags):
     "Parses tags passed un the url arguments"
@@ -49,6 +50,13 @@ def template_recurse(tmpl, tags):
 
 def encode_series(dates, data):
     return list(zip(dates.astype(int)/1000000, data))
+
+def encode_pandas_series(series):
+    ret = pd.Series(series.values, series.index.astype(int)/1000000)
+    return ret.reset_index().values
+
+def build_error(msg):
+    return {'error': msg.replace('\n','<br/>')}
 
 
 if __name__ == '__main__':

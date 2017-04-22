@@ -397,7 +397,7 @@
 		this.setSelectedState(node, !node.state.selected, options);
 	};
 
-	Tree.prototype.setSelectedState = function (node, state, options) {
+	Tree.prototype.setSelectedState = function (node, state, options, otherSelected) {
 
 		if (state === node.state.selected) return;
 
@@ -406,7 +406,7 @@
 			// If multiSelect false, unselect previously selected
 			if (!this.options.multiSelect) {
 				$.each(this.findNodes('true', 'g', 'state.selected'), $.proxy(function (index, node) {
-					this.setSelectedState(node, false, options);
+					this.setSelectedState(node, false, options, true);
 				}, this));
 			}
 
@@ -421,7 +421,7 @@
 			// Unselect node
 			node.state.selected = false;
 			if (!options.silent) {
-				this.$element.trigger('nodeUnselected', $.extend(true, {}, node));
+				this.$element.trigger('nodeUnselected', $.extend(true, {}, node), otherSelected);
 			}
 		}
 	};

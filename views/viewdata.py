@@ -1,6 +1,6 @@
-import numpy as np
+import numpy as np, pdb
 import pandas as pd
-from viewtools import encode_series
+from viewtools import encode_series, encode_pandas_series
 
 class ViewDataProvider(object):
     """
@@ -11,8 +11,10 @@ class ViewDataProvider(object):
     def get_view_data(self, tags, **kwargs):
 
         typ = tags.pop('datatype', None)
+
+        # Some views don't need data
         if typ is None:
-            raise RuntimeError('No datatype found')
+            return
 
         if typ == "solar":
             ret = [{
@@ -59,4 +61,26 @@ class ViewDataProvider(object):
                     }]
             return ret
 
+        if typ == "random_vol":
+            vals = np.random.randn(2000)
+            dates = pd.bdate_range('2000-01-01', periods=2000, freq='B')
+            ts = pd.Series(np.sqrt(pd.ewma(vals*vals,span=5)), dates)
+            ret = [{
+                        'name': 'Random',
+                        'data': encode_pandas_series(ts)
+                    }]
+            return ret
+
         raise RuntimeError('No data found for type {}'.format(typ))
+
+
+
+
+
+
+
+
+
+
+
+

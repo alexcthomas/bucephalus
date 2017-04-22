@@ -12,33 +12,36 @@ var buildTagString = function(tags){
 var renderView = function(target, info, tags) {
 	var alltags = Object.assign({}, tags, info.tags);
 	var rendererName = info.renderer;
-	var renderer = ViewRenderers.getRenderer(rendererName, target);
 	var extra = buildTagString(alltags);
-	var params = [{"name":"type","value":info.viewtype}].concat(extra);
+	var params = [{"name":"type", "value":info.viewtype}].concat(extra);
 	var url = "/view?" + $.param(params);
 	
-	$.getJSON(url, renderer);
+	$.getJSON(url, function(d) {
+		ViewRenderers.render(rendererName, target, d);
+	});
 };
 
 // figures out the content pane layout
 // and hands off the view rendering to renderView
-var renderContentPane = function(pageName) {
-	
-	if (pageName == undefined) {
-		var title = 'Parent1';
-	} else {
-		var title = pageName;
-	}
+var renderContentPane = function(views, tags) {
 	
 	var navData = $("#sidebar-nav").data("viewdata");
-	var data = navData[title].views;
+	var viewdata, pagetags;
+	
+	if (views == undefined) {
+		viewdata = navData['Parent1'].views;
+	var pagetags = navData['Parent1'].tags
+	} else {
+		viewdata = views
+		pagetags = tags
+	}
+	
 	var tgt = $("#page-content");
 	tgt.html('');
-	var pagetags = navData[title].tags
 	
 	var rows = {};
 	
-	$.each(data, function(i, item) {
+	$.each(viewdata, function(i, item) {
 		var viewTarget = $('<div/>');
 		if (rows[item.row]==undefined){
 			viewTarget.addClass("view_row_start");

@@ -1,3 +1,4 @@
+
 var ViewRenderers = {
 	
 	highchartsRenderer: function(target, data) {
@@ -14,18 +15,23 @@ var ViewRenderers = {
 	},
 
 	htmlRenderer: function(target, data) {
-		var a=1;
+		target.html(data.result);
 	},
 
 	tableRenderer: function(target, data) {
-		var a=1;
+		// not implemented
 	},
-	
-	getRenderer: function(rendererName, target){
+
+	errorRenderer: function(target, data) {
+		target.html(data.error);
+	},
+
+	render: function(rendererName, target, data) {
+		if ("error" in data){
+			rendererName = "error"
+		}
 		var renderer = this.renderers[rendererName];
-		return (function(data) {
-			renderer(target, data);
-		});
+		renderer(target, data);
 	}
 };
 
@@ -35,6 +41,7 @@ ViewRenderers.renderers = {
 	highstock: ViewRenderers.highstockRenderer,
 	img: ViewRenderers.imgRenderer,
 	html: ViewRenderers.htmlRenderer,
-	table: ViewRenderers.tableRenderer
+	table: ViewRenderers.tableRenderer,
+	error: ViewRenderers.errorRenderer
 };
 
