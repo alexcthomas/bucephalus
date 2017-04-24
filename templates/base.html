@@ -1,0 +1,44 @@
+{% extends "bootstrap/base.html" %}
+
+{% block title %}Highcharts{% endblock %}
+
+{% block head %}
+{{ super() }}
+<link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}" type="image/x-icon">
+<link rel="icon" href="{{ url_for('static', filename='img/favicon.ico') }}" type="image/x-icon">
+<link href="static/css/simple-sidebar.css" rel="stylesheet">
+<link href="static/css/main.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+
+<div id="wrapper" class="toggled">
+	<!-- Sidebar -->
+	<div id="sidebar-wrapper">
+		<div id="sidebar-header"></div>
+		<div id="sidebar-nav"></div>
+	</div>
+
+	<div class="page-content-wrapper">
+		<div class="container-fluid">
+		{% block page_content %}{% endblock %}
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+
+{% block scripts %}
+{{ super() }}
+<script src="https://code.highcharts.com/stock/highstock.js"></script>
+<script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
+<script type=text/javascript>
+$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+</script>
+<script>
+$("#menu-toggle").click(function(e) {
+	e.preventDefault();
+	$("#wrapper").toggleClass("toggled");
+});
+</script>
+{% endblock %}

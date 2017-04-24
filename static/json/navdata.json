@@ -1,0 +1,80 @@
+[
+  {
+    "text": "Root",
+    "tags": {},
+    "views": [
+      {
+        "viewtype": "basic_bar",
+        "renderer": "highcharts",
+        "tags": {"datatype": "univariate_random_bar"},
+        "row": 1
+      }
+    ]
+  },
+  {
+    "text": "Parent1",
+    "tags": {"level": "city"},
+    "views": [
+      {
+        "viewtype": "basic_line",
+        "renderer": "highcharts",
+        "tags": {"datatype": "solar"},
+        "row": 1
+      },
+      {
+        "viewtype": "price",
+        "renderer": "highstock",
+        "tags": {"datatype": "random_timeseries", "market": "Random"},
+        "row": 2
+      }
+    ],
+    "nodes": [
+      {
+        "text": "Child1",
+        "tags": {
+          "tag1": "value12",
+          "tag2": "value22"
+        },
+        "views": [
+          {
+            "viewtype": "parabola",
+            "renderer": "img",
+            "row": 1
+          },
+          {
+            "viewtype": "overview_distribution",
+            "tags": {"datatype": "univariate_random"},
+            "renderer": "img",
+            "row": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "text": "Parent2",
+    "tags": {
+      "tag1": "value11",
+      "tag2": "value21"
+    },
+    "views": [
+      {
+        "viewtype": "price",
+        "renderer": "highstock",
+        "tags": {"datatype": "random_timeseries", "market": "Random"},
+        "row": 1
+      },
+      {
+        "viewtype": "volatility",
+        "renderer": "highcharts",
+        "tags": {"datatype": "random_vol", "market": "Random"},
+        "row": 1
+      },
+      {
+        "viewtype": "explanation",
+        "renderer": "html",
+        "row": 2
+      }
+    ]
+  }
+]

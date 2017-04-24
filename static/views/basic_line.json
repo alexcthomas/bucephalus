@@ -1,0 +1,7 @@
+{
+	"plotOptions": {
+		"series": {
+			"animation": false
+		}
+	}
+}
