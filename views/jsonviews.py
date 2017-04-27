@@ -1,7 +1,7 @@
 import os, pdb, copy
 import ujson, yaml
-from baseviews import BaseViewBuilder
-from viewtools import dict_merge, template_recurse
+from views.baseviews import BaseViewBuilder
+from views.viewtools import dict_merge, template_recurse
 
 
 class JSONView(object):
@@ -62,7 +62,7 @@ class JSONView(object):
 
     def render_tags(self, tags):
         "Recursively apply given tags as template arguments"
-        tmpl_tags = {'{{'+k+'}}':v for k,v in tags.iteritems()}
+        tmpl_tags = {'{{'+k+'}}':v for k,v in tags.items()}
         tmpl = copy.deepcopy(self.view_def)
         return template_recurse(tmpl, tmpl_tags)
 
@@ -123,7 +123,7 @@ class JSONViewBuilder(BaseViewBuilder):
         return self.views_cache[name]
 
     def build_views(self):
-        for v in self.views_cache.itervalues():
+        for v in self.views_cache.values():
             v.build()
 
     def reload_views(self):

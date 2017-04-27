@@ -1,4 +1,4 @@
-from baseviews import BaseViewBuilder
+from views.baseviews import BaseViewBuilder
 
 class HTMLViewBuilder(BaseViewBuilder):
     """

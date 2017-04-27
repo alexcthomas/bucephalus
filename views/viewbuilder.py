@@ -2,11 +2,12 @@ import os, sys, pdb
 import traceback
 import ujson
 
-from viewtools import build_error
 
-from jsonviews import HighChartsViewBuilder
-from mplviews import MPLViewBuilder
-from htmlviews import HTMLViewBuilder
+sys.path.append(os.path.join(os.path.dirname(__file__),'../..'))
+from views.viewtools import build_error
+from views.jsonviews import HighChartsViewBuilder
+from views.mplviews import MPLViewBuilder
+from views.htmlviews import HTMLViewBuilder
 
 
 class ViewBuilder(object):
@@ -58,7 +59,9 @@ class ViewBuilder(object):
         except Exception:
             ex_type, ex, tb = sys.exc_info()
             msg = 'Error: {}\n'.format(ex)
-            msg += traceback.format_exc(tb)
+            # import pdb
+            # pdb.set_trace()
+            msg += traceback.format_exc()
             ret = build_error(msg)
 
         return ujson.dumps(ret)
