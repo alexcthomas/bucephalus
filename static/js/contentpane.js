@@ -1,9 +1,10 @@
 
+// builds the url for getting data
 var buildTagString = function(tags){
 	var ret = [];
 	
 	$.each(tags, function(i, item) {
-		ret.push({"name":"tags",  "value":i+":"+item});
+		ret.push({"name": "tags", "value": i+":"+item});
 	});
 	
 	return ret;
