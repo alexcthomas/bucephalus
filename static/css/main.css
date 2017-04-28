@@ -1,9 +1,13 @@
 
 div.view_row_start {
+	float: left;
+	clear: both;
+	margin: 5px;
 }
 
 div.view_row_cont {
-	float: right;
+	float: left;
+	margin: 5px;
 }
 
 #sidebar-header {

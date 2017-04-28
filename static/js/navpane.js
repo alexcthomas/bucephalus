@@ -63,7 +63,9 @@ var selectNode = function(tgt, levels) {
 			var node = nodes[i];
 			if (parentMatch(tree, node, levels)) {
 				tree.selectNode(node);
-				tree.expandNode(node.parentId);
+				if (node.parentId!=undefined) {
+					tree.expandNode(node.parentId);
+				}
 			}
 		}
 	}
@@ -118,7 +120,7 @@ var renderNavPane = function() {
 		//bind the data to the div element just in case
 		tgt.data("viewdata", viewdata);
 		
-		//select the node given by th url
+		//select the node given by the url
 		selectNode(tgt, currentUrl);
 	});
 };
