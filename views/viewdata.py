@@ -1,6 +1,9 @@
 import numpy as np, pdb
 import pandas as pd
 from views.viewtools import encode_series, encode_pandas_series
+from SimTools import SimulationStore
+import logging
+
 
 class ViewDataProvider(object):
     """
@@ -9,8 +12,9 @@ class ViewDataProvider(object):
     """
 
     def get_view_data(self, tags, **kwargs):
-
+        print(tags)
         typ = tags.pop('datatype', None)
+        asset = tags.pop('asset', None)
 
         # Some views don't need data
         if typ is None:
@@ -58,14 +62,14 @@ class ViewDataProvider(object):
                     }]
             return ret
 
-        if typ == "random_timeseries":
-            data = np.cumsum(np.random.randn(2000))
-            dates = pd.bdate_range('2000-01-01', periods=2000, freq='B')
-            ret = [{
-                        'name': 'Random',
-                        'data': encode_series(dates, data)
-                    }]
-            return ret
+        # if typ == "random_timeseries":
+        #     data = np.cumsum(np.random.randn(2000))
+        #     dates = pd.bdate_range('2000-01-01', periods=2000, freq='B')
+        #     ret = [{
+        #                 'name': 'Random',
+        #                 'data': encode_series(dates, data)
+        #             }]
+        #     return ret
 
         if typ == "random_vol":
             vals = np.random.randn(2000)
@@ -76,6 +80,29 @@ class ViewDataProvider(object):
                         'data': encode_pandas_series(ts)
                     }]
             return ret
+
+        if typ == "random_timeseries":
+            target = "Builder:tcp -h {} -p {} -t {}".format('localhost', 30125, 180000)
+            logging.info("Connecting to {}".format(target))
+            store = SimulationStore(target)
+
+            # Find the full simulation run Iain ran over the weekend
+            pegasusRuns = {s.token: s for s in store.runs['Pegasus']}
+            fullRun = pegasusRuns['[Parallelism.Pegasus:20170428T074848.775992,1]']
+
+            # Extract all the nodes from the simulation
+            logging.debug('Fetching node metadata...')
+
+            logging.info('Processing "{}"'.format(asset))
+
+            series = fullRun._loadData([asset + '.prices'])
+            dictKey = '{}.prices'.format(asset)
+            ret = [{
+                'name': '{}'.format(asset),
+                'data': encode_pandas_series(series[dictKey])
+            }]
+            return ret
+
 
         raise RuntimeError('No data found for type {}'.format(typ))
 
