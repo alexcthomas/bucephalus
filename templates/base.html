@@ -1,6 +1,6 @@
 {% extends "bootstrap/base.html" %}
 
-{% block title %}Highcharts{% endblock %}
+{% block title %}Simulation monitor{% endblock %}
 
 {% block head %}
 {{ super() }}
@@ -15,7 +15,15 @@
 <div id="wrapper" class="toggled">
 	<!-- Sidebar -->
 	<div id="sidebar-wrapper">
-		<div id="sidebar-header"></div>
+		<div id="sidebar-header">
+            <div id="simulation-dropdown" class="dropdown">
+                <button class="btn btn-default dropdown-toggle" data-toggle="dropdown" type="button" id="simulation-dropdown-btn">
+                    Simulation
+                </button>
+                <ul class="dropdown-menu" id="simulation-dropdown-items">
+                </ul>
+            </div>
+        </div>
 		<div id="sidebar-nav"></div>
 	</div>
 

@@ -69,7 +69,7 @@ var selectNode = function(tgt, levels) {
 			}
 		}
 	}
-}
+};
 
 // gets called when a tree node is selected
 var treeNodeSelect = function(event, node) {
@@ -78,7 +78,7 @@ var treeNodeSelect = function(event, node) {
 	var nodeLocation = getNodeLocation(node);
 	var nodeUrl = "?" + $.param(nodeLocation);
 	window.history.pushState("", "", nodeUrl);
-}
+};
 
 // gets called when a tree node is unselected
 var treeNodeUnSelect = function(event, node) {
@@ -90,11 +90,43 @@ var treeNodeUnSelect = function(event, node) {
 		renderContentPane();
 		window.history.pushState("", "", "/");
 	}
-}
+};
+
+var renderSimulationSelectorCallback = function(event) {
+	console.log(event.data.token);
+	$("#simulation-dropdown-btn").dropdown("toggle");
+    $("#simulation-dropdown-items").dropdown("toggle");
+};
+
+var renderSimulationSelector = function() {
+	var list = document.getElementById("simulation-dropdown-items");
+	$.getJSON('/get_tokens', function(items) {
+        $.each(items, function (i, v) {
+            var li = document.createElement("li");
+            var link = document.createElement("a");
+            var text = document.createTextNode(v);
+            list.appendChild(li);
+            link.href = "javascript:void(0);";
+			$(link).click({token: v}, renderSimulationSelectorCallback);
+            li.appendChild(link);
+            link.appendChild(text);
+        })
+    });
+
+	// Fix to allow the pop-up menu to float over the top of the surrounding elements
+    $('#simulation-dropdown-btn').click(function(e) {
+        $('#simulation-dropdown-items').css({
+            position: 'fixed',
+            display: 'block',
+            left: e.pageX,
+            top: e.pageY
+        })
+    });
+};
 
 // gets data to fill out the nav pane
 var renderNavPane = function() {
-	$.getJSON("/navdata", 
+	$.getJSON("/navdata",
 	function(data) {
 		var tgt = $("#sidebar-nav");
 		var viewdata = {};
