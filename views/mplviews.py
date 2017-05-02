@@ -27,7 +27,7 @@ class MPLViewBuilder(BaseViewBuilder):
         """
         This really needs the image size as an input
         """
-        name = str(uuid.uuid1()).replace('-','')
+        name = str(uuid.uuid1()).replace('-', '')
         ret = '/'.join([self.image_dir, name+'.png'])
 
         sns.set(style="white", palette="muted", color_codes=True)

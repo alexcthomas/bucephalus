@@ -51,7 +51,7 @@ def view():
     typ = args.pop('type')[0]
     argtags = args.pop('tags', [])
     tags = parse_tags(argtags)
-    kwargs = {k:v[0] for k,v in args.items()}
+    kwargs = {k: v[0] for k,v in args.items()}
     return view_defs.build_view(typ, tags, **kwargs)
 
 @app.route("/img/<path:path>")
@@ -60,10 +60,9 @@ def images(path):
     Returns an image, if created by a view.
     """
     fullpath = "./img/" + path
-    # resp = make_response(open(fullpath, 'r', encoding='utf-8', errors='ignore').read())
-    # pdb.set_trace()
-    # resp.content_type = "image/png"
-    return send_file(fullpath, mimetype='image/png')
+    resp = make_response(open(fullpath, 'rb').read())
+    resp.content_type = "image/jpeg"
+    return resp
 
 def reload_views_provider(path):
     """For reloading the views"""

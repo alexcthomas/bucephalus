@@ -2,9 +2,8 @@ import os, sys, pdb
 import traceback
 import ujson
 
-
-sys.path.append(os.path.join(os.path.dirname(__file__),'../..'))
 from views.viewtools import build_error
+
 from views.jsonviews import HighChartsViewBuilder
 from views.mplviews import MPLViewBuilder
 from views.htmlviews import HTMLViewBuilder
@@ -59,9 +58,7 @@ class ViewBuilder(object):
         except Exception:
             ex_type, ex, tb = sys.exc_info()
             msg = 'Error: {}\n'.format(ex)
-            # import pdb
-            # pdb.set_trace()
-            msg += traceback.format_exc()
+            msg += "\n".join(traceback.format_tb(tb))
             ret = build_error(msg)
 
         return ujson.dumps(ret)

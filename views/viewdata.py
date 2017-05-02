@@ -93,6 +93,7 @@ class ViewDataProvider(object):
             return ret
 
         if typ in ['prices', 'volatilities']:
+            print('Extracting data')
             series = self.sim._loadData([asset + '.' + typ])
             dictKey = '{}.prices'.format(asset)
             ret = [{
