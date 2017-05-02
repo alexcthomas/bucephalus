@@ -10,11 +10,22 @@ class ViewDataProvider(object):
     This class maps from tags to datasets
     Could be e.g. from a database
     """
+    def __init__(self):
+        target = "Builder:tcp -h {} -p {} -t {}".format('localhost', 30125, 180000)
+        logging.info("Connecting to {}".format(target))
+        store = SimulationStore(target)
+
+        # Find the full simulation run Iain ran over the weekend
+        pegasusRuns = {s.token: s for s in store.runs['Pegasus']}
+        self.sim = pegasusRuns['[Parallelism.Pegasus:20170428T074848.775992,1]']
+
 
     def get_view_data(self, tags, **kwargs):
-        print(tags)
+        # print(tags)
         typ = tags.pop('datatype', None)
         asset = tags.pop('asset', None)
+        print(typ, asset)
+        # pdb.set_trace()
 
         # Some views don't need data
         if typ is None:
@@ -81,21 +92,8 @@ class ViewDataProvider(object):
                     }]
             return ret
 
-        if typ == "random_timeseries":
-            target = "Builder:tcp -h {} -p {} -t {}".format('localhost', 30125, 180000)
-            logging.info("Connecting to {}".format(target))
-            store = SimulationStore(target)
-
-            # Find the full simulation run Iain ran over the weekend
-            pegasusRuns = {s.token: s for s in store.runs['Pegasus']}
-            fullRun = pegasusRuns['[Parallelism.Pegasus:20170428T074848.775992,1]']
-
-            # Extract all the nodes from the simulation
-            logging.debug('Fetching node metadata...')
-
-            logging.info('Processing "{}"'.format(asset))
-
-            series = fullRun._loadData([asset + '.prices'])
+        if typ in ['prices', 'volatilities']:
+            series = self.sim._loadData([asset + '.' + typ])
             dictKey = '{}.prices'.format(asset)
             ret = [{
                 'name': '{}'.format(asset),

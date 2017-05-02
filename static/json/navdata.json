@@ -52,7 +52,7 @@
     ]
   },
   {
-    "text": "Asset Performance",
+    "text": "British Pound",
     "tags": {
       "tag1": "value11",
       "tag2": "value21"
@@ -61,13 +61,13 @@
       {
         "viewtype": "price",
         "renderer": "highstock",
-        "tags": {"datatype": "random_timeseries", "market": "British Pound", "asset":"BPCC1"},
+        "tags": {"datatype": "prices", "market": "British Pound", "asset":"BPCC1"},
         "row": 1
       },
       {
         "viewtype": "volatility",
         "renderer": "highcharts",
-        "tags": {"datatype": "random_vol", "market": "Random"},
+        "tags": {"datatype": "volatilities", "market": "Random"},
         "row": 1
       },
       {
