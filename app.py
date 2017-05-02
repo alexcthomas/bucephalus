@@ -1,4 +1,5 @@
 import os, pdb
+import argparse
 from flask import Flask, render_template, request, make_response, send_file
 from flask_bootstrap import Bootstrap, WebCDN
 from views.viewbuilder import ViewBuilder
@@ -79,4 +80,9 @@ def reload_data_provider(path):
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+    parser = argparse.ArgumentParser(description='Bucephalus')
+    parser.add_argument('--port', type=int, default=5000)
+    parser.add_argument('--host', type=str, default="0.0.0.0")
+    params = parser.parse_args()
+
+    app.run(debug=True, host=params.host, port=params.port)
