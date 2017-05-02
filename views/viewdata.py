@@ -1,6 +1,8 @@
 import numpy as np, pdb
 import pandas as pd
+import datetime
 from views.viewtools import encode_series, encode_pandas_series
+from StrategyBuilder import SimLoader
 from SimTools import SimulationStore
 import logging
 
@@ -10,15 +12,19 @@ class ViewDataProvider(object):
     This class maps from tags to datasets
     Could be e.g. from a database
     """
-    def __init__(self):
-        target = "Builder:tcp -h {} -p {} -t {}".format('localhost', 30125, 180000)
-        logging.info("Connecting to {}".format(target))
-        store = SimulationStore(target)
+    def __init__(self, server):
+        logging.info("Connecting to {}".format(server))
+        self._loader = SimLoader(server)
 
-        # Find the full simulation run Iain ran over the weekend
-        pegasusRuns = {s.token: s for s in store.runs['Pegasus']}
-        self.sim = pegasusRuns['[Parallelism.Pegasus:20170428T074848.775992,1]']
+        # Default to the latest token retrieved
+        self._token = self.get_tokens()[0]
 
+    def get_tokens(self):
+        tokens = self._loader.getRunTokens(datetime.datetime(1990, 1, 1), datetime.datetime.utcnow())
+        return [t[0] for t in sorted(tokens, key=lambda x: x[1], reverse=True)]
+
+    def set_token(self, token):
+        self._token = token
 
     def get_view_data(self, tags, **kwargs):
         print(tags)

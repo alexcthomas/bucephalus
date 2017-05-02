@@ -58,22 +58,3 @@ def encode_pandas_series(series):
 def build_error(msg):
     return {'error': msg.replace('\n','<br/>')}
 
-
-if __name__ == '__main__':
-
-
-    a = {'a': {'aa': 1,'ab': [2],'ac': {'aca': 3,'acb': 'd'}},
-         'b': 4,
-         'c': 'f'}
-
-    b = {'a': {'ac': {'bca': 5}},
-         'b': 6}
-
-    result = dict_merge([a, b])
-    print(result)
-#    pdb.set_trace()
-
-    tags = {'{{asset}}':'adcc'}
-
-    print(template_recurse({'a':'{{asset}} Name'}, tags))
-    print(template_recurse({'a':['{{asset}} Name',{'b': '{{asset}} Vol','c':4}]}, tags))

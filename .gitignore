@@ -1,0 +1,9 @@
+venv/*
+img/*
+*.pyc
+*.pyo
+app.db
+search.db
+flask
+*.mo
+
