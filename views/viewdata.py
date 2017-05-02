@@ -21,9 +21,10 @@ class ViewDataProvider(object):
 
 
     def get_view_data(self, tags, **kwargs):
-        # print(tags)
+        print(tags)
         typ = tags.pop('datatype', None)
         asset = tags.pop('asset', None)
+
         print(typ, asset)
         # pdb.set_trace()
 
@@ -73,14 +74,14 @@ class ViewDataProvider(object):
                     }]
             return ret
 
-        # if typ == "random_timeseries":
-        #     data = np.cumsum(np.random.randn(2000))
-        #     dates = pd.bdate_range('2000-01-01', periods=2000, freq='B')
-        #     ret = [{
-        #                 'name': 'Random',
-        #                 'data': encode_series(dates, data)
-        #             }]
-        #     return ret
+        if typ == "random_timeseries":
+            data = np.cumsum(np.random.randn(2000))
+            dates = pd.bdate_range('2000-01-01', periods=2000, freq='B')
+            ret = [{
+                        'name': 'Random',
+                        'data': encode_series(dates, data)
+                    }]
+            return ret
 
         if typ == "random_vol":
             vals = np.random.randn(2000)
@@ -92,8 +93,10 @@ class ViewDataProvider(object):
                     }]
             return ret
 
+        # if typ == 'random_timeseries':
         if typ in ['prices', 'volatilities']:
             series = self.sim._loadData([asset + '.' + typ])
+            # series = self.sim._loadData([asset + '.prices'])
             dictKey = '{}.prices'.format(asset)
             ret = [{
                 'name': '{}'.format(asset),

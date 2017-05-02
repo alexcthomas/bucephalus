@@ -37,6 +37,7 @@ def get_nav_data():
     Returns data for building the nav pane contents
     These won't necessarily always be static
     """
+    # pdb.set_trace()
     return app.send_static_file(r'json/navdata.json')
 
 # return the individual view data
@@ -60,7 +61,6 @@ def images(path):
     """
     fullpath = "./img/" + path
     # resp = make_response(open(fullpath, 'r', encoding='utf-8', errors='ignore').read())
-    # pdb.set_trace()
     # resp.content_type = "image/png"
     return send_file(fullpath, mimetype='image/png')
 
@@ -79,4 +79,4 @@ def reload_data_provider(path):
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+    app.run(debug=True, host='0.0.0.0', port=5000)
