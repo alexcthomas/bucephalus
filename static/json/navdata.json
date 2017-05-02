@@ -52,7 +52,7 @@
     ]
   },
   {
-    "text": "Parent2",
+    "text": "Asset Performance",
     "tags": {
       "tag1": "value11",
       "tag2": "value21"
@@ -61,7 +61,7 @@
       {
         "viewtype": "price",
         "renderer": "highstock",
-        "tags": {"datatype": "random_timeseries", "market": "Random"},
+        "tags": {"datatype": "random_timeseries", "market": "British Pound", "asset":"BPCC1"},
         "row": 1
       },
       {
