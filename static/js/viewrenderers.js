@@ -2,7 +2,8 @@
 var ViewRenderers = {
 	
 	highchartsRenderer: function(target, data) {
-		target.highcharts(data);
+		Highcharts.chart(target[0], data);
+		
 	},
 	
 	highstockRenderer: function(target, data) {

@@ -63,6 +63,16 @@ class ViewDataProvider(object):
 
         raise RuntimeError('No data found for type {}'.format(typ))
 
+    def load_series(self, series_list, callback):
+        """
+        Loads multiple data series from the database, calling callback(name, series) for each one
+        :param series_list: a list of strings - the names of the series to load
+        :param callback: a function that will be called callback(name, series) once for each series
+        :return: None
+        """
+        logging.debug('Calling getRunData: %s', series_list)
+        self._loader.getRunData(self._token, series_list, callback)
+
     # Create a list of all instruments in simulations using the price data
     def get_instruments(self):
         meta_obj = self._loader.getRunMeta(self._token)

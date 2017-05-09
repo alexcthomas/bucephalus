@@ -142,6 +142,6 @@ class HighChartsViewBuilder(JSONViewBuilder):
     def build_view(self, viewname, tags, data):
         view = self.views_cache[viewname]
         ret = view.render_tags(tags)
-        ret['series'] = data
+        ret['series'] = data.keys()
         return ret
 

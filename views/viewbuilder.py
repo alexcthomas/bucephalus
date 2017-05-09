@@ -1,13 +1,19 @@
 import os, sys, pdb
 import traceback
+import threading
+import logging
 import ujson
 
+from collections import defaultdict
 from views.viewtools import build_error
 
 from views.jsonviews import HighChartsViewBuilder
 from views.mplviews import MPLViewBuilder
 from views.htmlviews import HTMLViewBuilder
 
+def get_series(graph):
+    logging.debug('get_series on %s', graph)
+    return [s.strip() for s in graph['tags']['series'].split(',')]
 
 class ViewBuilder(object):
     """
@@ -61,39 +67,61 @@ class ViewBuilder(object):
 
         return ujson.dumps(ret)
 
-    def build_views(self, jsonlist):
+    def build_views(self, jsonlist, result_queue):
+        # Extract all the series names so we can query them in one go.  Build a map so we can
+        # jump between a series name and the definitions that it enables.
+        last_series_for_graph = defaultdict(list)
         all_series = []
+        encountered_series = set()
+        send_to_client = set()
         for category in jsonlist:
             for graph in category:
-                all_series.append(graph['tags']['series'])
+                # Series is either a single name or a comma-separated sequence of names
+                # Ensure names are in graph order, but each only appears once
+                viewtype = graph['viewtype']
+                for s in get_series(graph):
+                    if self.views[viewtype].requires_client_data():
+                        send_to_client.add(s)
+                    if s in encountered_series:
+                        continue
+                    encountered_series.add(s)
+                    all_series.append(s)
+
+                # At the point we receive the last item added we know we have all the data we require
+                last_series_for_graph[all_series[-1]].append(graph)
 
         if len(all_series) == 0:
-            return ujson.dumps(build_error("Empty data"))
+            return ujson.dumps(build_error("No series were requested"))
 
-        new_tag = {'datatype': 'series', 'series': all_series}
-        ret = []
-        try:
-            dataForGraphs = self.dataprovider.get_view_data(new_tag)
-            for data in dataForGraphs:
-                market = data['name'].split('.')[0]
-                market = market.split('Position')[0]
-                viewname = data['name'].split('.')[1]
-                viewname = 'price' if viewname == 'prices' else viewname
-                tags = {'datatype': viewname, 'series': data['name'], 'market': market}
-                ret.append({data['name']: self.views[viewname].build_view(viewname, tags, [data])})
-        except Exception:
-            ex_type, ex, tb = sys.exc_info()
-            msg = 'Error: {}\n'.format(ex)
-            msg += "\n".join(traceback.format_tb(tb))
-            ret = build_error(msg)
+        # Generate the metadata for the graphs - the layout type etc.  This runs in a callback in a different thread
+        loaded_results = {}
 
-        return ujson.dumps(ret)
+        def callback(series, data, currentIndex, maxIndex):
+            logging.debug('Callback for {}: {}/{}'.format(series, currentIndex, maxIndex))
+            try:
+                # Send the result block if anyone needs it
+                if series in send_to_client:
+                    result_queue.put({'category': 'data', 'series': series, 'data': data})
+                loaded_results[series] = data
 
-        # Extract all the series names from the JSON, building an array suitable for sending
-        # to the SimLoader.
+                # Determine which graphs can be built (as we've received all the necessary data)
+                for graph in last_series_for_graph[series]:
+                    logging.debug('Graph definition: %s', graph)
+                    viewtype = graph['viewtype']
+                    tags = graph['tags']
+                    data = {s: loaded_results[s] for s in get_series(graph)}
+                    result_queue.put({'category': 'graph', 'result': self.views[viewtype].build_view(viewtype, tags, data)})
+            except Exception:
+                ex_type, ex, tb = sys.exc_info()
+                logging.error('Error in callback: {}\n{}'.format(ex, "\n".join(traceback.format_tb(tb))))
 
-        # Return a dictionary with each location:
-        # { 0: ..., 1: ...} - this can then be unpacked on the client side
+        # We query for results in a different thread so we can return results in this one
+        def worker():
+            self.dataprovider.load_series(all_series, callback)
+            result_queue.put(None)      # Used to mark the end of the data
+        worker_thread = threading.Thread(target=worker)
+        worker_thread.start()
+        return worker_thread
 
     def set_data_provider(self, provider):
         self.dataprovider = provider

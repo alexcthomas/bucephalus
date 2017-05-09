@@ -39,3 +39,6 @@ class MPLViewBuilder(BaseViewBuilder):
         sns.distplot(data, color="m")
         f.savefig(ret)
         return ret
+
+    def requires_client_data(self):
+        return False

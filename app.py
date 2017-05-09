@@ -1,7 +1,12 @@
 import os, pdb
 import argparse
 import json
-from flask import Flask, render_template, request, make_response, send_file, jsonify
+import sys
+import traceback
+import logging
+import ujson
+from queue import Queue
+from flask import Flask, render_template, request, make_response, send_file, jsonify, Response
 from flask_bootstrap import Bootstrap, WebCDN
 from views.viewbuilder import ViewBuilder
 from views.viewdata import ViewDataProvider
@@ -114,7 +119,30 @@ def view():
 
 @app.route('/views', methods=['POST'])
 def views():
-    return view_defs.build_views(request.json)
+    result_queue = Queue()
+
+    # This function does not block until the results are all back
+    worker_thread = view_defs.build_views(request.json, result_queue)
+
+    # Flask can send results back piecemeal, but it needs a generator to do this.  We block on the callback
+    # here by waiting on the result_queue.
+    def result_generator():
+        try:
+            while True:
+                result = result_queue.get(block=True)
+                if not result:
+                    break
+                partial_result = ujson.dumps(result)
+                logging.debug('Partial result: %s', partial_result)
+                yield(partial_result + ';')     # TODO Copies whole string - are two yield() commands better?
+            logging.debug('Waiting for worker thread')
+            worker_thread.join()
+            logging.debug('Call completed')
+        except Exception:
+            ex_type, ex, tb = sys.exc_info()
+            logging.error('Error in result_generator: {}\n{}'.format(ex, "\n".join(traceback.format_tb(tb))))
+
+    return app.response_class(result_generator(), mimetype='text/plain')
 
 @app.route("/img/<path:path>")
 def images(path):
