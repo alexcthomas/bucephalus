@@ -4,8 +4,8 @@ def buildPage(title, views, tags=None, nodes=None):
     return ret
 
 
-def buildViews(viewtype, renderer, tag, row):
-    ret = {"viewtype": viewtype, "renderer": renderer, "tags": tag, "row": row}
+def buildViews(viewtype, tag, row):
+    ret = {"viewtype": viewtype, "tags": tag, "row": row}
     return ret
 
 

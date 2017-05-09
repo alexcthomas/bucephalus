@@ -31,8 +31,7 @@ var ViewRenderers = {
 		if ("error" in data){
 			rendererName = "error"
 		}
-		var renderer = this.renderers[rendererName];
-		renderer(target, data);
+		this.renderers[rendererName](target, data);
 	}
 };
 

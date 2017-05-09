@@ -59,13 +59,12 @@ def get_nav_data():
 
     # Build home page
     tags = buildTags("univariate_random_bar")
-    views = buildViews("basic_bar", "highcharts", tags, 1)
+    views = buildViews("basic_bar", tags, 1)
     page = buildPage("Root", [views])
     data.append(page)
 
     # Build a page of one price chart and one vol chart for each instrument
     price_names, vol_names = data_provider.get_instruments()
-    # prev_price = vol_names[0]
 
     i, views = 0, []
     while i < len(price_names):
@@ -76,13 +75,11 @@ def get_nav_data():
             continue
 
         price_tags = buildTags("price", series=item + '.prices', market=item)
-        views.append(buildViews("price", "highstock", price_tags, 1))
+        views.append(buildViews("price", price_tags, 1))
 
         if i+1 < len(price_names) and item[:3] == price_names[i+1][:3]:
-            # pdb.set_trace()
             i += 1
             continue
-
 
         # Find all volume data for the same instrument
         for vol_item in vol_names:
@@ -90,9 +87,8 @@ def get_nav_data():
                 continue
             elif vol_item.startswith(item[:3]):
                 vol_tags = buildTags("volatility", series=vol_item+'.volatility', market=vol_item.split('Position')[0])
-                views.append(buildViews("volatility", "highcharts", vol_tags, 2))
+                views.append(buildViews("overview_distribution", vol_tags, 2))
 
-        # pdb.set_trace()
         # Build the page in json
         page = buildPage(item[:3], views)
         data.append(page)
@@ -100,21 +96,6 @@ def get_nav_data():
         i += 1
 
     return jsonify(data)
-    # return app.send_static_file(r'json/navdata.json')
-
-# return the individual view data
-@app.route('/view', methods=['GET'])
-def view():
-    """
-    Returns a json response containing instructions for
-    the javascript to render a single pane
-    """
-    args = dict(request.args)
-    typ = args.pop('type')[0]
-    argtags = args.pop('tags', [])
-    tags = parse_tags(argtags)
-    kwargs = {k: v[0] for k, v in args.items()}
-    return view_defs.build_view(typ, tags, **kwargs)
 
 
 @app.route('/views', methods=['POST'])
@@ -133,8 +114,8 @@ def views():
                 if not result:
                     break
                 partial_result = ujson.dumps(result)
-                logging.debug('Partial result: %s', partial_result)
-                yield(partial_result + ';')     # TODO Copies whole string - are two yield() commands better?
+                yield(partial_result)
+                yield(';')
             logging.debug('Waiting for worker thread')
             worker_thread.join()
             logging.debug('Call completed')
@@ -143,6 +124,7 @@ def views():
             logging.error('Error in result_generator: {}\n{}'.format(ex, "\n".join(traceback.format_tb(tb))))
 
     return app.response_class(result_generator(), mimetype='text/plain')
+
 
 @app.route("/img/<path:path>")
 def images(path):

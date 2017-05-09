@@ -16,7 +16,7 @@ var renderView = function(target, info, definition, seriesNameToData) {
 		data.push({name: series, data: seriesNameToData[series]});
 	});
 	definition.series = data;
- 	ViewRenderers.render(info.renderer, target, definition);
+ 	ViewRenderers.render(definition.renderer, target, definition);
 
 };
 
@@ -70,7 +70,7 @@ var renderContentPane = function(views, tags)
 	// require a data source S then we only send S once.)
 	// Guarantees/warnings:
 	// 1. We will not encounter any graph block until we have received the data it depends on
-	// 2. Graph blocks may be returned in any order
+	// 2. Graph blocks will be received in order specified
 	// 3. Note that server-side graphs (e.g. matplotlib) would not have associated data blocks
 	var lastProcessedIdx = 0, viewContainersIdx = 0;
 	var dataBlocks = {};

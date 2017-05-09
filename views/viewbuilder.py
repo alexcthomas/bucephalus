@@ -21,7 +21,7 @@ class ViewBuilder(object):
     can do things like auto-rebuild when files change
     """
     def __init__(self, dataprovider):
-        jsonpath = os.path.realpath(os.path.join('static','views'))
+        jsonpath = os.path.realpath(os.path.join('static', 'views'))
 
         self.viewproviders = [HighChartsViewBuilder(jsonpath),
                                 MPLViewBuilder(),
@@ -43,29 +43,8 @@ class ViewBuilder(object):
         self.views = {}
         for vp in self.viewproviders:
             for v in vp.list_views():
+                logging.debug('View provider [%s] -> %s', v, vp)
                 self.views[v] = vp
-
-    def build_view(self, viewname, tags, **kwargs):
-        """
-        uses tags to look up data
-        then combines that with the view definition
-        """
-
-        if viewname not in self.views:
-            msg = 'View {} not found'.format(viewname)
-            return ujson.dumps(build_error(msg))
-
-        try:
-
-            data = self.dataprovider.get_view_data(tags, **kwargs)
-            ret = self.views[viewname].build_view(viewname, tags, data, **kwargs)
-        except Exception:
-            ex_type, ex, tb = sys.exc_info()
-            msg = 'Error: {}\n'.format(ex)
-            msg += "\n".join(traceback.format_tb(tb))
-            ret = build_error(msg)
-
-        return ujson.dumps(ret)
 
     def build_views(self, jsonlist, result_queue):
         # Extract all the series names so we can query them in one go.  Build a map so we can
@@ -104,13 +83,19 @@ class ViewBuilder(object):
                     result_queue.put({'category': 'data', 'series': series, 'data': data})
                 loaded_results[series] = data
 
-                # Determine which graphs can be built (as we've received all the necessary data)
+                # Determine which graphs can be built (as we've received all the necessary data).  Note
+                # that viewtype below is "volatility" or "prices" - a high-level description, rather than
+                # a specific renderer (i.e. not "highcharts" or similar)
                 for graph in last_series_for_graph[series]:
                     logging.debug('Graph definition: %s', graph)
                     viewtype = graph['viewtype']
                     tags = graph['tags']
                     data = {s: loaded_results[s] for s in get_series(graph)}
-                    result_queue.put({'category': 'graph', 'result': self.views[viewtype].build_view(viewtype, tags, data)})
+                    viewGenerator = self.views.get(viewtype)
+                    if not viewGenerator:
+                        raise RuntimeError('Unknown viewtype "{}" - valid options are: {}'.format(viewtype,
+                            ", ".join(self.views.keys())))
+                    result_queue.put({'category': 'graph', 'result': viewGenerator.build_view(viewtype, tags, data)})
             except Exception:
                 ex_type, ex, tb = sys.exc_info()
                 logging.error('Error in callback: {}\n{}'.format(ex, "\n".join(traceback.format_tb(tb))))
