@@ -11,6 +11,8 @@
       }
     ]
   },
+  
+  
   {
     "text": "Parent1",
     "tags": {"level": "city"},
@@ -28,6 +30,7 @@
         "row": 2
       }
     ],
+    
     "nodes": [
       {
         "text": "Child1",
@@ -51,6 +54,8 @@
       }
     ]
   },
+  
+  
   {
     "text": "British Pound",
     "tags": {
@@ -61,13 +66,13 @@
       {
         "viewtype": "price",
         "renderer": "highstock",
-        "tags": {"datatype": "prices", "market": "British Pound", "asset":"BPCC1"},
+        "tags": {"datatype": "prices", "series": "ADCC1.prices, BPCC1.prices"},
         "row": 1
       },
       {
         "viewtype": "volatility",
         "renderer": "highcharts",
-        "tags": {"datatype": "volatilities", "market": "Random"},
+        "tags": {"datatype": "volatility", "series": "ADCC1PositionVol.volatility, BPCC1PositionVol.volatility"},
         "row": 1
       },
       {

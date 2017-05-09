@@ -1,11 +1,13 @@
 import os, pdb
 import argparse
 import json
-from flask import Flask, render_template, request, make_response, send_file
+from flask import Flask, render_template, request, make_response, send_file, jsonify
 from flask_bootstrap import Bootstrap, WebCDN
 from views.viewbuilder import ViewBuilder
 from views.viewdata import ViewDataProvider
 from views.viewtools import parse_tags
+from views.jsonbuilder import *
+from StrategyBuilder import SimLoader
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -13,7 +15,7 @@ app = Flask(__name__)
 
 bootstrap = Bootstrap(app)
 
-data_provider, view_defs = None, None
+# data_provider, view_defs = None, None
 
 # use jQuery3 instead of jQuery 1 shipped with Flask-Bootstrap
 app.extensions['bootstrap']['cdns']['jquery'] = WebCDN('//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.0/')
@@ -48,8 +50,52 @@ def get_nav_data():
     Returns data for building the nav pane contents
     These won't necessarily always be static
     """
-    # pdb.set_trace()
-    return app.send_static_file(r'json/navdata.json')
+    data = []
+
+    # Build home page
+    tags = buildTags("univariate_random_bar")
+    views = buildViews("basic_bar", "highcharts", tags, 1)
+    page = buildPage("Root", [views])
+    data.append(page)
+
+    # Build a page of one price chart and one vol chart for each instrument
+    price_names, vol_names = data_provider.get_instruments()
+    # prev_price = vol_names[0]
+
+    i, views = 0, []
+    while i < len(price_names):
+        item = price_names[i]
+
+        if item.startswith("Spread"):
+            i += 1
+            continue
+
+        price_tags = buildTags("price", series=item + '.prices', market=item)
+        views.append(buildViews("price", "highstock", price_tags, 1))
+
+        if i+1 < len(price_names) and item[:3] == price_names[i+1][:3]:
+            # pdb.set_trace()
+            i += 1
+            continue
+
+
+        # Find all volume data for the same instrument
+        for vol_item in vol_names:
+            if vol_item.startswith("Spread"):
+                continue
+            elif vol_item.startswith(item[:3]):
+                vol_tags = buildTags("volatility", series=vol_item+'.volatility', market=vol_item.split('Position')[0])
+                views.append(buildViews("volatility", "highcharts", vol_tags, 2))
+
+        # pdb.set_trace()
+        # Build the page in json
+        page = buildPage(item[:3], views)
+        data.append(page)
+        views = []
+        i += 1
+
+    return jsonify(data)
+    # return app.send_static_file(r'json/navdata.json')
 
 # return the individual view data
 @app.route('/view', methods=['GET'])
@@ -62,8 +108,13 @@ def view():
     typ = args.pop('type')[0]
     argtags = args.pop('tags', [])
     tags = parse_tags(argtags)
-    kwargs = {k: v[0] for k,v in args.items()}
+    kwargs = {k: v[0] for k, v in args.items()}
     return view_defs.build_view(typ, tags, **kwargs)
+
+
+@app.route('/views', methods=['POST'])
+def views():
+    return view_defs.build_views(request.json)
 
 @app.route("/img/<path:path>")
 def images(path):
@@ -90,5 +141,4 @@ if __name__ == '__main__':
     global data_provider, view_defs
     data_provider = ViewDataProvider(params.server)
     view_defs = ViewBuilder(data_provider)
-
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host=params.host, port=params.port)

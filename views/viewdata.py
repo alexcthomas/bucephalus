@@ -8,6 +8,7 @@ import logging
 
 
 class ViewDataProvider(object):
+    logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s', level=logging.DEBUG)
     """
     This class maps from tags to datasets
     Could be e.g. from a database
@@ -17,7 +18,10 @@ class ViewDataProvider(object):
         self._loader = SimLoader(server)
 
         # Default to the latest token retrieved
-        self._token = self.get_tokens()[0]
+        # self._token = self.get_tokens()[0]
+
+        # Use the token with volatility data
+        self._token = '[Parallelism.Pegasus-NoCross:20170504T100847.816352,1]'
 
     def get_tokens(self):
         tokens = self._loader.getRunTokens(datetime.datetime(1990, 1, 1), datetime.datetime.utcnow())
@@ -27,51 +31,11 @@ class ViewDataProvider(object):
         self._token = token
 
     def get_view_data(self, tags, **kwargs):
-        print(tags)
         typ = tags.pop('datatype', None)
-        asset = tags.pop('asset', None)
-
-        print(typ, asset)
-        # pdb.set_trace()
 
         # Some views don't need data
         if typ is None:
             return
-
-        if typ == "solar":
-            ret = [{
-                        'name': 'Installation',
-                        'data': [43934, 52503, 57177, 69658, 97031, 119931, 137133, 154175]
-                    }, {
-                        'name': 'Manufacturing',
-                        'data': [24916, 24064, 29742, 29851, 32490, 30282, 38121, 40434]
-                    }, {
-                        'name': 'Sales & Distribution',
-                        'data': [11744, 17722, 16005, 19771, 20185, 24377, 32147, 39387]
-                    }, {
-                        'name': 'Project Development',
-                        'data': [None, None, 7988, 12169, 15112, 22452, 34400, 34227]
-                    }, {
-                        'name': 'Other',
-                        'data': [12908, 5948, 8105, 11248, 8989, 11816, 18274, 18111]
-                    }]
-            return ret
-
-        if typ == "population":
-            ret = [{
-                        'name': 'Year 1800',
-                        'data': [107, 31, 635, 203, 2]
-                    }, {
-                        'name': 'Year 1900',
-                        'data': [133, 156, 947, 408, 6]
-                    }, {
-                        'name': 'Year 2012',
-                        'data': [1052, 954, 4250, 740, 38]
-                    }]
-            return ret
-
-        if typ == "univariate_random":
-            return np.random.randn(200)
 
         if typ == "univariate_random_bar":
             ret = [{
@@ -80,47 +44,32 @@ class ViewDataProvider(object):
                     }]
             return ret
 
-        if typ == "random_timeseries":
-            data = np.cumsum(np.random.randn(2000))
-            dates = pd.bdate_range('2000-01-01', periods=2000, freq='B')
-            ret = [{
-                        'name': 'Random',
-                        'data': encode_series(dates, data)
-                    }]
-            return ret
+        if typ in ['series']: # 'price', 'volatility',
+            # series = [s.strip(' ') for s in names.split(',')]
+            # series = [s.strip(' ') for s in tags.pop('series', []).split(',')]
+            series = tags.pop('series')
+            series = series if isinstance(series, list) else [series]
+            logging.debug('Query for series: %s', " and ".join(series))
 
-        if typ == "random_vol":
-            vals = np.random.randn(2000)
-            dates = pd.bdate_range('2000-01-01', periods=2000, freq='B')
-            ts = pd.Series(np.sqrt(pd.ewma(vals*vals,span=5)), dates)
-            ret = [{
-                        'name': 'Random',
-                        'data': encode_pandas_series(ts)
-                    }]
-            return ret
-
-        # if typ == 'random_timeseries':
-        if typ in ['prices', 'volatilities']:
-            series = self.sim._loadData([asset + '.' + typ])
-            # series = self.sim._loadData([asset + '.prices'])
-            dictKey = '{}.prices'.format(asset)
-            ret = [{
-                'name': '{}'.format(asset),
-                'data': encode_pandas_series(series[dictKey])
-            }]
-            return ret
-
+            data = self._loader.getRunData(self._token, series)
+            logging.debug('Data loader - post-processing')
+            results = []
+            for k, v in data.items():
+                dates, value = zip(*v)
+                s = pd.Series(value, index=dates)
+                results.append({'name': k, 'data': encode_pandas_series(s)})
+            logging.debug('Returning results')
+            return results
 
         raise RuntimeError('No data found for type {}'.format(typ))
 
+    # Create a list of all instruments in simulations using the price data
+    def get_instruments(self):
+        meta_obj = self._loader.getRunMeta(self._token)
+        price_obj = meta_obj.match({'category': 'asset'})
+        vol_obj = meta_obj.match({'category': 'volatility'})
 
-
-
-
-
-
-
-
-
-
-
+        price_keys = sorted(price_obj.nodes.keys())
+        vol_keys = sorted(vol_obj.nodes.keys())
+        # pdb.set_trace()
+        return price_keys, vol_keys

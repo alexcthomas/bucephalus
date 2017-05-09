@@ -10,16 +10,18 @@ var buildTagString = function(tags){
 	return ret;
 }
 
-var renderView = function(target, info, tags) {
+var renderView = function(target, info, tags, seriesNameToData) {
 	var alltags = Object.assign({}, tags, info.tags);
-	var rendererName = info.renderer;
-	var extra = buildTagString(alltags);
-	var params = [{"name":"type", "value":info.viewtype}].concat(extra);
-	var url = "/view?" + $.param(params);
+// 	var rendererName = info.renderer;
+// 	var extra = buildTagString(alltags);
+// 	var params = [{"name":"type", "value":info.viewtype}].concat(extra);
+// 	var url = "/view?" + $.param(params);
 	
-	$.getJSON(url, function(d) {
-		ViewRenderers.render(rendererName, target, d);
-	});
+// 	$.getJSON(url, function(d) {
+// 		ViewRenderers.render(rendererName, target, d);
+// 	});
+	var data = seriesNameToData[alltags['series']]; 
+	ViewRenderers.render(info.renderer, target, data);
 };
 
 var createPanel = function(width) {
@@ -61,13 +63,32 @@ var renderContentPane = function(views, tags) {
 		viewdata = views
 		pagetags = tags
 	}
+
+	var rows = getViewRows(viewdata);
 	
+	// Send the JSON to the server in one block so we can do all the queries in one go
+	$.ajax({type: 'POST',
+		url: '/views',
+		data: JSON.stringify(rows),
+		contentType: 'application/json; charset=utf-8',
+		dataType: 'json',
+		success: function(response) {
+			var seriesNameToData = {};
+			for(i = 0; i < response.length; i++) {
+				key = Object.keys(response[i])[0];
+				seriesNameToData[key] = Object.values(response[i])[0];
+			}
+			createViews(seriesNameToData, rows, pagetags);
+		}
+	});
+};
+
+var createViews = function(seriesNameToData,rows, pagetags) {
 	var tgt = $("#page-content");
 	tgt.html('');
 	
 	var width = tgt.width();
-	var rows = getViewRows(viewdata);
-
+	
 	$.each(rows, function(i, row) {
 		var nviews = row.length;
 		if (nviews!=0) {
@@ -81,11 +102,11 @@ var renderContentPane = function(views, tags) {
 					viewTarget.addClass("view_row_cont");
 				}
 				tgt.append(viewTarget);
-				renderView(viewTarget, view, pagetags, viewWidth)
+				renderView(viewTarget, view, pagetags, seriesNameToData);
 			});
 		}
 	});
-};
+}
 
 
 
