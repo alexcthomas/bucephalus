@@ -30,40 +30,7 @@ class ViewDataProvider(object):
     def set_token(self, token):
         self._token = token
 
-    def get_view_data(self, tags, **kwargs):
-        typ = tags.pop('datatype', None)
-
-        # Some views don't need data
-        if typ is None:
-            return
-
-        if typ == "univariate_random_bar":
-            ret = [{
-                        'name': 'Random',
-                        'data': np.random.randn(100)
-                    }]
-            return ret
-
-        if typ in ['series']: # 'price', 'volatility',
-            # series = [s.strip(' ') for s in names.split(',')]
-            # series = [s.strip(' ') for s in tags.pop('series', []).split(',')]
-            series = tags.pop('series')
-            series = series if isinstance(series, list) else [series]
-            logging.debug('Query for series: %s', " and ".join(series))
-
-            data = self._loader.getRunData(self._token, series)
-            logging.debug('Data loader - post-processing')
-            results = []
-            for k, v in data.items():
-                dates, value = zip(*v)
-                s = pd.Series(value, index=dates)
-                results.append({'name': k, 'data': encode_pandas_series(s)})
-            logging.debug('Returning results')
-            return results
-
-        raise RuntimeError('No data found for type {}'.format(typ))
-
-    def load_series(self, series_list, callback):
+    def get_view_data(self, series_list, callback):
         """
         Loads multiple data series from the database, calling callback(name, series) for each one
         :param series_list: a list of strings - the names of the series to load

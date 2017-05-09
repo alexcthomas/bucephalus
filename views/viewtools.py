@@ -33,10 +33,12 @@ def dict_merge(dcts):
     return ret
 
 def template_recurse(tmpl, tags):
-    "Recursively applies string templating to a dict or list"
+    """
+    Recursively applies string templating to a dict or list
+    """
     if isinstance(tmpl, str):
         ret = tmpl
-        for k,v in tags.items():
+        for k, v in tags.items():
             ret = ret.replace(k, v)
         return ret
 

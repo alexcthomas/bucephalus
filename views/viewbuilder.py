@@ -1,12 +1,14 @@
-import os, sys, pdb
+import os
+import sys
 import traceback
 import threading
+import pandas as pd
 import logging
 import ujson
 
 from collections import defaultdict
 from views.viewtools import build_error
-
+from views.viewtools import encode_pandas_series
 from views.jsonviews import HighChartsViewBuilder
 from views.mplviews import MPLViewBuilder
 from views.htmlviews import HTMLViewBuilder
@@ -83,6 +85,10 @@ class ViewBuilder(object):
                     result_queue.put({'category': 'data', 'series': series, 'data': data})
                 loaded_results[series] = data
 
+                dates, value = zip(*data)
+                s = pd.Series(value, index=dates)
+                loaded_results[series] = encode_pandas_series(s)
+
                 # Determine which graphs can be built (as we've received all the necessary data).  Note
                 # that viewtype below is "volatility" or "prices" - a high-level description, rather than
                 # a specific renderer (i.e. not "highcharts" or similar)
@@ -102,7 +108,7 @@ class ViewBuilder(object):
 
         # We query for results in a different thread so we can return results in this one
         def worker():
-            self.dataprovider.load_series(all_series, callback)
+            self.dataprovider.get_view_data(all_series, callback)
             result_queue.put(None)      # Used to mark the end of the data
         worker_thread = threading.Thread(target=worker)
         worker_thread.start()

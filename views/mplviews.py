@@ -14,7 +14,9 @@ class MPLViewBuilder(BaseViewBuilder):
     """
     def __init__(self):
         self.image_dir = 'img'
-        self.views_cache = {'overview_distribution': self.overview_distribution}
+        self.views_cache = {
+            'overview_distribution': self.overview_distribution
+        }
 
     def list_views(self):
         return sorted(self.views_cache.keys())
@@ -41,7 +43,7 @@ class MPLViewBuilder(BaseViewBuilder):
         data = list(zip(*firstSeries))[1]
         # ********* THIS IS AN EVIL HACK THAT PRODUCES THE WRONG VALUES *******
         if len(data) > 100:
-            data = data[:100]
+            data = data[:100]   # Just use the first 100 so the graph is nice and fast.
         # ********* THIS IS AN EVIL HACK THAT PRODUCES THE WRONG VALUES *******
 
         name = str(uuid.uuid1()).replace('-', '')

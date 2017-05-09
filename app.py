@@ -10,9 +10,7 @@ from flask import Flask, render_template, request, make_response, send_file, jso
 from flask_bootstrap import Bootstrap, WebCDN
 from views.viewbuilder import ViewBuilder
 from views.viewdata import ViewDataProvider
-from views.viewtools import parse_tags
 from views.jsonbuilder import *
-from StrategyBuilder import SimLoader
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -58,8 +56,8 @@ def get_nav_data():
     data = []
 
     # Build home page
-    tags = buildTags("univariate_random_bar")
-    views = buildViews("basic_bar", tags, 1)
+    tags = buildTags("price", series='Portfolio.netPL', market='Net P&L')
+    views = buildViews("price", tags, 1)
     page = buildPage("Root", [views])
     data.append(page)
 
