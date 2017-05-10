@@ -95,7 +95,12 @@ var treeNodeUnSelect = function(event, node) {
 var renderSimulationSelectorCallback = function(event) {
 	console.log(event.data.token);
 	$("#simulation-dropdown-btn").dropdown("toggle");
-    $("#simulation-dropdown-items").dropdown("toggle");
+    $('#simulation-dropdown-items').css({
+		position: '',
+		display: 'none',
+		left: '',
+		top: ''
+	});
 };
 
 var renderSimulationSelector = function() {
