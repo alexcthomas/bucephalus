@@ -101,6 +101,7 @@ var renderSimulationSelectorCallback = function(event) {
 		left: '',
 		top: ''
 	});
+    $.getJSON('/set_token?token=' + event.data.token);
 };
 
 var renderSimulationSelector = function() {

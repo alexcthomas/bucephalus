@@ -135,7 +135,6 @@ class JSONViewBuilder(BaseViewBuilder):
         self.build_views(force=True)
 
 
-
 class HighChartsViewBuilder(JSONViewBuilder):
     """
     Contains logic for combining config details from the JSONViewBuilder
@@ -143,10 +142,18 @@ class HighChartsViewBuilder(JSONViewBuilder):
     Different highcharts chart types can need the data labelled in different ways
     """
 
-    def build_view(self, viewname, tags, data):
-        view = self.views_cache[viewname]
+    def build_view(self, view_name, tags, data):
+        view = self.views_cache[view_name]
         ret = view.render_tags(tags)
         ret['renderer'] = 'highcharts'
-        ret['series'] = data.keys()
-        return ret
+
+        if view_name == 'accumulated':
+            modified = {}
+            for series_name, series_data in data.items():
+                modified[series_name + '.accumulated'] = series_data.cumsum(axis=0)
+            ret['series'] = [n + '.accumulated' for n in data.keys()]
+        else:
+            modified = data
+            ret['series'] = data.keys()
+        return ret, modified
 

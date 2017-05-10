@@ -23,22 +23,23 @@ class MPLViewBuilder(BaseViewBuilder):
 
     def build_view(self, viewname, tags, data):
         func = self.views_cache[viewname]
+        result, data = func(data)
         return {
             'renderer': 'img',
-            'result': func(data)
-        }
+            'result': result
+        }, data
 
-    def overview_distribution(self, data):
+    def overview_distribution(self, originalData):
         """
         This really needs the image size as an input
         """
 
         # The data comes in as a dictionary of series name to list of tuples.  We need a dataframe.
         # ********* THIS IS AN EVIL HACK THAT PRODUCES THE WRONG VALUES *******
-        if 1 != len(data):
+        if 1 != len(originalData):
             raise RuntimeError('overview_distribution only works for 1 data series at a time')
         # ********* THIS IS AN EVIL HACK THAT PRODUCES THE WRONG VALUES *******
-        firstSeries = data[list(data.keys())[0]]
+        firstSeries = originalData[list(originalData.keys())[0]]
         # ********* THIS IS AN EVIL HACK THAT PRODUCES THE WRONG VALUES *******
         data = list(zip(*firstSeries))[1]
         # ********* THIS IS AN EVIL HACK THAT PRODUCES THE WRONG VALUES *******
@@ -58,7 +59,5 @@ class MPLViewBuilder(BaseViewBuilder):
         sns.distplot(data, color="m")
         f.savefig(ret)
         logging.debug('Saved image %s', ret)
-        return ret
+        return ret, None
 
-    def requires_client_data(self):
-        return False
