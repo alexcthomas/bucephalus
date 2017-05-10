@@ -86,10 +86,12 @@ class ViewBuilder(object):
                 if series in send_to_client:
                     result_queue.put({'category': 'data', 'series': series, 'data': data})
                 loaded_results[series] = data
-
-                dates, value = zip(*data)
-                s = pd.Series(value, index=dates)
-                loaded_results[series] = encode_pandas_series(s)
+                if data is not None:
+                    dates, value = zip(*data)
+                    s = pd.Series(value, index=dates)
+                    loaded_results[series] = encode_pandas_series(s)
+                else:
+                    loaded_results[series] = None
 
                 # Determine which graphs can be built (as we've received all the necessary data).  Note
                 # that viewtype below is "volatility" or "prices" - a high-level description, rather than

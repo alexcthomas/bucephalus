@@ -30,6 +30,7 @@ class ViewDataProvider(object):
         return [t[0] for t in sorted(tokens, key=lambda x: x[1], reverse=True)]
 
     def set_token(self, token):
+        logging.debug('Changing token to %s', token)
         self._token = token
 
     def get_view_data(self, series_list, callback):

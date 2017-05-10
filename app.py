@@ -45,6 +45,7 @@ def get_tokens():
 def set_token():
     token = request.args.get('token')
     data_provider.set_token(token)
+    return json.dumps({'token': token})
 
 # return a json response upon request
 @app.route('/navdata', methods=['GET'])
