@@ -57,8 +57,8 @@ def get_nav_data():
     data = []
 
     # Build home page
-    tags = buildTags("price", series='Portfolio.netPL', market='Net P&L')
-    views = buildViews("price", tags, 1)
+    tags = buildTags("price", series='Portfolio.netPL, Portfolio.grossPL', market='Net P&L')
+    views = buildViews("accumulated", tags, 1)
     page = buildPage("Root", [views])
     data.append(page)
 
