@@ -85,7 +85,7 @@ def get_nav_data():
                 continue
             elif vol_item.startswith(item[:3]):
                 vol_tags = buildTags("volatility", series=vol_item+'.volatility', market=vol_item.split('Position')[0])
-                views.append(buildViews("overview_distribution", vol_tags, 2))
+                views.append(buildViews("volatility", vol_tags, 2))
 
         # Build the page in json
         page = buildPage(PQTrading.instrumentToLongName[item[:3]], views)
