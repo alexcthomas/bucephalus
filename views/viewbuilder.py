@@ -12,6 +12,8 @@ from views.viewtools import encode_pandas_series
 from views.jsonviews import HighChartsViewBuilder
 from views.mplviews import MPLViewBuilder
 from views.htmlviews import HTMLViewBuilder
+import PQTrading
+
 
 def get_series(graph):
     logging.debug('get_series on %s', graph)

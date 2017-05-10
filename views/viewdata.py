@@ -1,6 +1,7 @@
 import numpy as np, pdb
 import pandas as pd
 import datetime
+import PQTrading
 from views.viewtools import encode_series, encode_pandas_series
 from StrategyBuilder import SimLoader
 from SimTools import SimulationStore
@@ -13,9 +14,10 @@ class ViewDataProvider(object):
     This class maps from tags to datasets
     Could be e.g. from a database
     """
-    def __init__(self, server):
+    def __init__(self, server, factory):
         logging.info("Connecting to {}".format(server))
         self._loader = SimLoader(server)
+        self._factory = factory
 
         # Default to the latest token retrieved
         # self._token = self.get_tokens()[0]
