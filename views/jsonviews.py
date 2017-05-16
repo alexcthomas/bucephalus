@@ -1,6 +1,9 @@
-import os, copy
+import os, copy, pdb
 import ujson, yaml
 import logging
+import pandas as pd
+import datetime as dt
+import numpy as np
 from views.baseviews import BaseViewBuilder
 from views.viewtools import dict_merge, template_recurse
 
@@ -146,12 +149,50 @@ class HighChartsViewBuilder(JSONViewBuilder):
         view = self.views_cache[view_name]
         ret = view.render_tags(tags)
         ret['renderer'] = 'highcharts'
-
+        logging.debug('build_view(%s, %s)', view_name, tags)
         if view_name == 'accumulated':
             modified = {}
             for series_name, series_data in data.items():
-                modified[series_name + '.accumulated'] = series_data.cumsum(axis=0)
+                dates = series_data[:, 0]
+                accum_ret = series_data[:, 1].cumsum(axis=0)
+                modified[series_name + '.accumulated'] = np.column_stack((dates, accum_ret))
             ret['series'] = [n + '.accumulated' for n in data.keys()]
+
+        elif view_name == 'correlation':
+            keys = sorted(data.keys())
+            modified, correl = {}, []
+            for i1, first in enumerate(keys):
+                for i2, second in enumerate(keys):
+                    if data[first] is not None and data[second] is not None:
+                        logging.debug('Processing correlation between %s and %s', first, second)
+                        min_length = min(len(data[first]), len(data[second]))
+                        firstData = list(list(zip(*data[first][-100:]))[1])
+                        secondData = list(list(zip(*data[second][-100:]))[1])
+                        correl.append([i1, i2, np.corrcoef(firstData, secondData)[0, 1]])
+                    else:
+                        correl.append([i1, i2, 0])
+            modified['correlation matrix'] = correl
+            ret['series'] = ['correlation matrix']
+
+        elif view_name == 'histogram':
+            modified, buckets = {}, []
+            keys = sorted(data.keys())
+            for item in keys:
+                all_prices = data[item]
+                time_stamp = all_prices[0][0]
+                year_start = dt.date.fromtimestamp(time_stamp/1e3)
+                yearly_prices = []
+                for daily_price in all_prices:
+                    if dt.date.fromtimestamp(daily_price[0]/1e3) - year_start > dt.timedelta(364):
+                        buckets.append([time_stamp, np.average(yearly_prices)])
+                        time_stamp = daily_price[0]
+                        year_start = dt.date.fromtimestamp(time_stamp/1e3)
+                        yearly_prices = []
+                    yearly_prices.append(daily_price[1])
+
+            modified['annual return'] = buckets
+            ret['series'] = ['annual return']
+
         else:
             modified = data
             ret['series'] = data.keys()

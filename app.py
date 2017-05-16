@@ -56,16 +56,9 @@ def get_nav_data():
     """
     data = []
 
-    # Build home page
-    tags = buildTags("price", series='Portfolio.netPL, Portfolio.grossPL', market='Net P&L')
-    views = buildViews("accumulated", tags, 1)
-    page = buildPage("Root", [views])
-    data.append(page)
-
-    # Build a page of one price chart and one vol chart for each instrument
+    # Build a page of price charts and vol charts for each instrument
     price_names, vol_names = data_provider.get_instruments()
-
-    i, views = 0, []
+    i, views, all_markets= 0, [], []
     while i < len(price_names):
         item = price_names[i]
 
@@ -73,8 +66,9 @@ def get_nav_data():
             i += 1
             continue
 
-        price_tags = buildTags("price", series=item + '.prices', market=item)
-        views.append(buildViews("price", price_tags, 1))
+        all_markets.append(item)
+        price_tag = buildTags("price", series=item + '.prices', market=item)
+        views.append(buildViews("price", price_tag, 1))
 
         if i+1 < len(price_names) and item[:3] == price_names[i+1][:3]:
             i += 1
@@ -85,14 +79,37 @@ def get_nav_data():
             if vol_item.startswith("Spread"):
                 continue
             elif vol_item.startswith(item[:3]):
-                vol_tags = buildTags("volatility", series=vol_item+'.volatility', market=vol_item.split('Position')[0])
-                views.append(buildViews("volatility", vol_tags, 2))
+                vol_tag = buildTags("volatility", series=vol_item+'.volatility', market=vol_item.split('Position')[0])
+                views.append(buildViews("volatility", vol_tag, 2))
 
         # Build the page in json
         page = buildPage(PQTrading.instrumentToLongName[item[:3]], views)
         data.append(page)
         views = []
         i += 1
+
+    # Build home page with multiple graphs
+    # Build PnL graph
+    home_view = []
+    row = 1
+    portf_tag = buildTags("price", series='Portfolio.netPL, Portfolio.grossPL', market='Net P&L')
+    home_view.append(buildViews("accumulated", portf_tag, 1))
+    row += 1
+
+    # Build correlation table
+    # all_markets = ["ADCC1", "ALMC1", "FTEC1", "SSEC3"]
+    all_series = ', '.join([n + '.prices' for n in all_markets])
+    correl_tag = buildTags("price", series=all_series, market='All Markets', axis=all_markets)
+    home_view.append(buildViews("correlation", correl_tag, 2))
+    row += 1
+
+    # Build histogram graph
+    histo_tag = buildTags("price", series="Portfolio.netPL", market="Annual Net Portf")
+    home_view.append(buildViews("histogram", histo_tag, 3))
+
+    home_page = buildPage("Root", home_view)
+    data.append(home_page)
+    logging.debug("json %s", data)
 
     return jsonify(data)
 

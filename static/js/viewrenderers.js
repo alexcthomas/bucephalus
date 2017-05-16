@@ -1,3 +1,5 @@
+//= require highcharts/highcharts-more
+//= require highcharts/modules/heatmap
 
 var ViewRenderers = {
 	

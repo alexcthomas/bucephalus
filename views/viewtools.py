@@ -1,5 +1,6 @@
 import copy, pdb
 import pandas as pd
+import logging
 
 def parse_tags(tags):
     "Parses tags passed un the url arguments"
@@ -39,7 +40,14 @@ def template_recurse(tmpl, tags):
     if isinstance(tmpl, str):
         ret = tmpl
         for k, v in tags.items():
-            ret = ret.replace(k, v)
+            # If the value we are replacing is an exact match for a key, return the value as-is - we're assuming
+            # here that we are NOT replacing a substring in a larger string "hello {{name}}", but that the
+            # value should be used as-is, i.e. not converted into a string - i.e. it is a KEY in the JSON, not a VALUE.
+            if ret == k:
+                return v
+            # Try to perform a simple string substitution - this assumes that the value is a string, or can be
+            # converted to a string without any issues.
+            ret = ret.replace(k, str(v))
         return ret
 
     if isinstance(tmpl, list):

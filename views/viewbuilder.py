@@ -1,4 +1,5 @@
 import os
+import pdb
 import sys
 import traceback
 import threading
@@ -130,6 +131,7 @@ class ViewBuilder(object):
                     # Send any NEW names back to the client - note that this means that if you MAKE UP any new
                     # data, you've got to give it a NEW name.  Also - no mutating data sets!
                     if data_series is not None:
+                        logging.debug("data series %s", data_series)
                         for series_name, data in data_series.items():
                             if series_name in sent_to_client:
                                 continue

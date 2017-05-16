@@ -1,4 +1,3 @@
-
 // builds the url for getting data
 var buildTagString = function(tags){
 	var ret = [];

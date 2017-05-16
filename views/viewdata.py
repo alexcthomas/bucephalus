@@ -22,8 +22,8 @@ class ViewDataProvider(object):
         # Default to the latest token retrieved
         # self._token = self.get_tokens()[0]
 
-        # Use the token with volatility data
-        self._token = '[Parallelism.Pegasus-NoCross:20170504T100847.816352,1]'
+        # Use the token with updated tags
+        self._token = '[Full.Pegasus:20170516T115847.470424,1]'
 
     def get_tokens(self):
         tokens = self._loader.getRunTokens(datetime.datetime(1990, 1, 1), datetime.datetime.utcnow())
@@ -37,7 +37,7 @@ class ViewDataProvider(object):
         """
         Loads multiple data series from the database, calling callback(name, series) for each one
         :param series_list: a list of strings - the names of the series to load
-        :param callback: a function that will be called callback(name, series) once for each series
+        :param callback: a function that will be called callback(name, sedries) once for each series
         :return: None
         """
         logging.debug('Calling getRunData: %s', series_list)
