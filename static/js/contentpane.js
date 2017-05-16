@@ -71,7 +71,7 @@ var renderContentPane = function(views, tags)
 	// 1. We will not encounter any graph block until we have received the data it depends on
 	// 2. Graph blocks will be received in order specified
 	// 3. Note that server-side graphs (e.g. matplotlib) would not have associated data blocks
-	var lastProcessedIdx = 0, viewContainersIdx = 0;
+	var lastProcessedIdx = 0;
 	var dataBlocks = {};
 	$.ajax({
 		type: 'POST',
@@ -94,10 +94,11 @@ var renderContentPane = function(views, tags)
 						console.log('Data [' + chunkObj.series + ']');
 						dataBlocks[chunkObj.series] = chunkObj.data;
 					} else if (chunkObj.category == 'graph') {
-						console.log('GRAPH');
-						var definition = viewContainers[viewContainersIdx];
+						console.log(chunkObj);
+						var reference_id = chunkObj.id;
+						console.log('GRAPH ' + reference_id);
+						var definition = viewContainers[reference_id];
 						renderView(definition.target, definition.view, chunkObj.result, dataBlocks);
-						++ viewContainersIdx;
 					} else {
 						console.log('Unknown category "' + chunkObj.category + '"');
 					}

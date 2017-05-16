@@ -25,9 +25,10 @@ class Dependency(object):
     Helper class to track dependencies.  The counter is the number of things waiting on this - when it reaches
     zero then we know that all dependencies have been met.
     """
-    def __init__(self, json):
+    def __init__(self, json, reference_id):
         self._json = json
         self._count = 0
+        self._reference_id = reference_id
 
     def increment(self):
         self._count += 1
@@ -40,6 +41,11 @@ class Dependency(object):
     @property
     def json(self):
         return self._json
+
+    @property
+    def reference_id(self):
+        return self._reference_id
+
 
 
 class ViewBuilder(object):
@@ -79,12 +85,14 @@ class ViewBuilder(object):
         series_dependency = defaultdict(list)
         all_series = []
         encountered_series = set()
-        for category in jsonlist:
-            for graph in category:
+        counter = 0
+        for row in jsonlist:
+            for graph in row:
                 # Series is either a single name or a comma-separated sequence of names
                 # Ensure names are in graph order, but each only appears once
                 view_type = graph['viewtype']
-                dependency = Dependency(graph)
+                dependency = Dependency(graph, counter)
+                counter += 1
                 for s in get_series(graph):
                     series_dependency[s].append(dependency)
                     dependency.increment()
@@ -138,7 +146,7 @@ class ViewBuilder(object):
                             sent_to_client.add(series_name)
                             result_queue.put({'category': 'data', 'series': series_name, 'data': data})
 
-                    result_queue.put({'category': 'graph', 'result': result})
+                    result_queue.put({'id': dep.reference_id, 'category': 'graph', 'result': result})
             except Exception:
                 ex_type, ex, tb = sys.exc_info()
                 logging.error('Error in callback: {}\n{}'.format(ex, "\n".join(traceback.format_tb(tb))))
