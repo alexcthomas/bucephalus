@@ -94,7 +94,6 @@ var renderContentPane = function(views, tags)
 						console.log('Data [' + chunkObj.series + ']');
 						dataBlocks[chunkObj.series] = chunkObj.data;
 					} else if (chunkObj.category == 'graph') {
-						console.log(chunkObj);
 						var reference_id = chunkObj.id;
 						console.log('GRAPH ' + reference_id);
 						var definition = viewContainers[reference_id];

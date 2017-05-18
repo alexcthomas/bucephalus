@@ -1,14 +1,12 @@
 {
 	"viewName": "histogram",
+  "prototypes": "basic_bar",
 	"plotOptions": {
       "series": {
         "animation": false
       }
     },
 	"viewDefinition": {
-		"chart":{
-			"type": "column"
-		},
 		"title": {
 			"text": "{{market}} Histogram"
 		},

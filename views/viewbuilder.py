@@ -6,6 +6,7 @@ import threading
 import pandas as pd
 import logging
 import ujson
+import collections
 
 from collections import defaultdict
 from views.viewtools import build_error
@@ -129,7 +130,12 @@ class ViewBuilder(object):
                 for dep in requisite_data_arrived:
                     viewtype = dep.json['viewtype']
                     tags = dep.json['tags']
-                    data = {s: loaded_results[s] for s in get_series(dep.json)}
+
+                    # Create an ordered dictionary of data in the order of the data arrived
+                    data = collections.OrderedDict()
+                    for s in get_series(dep.json):
+                        data[s] = loaded_results[s]
+
                     viewGenerator = self.views.get(viewtype)
                     if not viewGenerator:
                         raise RuntimeError('Unknown viewtype "{}" - valid options are: {}'.format(viewtype,
@@ -139,12 +145,11 @@ class ViewBuilder(object):
                     # Send any NEW names back to the client - note that this means that if you MAKE UP any new
                     # data, you've got to give it a NEW name.  Also - no mutating data sets!
                     if data_series is not None:
-                        logging.debug("data series %s", data_series)
-                        for series_name, data in data_series.items():
+                        for series_name in data_series:
                             if series_name in sent_to_client:
                                 continue
                             sent_to_client.add(series_name)
-                            result_queue.put({'category': 'data', 'series': series_name, 'data': data})
+                            result_queue.put({'category': 'data', 'series': series_name, 'data': data_series[series_name]})
 
                     result_queue.put({'id': dep.reference_id, 'category': 'graph', 'result': result})
             except Exception:
