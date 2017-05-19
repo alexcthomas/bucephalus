@@ -208,5 +208,5 @@ class HighChartsViewBuilder(JSONViewBuilder):
             modified = data
             ret['series'] = data.keys()
 
-        return ret, data
+        return ret, modified
 
