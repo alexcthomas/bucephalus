@@ -4,11 +4,12 @@ import pdb
 
 
 def _build_instrument_page(data_provider):
-    # Build a page of price charts and vol charts for each instrument
     price_names, vol_names = data_provider.get_instruments()
     # price_names, vol_names = ['CCEC1','CCEC2'], ['CCEC1PositionVol','CCEC2PositionVol']
-    i, price_series, vol_series, pos_series, pnl_series = 0, [], [], [], []
-    all_pages, all_markets = [], []
+    i, price_series, vol_series, pos_series, pnl_series, all_markets = 0, [], [], [], [], []
+
+    # Created dictionaries to hold 1) all the child pages (nodes) 2) info on main page for each parent page (sector)
+    child_pages, series = {}, {}
     while i < len(price_names):
         item = price_names[i]
 
@@ -21,7 +22,7 @@ def _build_instrument_page(data_provider):
         # Then check if the next instrument has the same short name as the current instrument.
         # If so, go straight to the next loop. Otherwise, loop through volatility database
         # to get all vol data under the same instrument (e.g. vol for CCEC1, CCEC2 etc..),
-        # and build json view for the prices and volatility of this instrument
+        # and build json views of various statistics for this instrument
         all_markets.append(item)
         price_series.append(item + '.prices')
         pos_series.append(item + 'FinalPos.position')
@@ -48,13 +49,45 @@ def _build_instrument_page(data_provider):
         views.append(buildViews("position", pos_tag, 2))
         views.append(buildViews("accumulated", pnl_tag, 2))
 
-        # Build the page in json
-        page = buildPage(PQTrading.instrumentToLongName[item[:3]], views)
+        # grandchild_pages = _build_trading_sys(data_provider)
+        # Create the child page for the instrument
+        child_page = buildPage(PQTrading.instrumentToLongName[item[:3]], views)
+
+        # Add the child page into the parent page of the corresponding sector
+        sector = PQTrading.instrumentToSector[item[:3]]
+        sectorName = PQTrading.sectorCodeToName[sector]
+        child_pages[sectorName] = child_pages.get(sectorName, [])
+        child_pages[sectorName].append(child_page)
+
+        # Add the position tag under each corresponding sector
+        # pdb.set_trace()
+        series[sectorName] = series.get(sectorName, []) + pos_series
+
+        # Reset the initial settings
         i += 1
         price_series, vol_series, pos_series, pnl_series = [], [], [], []
-        all_pages.append(page)
-    return all_pages, all_markets
+    return child_pages, series, all_markets
 
+
+def _build_sector_page(child_pages, series):
+    # pdb.set_trace()
+    sector_pages = []
+    for sector, node in child_pages.items():
+        sector_Tags = buildTags("position", series = ', '.join(series[sector]), market = sector)
+        sector_view = [buildViews("position", sector_Tags, 1)]
+        # pdb.set_trace()
+        sector_page = buildPage(sector, sector_view, nodes=node)
+        sector_pages.append(sector_page)
+    return sector_pages
+
+
+# def _build_trading_sys(data_provider):
+#     sys_names = data_provider.get_trading_sys()
+#     pages
+#     for name in sys_names:
+#         tags = buildTags("price", series=['CCEC1.prices'], market=name)
+#         view = buildViews("price", tags, 1)
+#         page = buildPage()
 
 def _build_home_page(all_markets):
     # Build home page with multiple graphs
@@ -80,7 +113,8 @@ def _build_home_page(all_markets):
 
 
 def build_pages(data_provider):
-    pages, markets = _build_instrument_page(data_provider)
-    pages.append(_build_home_page(markets))
+    nodes, grouped, markets = _build_instrument_page(data_provider)
+    pages = _build_sector_page(nodes, grouped)
     # pdb.set_trace()
+    pages.insert(0, _build_home_page(markets))
     return pages

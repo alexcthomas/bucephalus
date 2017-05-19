@@ -145,26 +145,23 @@ class HighChartsViewBuilder(JSONViewBuilder):
     with data from the dataprovider
     Different highcharts chart types can need the data labelled in different ways
     """
-    #
-    # def build_view(self, viewname, tags, data):
-    #     view = self.views_cache[viewname]
-    #     ret = view.render_tags(tags)
-    #     ret['series'] = data
-    #     return ret
 
     def build_view(self, view_name, tags, data):
         view = self.views_cache[view_name]
         ret = view.render_tags(tags)
         ret['renderer'] = 'highcharts'
         logging.debug('build_view(%s, %s)', view_name, tags)
-        # ret['series'] = [n + '{}'.format(view_name) for n in data.keys()]
+        # pdb.set_trace()
 
         if view_name == 'accumulated':
             modified = {}
             for series_name, series_data in data.items():
-                dates = series_data[:, 0]
-                accum_ret = series_data[:, 1].cumsum(axis=0)
-                modified[series_name + '.accumulated'] = np.column_stack((dates, accum_ret))
+                if series_data is not None:
+                    dates = series_data[:, 0]
+                    accum_ret = series_data[:, 1].cumsum(axis=0)
+                    modified[series_name + '.accumulated'] = np.column_stack((dates, accum_ret))
+                else:
+                    modified[series_name + '.accumulated'] = None
             ret['series'] = [n + '.accumulated' for n in data.keys()]
 
         elif view_name == 'correlation':
@@ -175,8 +172,8 @@ class HighChartsViewBuilder(JSONViewBuilder):
                     if data[first] is not None and data[second] is not None:
                         logging.debug('Processing correlation between %s and %s', first, second)
                         min_length = min(len(data[first]), len(data[second]))
-                        firstData = list(list(zip(*data[first][-100:]))[1])
-                        secondData = list(list(zip(*data[second][-100:]))[1])
+                        firstData = list(list(zip(*data[first][-min_length:]))[1])
+                        secondData = list(list(zip(*data[second][-min_length:]))[1])
                         correl.append([i1, i2, np.corrcoef(firstData, secondData)[0, 1]])
 
                     # If no data for either instrument, return correlation of 0

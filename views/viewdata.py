@@ -37,27 +37,16 @@ class ViewDataProvider(object):
         """
         Loads multiple data series from the database, calling callback(name, series) for each one
         :param series_list: a list of strings - the names of the series to load
-        :param callback: a function that will be called callback(name, sedries) once for each series
+        :param callback: a function that ill be called callback(name, sedries) once for each series
         :return: None
         """
         logging.debug('Calling getRunData: %s', series_list)
         self._loader.getRunData(self._token, series_list, callback)
 
-    # def get_view_data(self, tags, series_list, callback):
-    #     """
-    #     Loads multiple data series from the database, calling callback(name, series) for each one
-    #     :param series_list: a list of strings - the names of the series to load
-    #     :param callback: a function that will be called callback(name, sedries) once for each series
-    #     :return: None
-    #     """
-    #     logging.debug('Calling getRunData: %s', series_list)
-    #     self._loader.getRunData(self._token, series_list, callback)
-    #     view_name = tags['viewtype']
-
-
 
     # Create a list of all instruments in simulations using the price data
     def get_instruments(self):
+        global meta_obj
         meta_obj = self._loader.getRunMeta(self._token)
         price_obj = meta_obj.match({'category': 'asset'})
         vol_obj = meta_obj.match({'category': 'volatility'})
@@ -66,3 +55,7 @@ class ViewDataProvider(object):
         vol_keys = sorted(vol_obj.nodes.keys())
         # pdb.set_trace()
         return price_keys, vol_keys
+
+    def get_trading_sys(selfs):
+        trading_obj = meta_obj.match({'category':'tradingsystem'})
+        return sorted(trading_obj.group('systemName').keys())
