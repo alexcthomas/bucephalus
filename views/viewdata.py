@@ -48,14 +48,20 @@ class ViewDataProvider(object):
     def get_instruments(self):
         global meta_obj
         meta_obj = self._loader.getRunMeta(self._token)
-        price_obj = meta_obj.match({'category': 'asset'})
-        vol_obj = meta_obj.match({'category': 'volatility'})
-
-        price_keys = sorted(price_obj.nodes.keys())
-        vol_keys = sorted(vol_obj.nodes.keys())
+        instruments_obj = meta_obj.match({'category': 'asset'})
+        instruments = sorted(instruments_obj.nodes.keys())
         # pdb.set_trace()
-        return price_keys, vol_keys
+        return instruments
 
     def get_trading_sys(selfs):
+        # pdb.set_trace()
+        trading_sys = {}
+        # Retrieve a list of all trading systems
         trading_obj = meta_obj.match({'category':'tradingsystem'})
-        return sorted(trading_obj.group('systemName').keys())
+        systems = sorted(trading_obj.group('systemName').keys())
+
+        # Retrieve a list of sub systems under each trading system
+        for sys in systems:
+            subSys_obj = meta_obj.match({'systemName':'{}'.format(sys)})
+            trading_sys[sys] = sorted(subSys_obj.group('subSystemName').keys())
+        return trading_sys

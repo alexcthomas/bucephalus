@@ -6,6 +6,7 @@ import threading
 import pandas as pd
 import logging
 import ujson
+import pprint
 import collections
 
 from collections import defaultdict
@@ -17,6 +18,7 @@ from views.htmlviews import HTMLViewBuilder
 
 
 def get_series(graph):
+    # pdb.set_trace()
     logging.debug('get_series on %s', graph)
     return [s.strip() for s in graph['tags']['series'].split(',')]
 
@@ -91,7 +93,8 @@ class ViewBuilder(object):
             for graph in row:
                 # Series is either a single name or a comma-separated sequence of names
                 # Ensure names are in graph order, but each only appears once
-                view_type = graph['viewtype']
+                # view_type = graph['viewtype']
+                # pdb.set_trace()
                 dependency = Dependency(graph, counter)
                 counter += 1
                 for s in get_series(graph):
