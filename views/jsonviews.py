@@ -147,11 +147,11 @@ class HighChartsViewBuilder(JSONViewBuilder):
     """
 
     def build_view(self, view_name, tags, data):
+        # pdb.set_trace()
         view = self.views_cache[view_name]
         ret = view.render_tags(tags)
         ret['renderer'] = 'highcharts'
         logging.debug('build_view(%s, %s)', view_name, tags)
-        # pdb.set_trace()
 
         if view_name == 'accumulated':
             modified = {}
@@ -184,6 +184,7 @@ class HighChartsViewBuilder(JSONViewBuilder):
 
         elif view_name == 'histogram':
             modified, buckets = {}, []
+            pdb.set_trace()
             keys = sorted(data.keys())
             for item in keys:
                 all_prices = data[item]
@@ -203,7 +204,7 @@ class HighChartsViewBuilder(JSONViewBuilder):
 
         else:
             modified = data
-            ret['series'] = data.keys()
+            ret['series'] = list(data.keys())
 
         return ret, modified
 

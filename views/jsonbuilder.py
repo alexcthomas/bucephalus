@@ -19,6 +19,7 @@ def buildViews(viewtype, tag, row):
     return ret
 
 
-def buildTags(datatype, series=None, market=None, axis=""):
-    ret = {"datatype": datatype, "series": series, "market": market, "axis": axis}
+def buildTags(datatype, series=None, start_date = None, end_date = None, market=None, axis=""):
+    ret = {"datatype": datatype, "series": series, "start_date": start_date, "end_date": end_date,
+           "market": market, "axis": axis}
     return ret

@@ -62,8 +62,11 @@ def encode_series(dates, data):
     return list(zip(dates.astype(int)/1000000, data))
 
 def encode_pandas_series(series):
-    ret = pd.Series(series.values, series.index.astype(int)/1000000)
-    return ret.reset_index().values
+    try:
+        ret = pd.Series(series.values, series.index.astype(int)/1000000)
+        return ret.reset_index().values
+    except:
+        return series.values
 
 def build_error(msg):
     return {'error': msg.replace('\n','<br/>')}

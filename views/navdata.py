@@ -1,27 +1,36 @@
 from jsonbuilder import *
 import PQTrading
 import logging
+from viewbuilder import RawManipulator, AccumManipulator
 import pdb
+import datetime
 
 logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s', level=logging.DEBUG)
 
 
+def _series(instruments, suffix=None, prefix = RawManipulator.PREFIX):
+    return ','.join([prefix + ':' + i + (suffix if suffix is not None else '') for i in instruments])
+
 def _build_trading_sys(trading_sys, instruments):
     pages, views = [], []
-
-    for sys in sorted(trading_sys.keys()):
-        sub_systems = trading_sys[sys]
-        row = 1
-        for instrument in instruments:
-            tags = buildTags("Expected Return", series=','.join([instrument + s + '.expRtn' for s in sub_systems]),
-                             market='{} {}'.format(instrument, sys))
-            views.append(buildViews("price", tags, row))
-            row += 1
-        page = buildPage(sys, views)
-        pages.append(page)
-        views = []
-        logging.info("Building page for %s system, %s instruments", sys, instruments)
-
+    sub_systems = []
+    for system, sub_system in trading_sys.items():
+        # pdb.set_trace()
+        sub_systems += sub_system
+    row = 1
+    start = '20170519'
+    finish = '20170522'
+    for instrument in instruments:
+        query = [RawManipulator.PREFIX + ':' +instrument + 'Combiner.' + s for s in sub_systems]
+        tags = buildTags("Expected Return", series=', '.join(query), start_date=start, end_date=finish,
+                         market='{}'.format(instrument))
+        views.append(buildViews("stratHistogram", tags, row))
+        row += 1
+        # pdb.set_trace()
+    page = buildPage("Strategy Weights", views)
+    pages.append(page)
+    logging.info("Building strategy weights page for %s instruments", instruments)
+    # pdb.set_trace()
     return pages
 
 
@@ -30,10 +39,10 @@ def _build_instrument_page(sub_instruments, grandchild_pages):
     market = sub_instruments[0][:3]
 
     # Build tags for four graphs
-    price_tag = buildTags("price", series=','.join([i +'.prices' for i in sub_instruments]), market=market)
-    vol_tag = buildTags("volatility", series=','.join([i +'PositionVol.volatility' for i in sub_instruments]), market=market)
-    pos_tag = buildTags("position", series=','.join([i +'FinalPos.position' for i in sub_instruments]), market=market)
-    pnl_tag = buildTags("price", series=','.join([i +'FinalPL.netPL' for i in sub_instruments]), market="{} net PnL".format(market))
+    price_tag = buildTags("price", series=_series(sub_instruments, '.prices'), market=market)
+    vol_tag = buildTags("volatility", series=_series(sub_instruments, 'PositionVol.volatility'), market=market)
+    pos_tag = buildTags("position", series=_series(sub_instruments, 'FinalPos.position'), market=market)
+    pnl_tag = buildTags("price", series=_series(sub_instruments, 'FinalPL.netPL'), market="{} net PnL".format(market))
 
     # Use the tags to build four views
     views = [buildViews("price", price_tag, 1), buildViews("volatility", vol_tag, 1),
@@ -48,7 +57,7 @@ def _build_instrument_page(sub_instruments, grandchild_pages):
 def _build_sector_page(sub_pages, series):
     sector_pages = []
     for sector in sorted(sub_pages.keys()):
-        sector_tags = buildTags("position", series=', '.join(series[sector]), market=sector)
+        sector_tags = buildTags("position", series=_series(series[sector]), market=sector)
         sector_view = [buildViews("position", sector_tags, 1)]
         sector_page = buildPage(sector, sector_view, nodes=sub_pages[sector])
         sector_pages.append(sector_page)
@@ -62,18 +71,18 @@ def _build_home_page(all_markets):
     # Build PnL graph
     home_view = []
     row = 1
-    portf_tag = buildTags("price", series='Portfolio.netPL, Portfolio.grossPL', market='Net P&L')
-    home_view.append(buildViews("accumulated", portf_tag, row))
+    portf_tag = buildTags("price", series=_series(['Portfolio.netPL', 'Portfolio.grossPL'], prefix=AccumManipulator.PREFIX), market='Net P&L')
+    home_view.append(buildViews("price", portf_tag, row))
     row += 1
 
     # Build correlation table
-    all_series = ', '.join([n + '.prices' for n in all_markets])
+    all_series = _series(all_markets, '.prices')
     correl_tag = buildTags("price", series=all_series, market='All Markets', axis=all_markets)
     home_view.append(buildViews("correlation", correl_tag, row))
     row += 1
 
     # Build histogram graph
-    histo_tag = buildTags("price", series="Portfolio.netPL", market="Annual Net Portf")
+    histo_tag = buildTags("price", series=RawManipulator.PREFIX + ":Portfolio.netPL", market="Annual Net Portf")
     home_view.append(buildViews("histogram", histo_tag, row))
 
     home_page = buildPage("Root", home_view)

@@ -23,7 +23,7 @@ class ViewDataProvider(object):
         # self._token = self.get_tokens()[0]
 
         # Use the token with updated tags
-        self._token = '[Full.Pegasus:20170516T115847.470424,1]'
+        self._token = '[ibuchanan:20170523T161710.490641,1]'
 
     def get_tokens(self):
         tokens = self._loader.getRunTokens(datetime.datetime(1990, 1, 1), datetime.datetime.utcnow())
@@ -33,15 +33,41 @@ class ViewDataProvider(object):
         logging.debug('Changing token to %s', token)
         self._token = token
 
-    def get_view_data(self, series_list, callback):
+    def get_view_data(self, query_list, callback):
         """
-        Loads multiple data series from the database, calling callback(name, series) for each one
-        :param series_list: a list of strings - the names of the series to load
-        :param callback: a function that ill be called callback(name, sedries) once for each series
+        Loads multiple queries from the database, calling callback(name, series) for each one
+        :param query_list: a set of query objects - either as a string of series name to load, or a tuple of series name, start date, end date
+        :param callback: a function that ill be called callback(name, series) once for each series
         :return: None
         """
-        logging.debug('Calling getRunData: %s', series_list)
-        self._loader.getRunData(self._token, series_list, callback)
+        queries = []
+        for query_obj in query_list:
+            if query_obj.start is None and query_obj.finish is None:
+                queries.append(query_obj.name)
+            else:
+                queries.append((query_obj.name, query_obj.start, query_obj.finish))
+
+        logging.debug('Calling getRunData: %s', queries)
+        self._loader.getRunData(self._token, queries, callback)
+
+        # sim_data = self._loader.getRunData(self._token, query_list)
+        # dates = []
+        # # pdb.set_trace()
+        # for k, v in sim_data.items():
+        #     if len(v) == 1:
+        #         # User is requesting for daily data, check if they're requesting on the same day
+        #         dates.append(v[0][0])
+        #     else:
+        #         return self._loader.getRunData(self._token, query_list, callback)
+        #
+        # # User requested several data points on the same day. Re-package the sim data before calling callback
+        # if len(set(dates)) <= 1:
+        #     repackaged = [(k, v[0][1]) for k, v in sorted(sim_data.items())]
+        #
+        # # pdb.set_trace()
+        # series = query_list[0][0].split('.')[0]
+        #
+        # callback(series, repackaged, 1, 1)
 
 
     # Create a list of all instruments in simulations using the price data
