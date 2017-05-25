@@ -23,7 +23,8 @@ class ViewDataProvider(object):
         # self._token = self.get_tokens()[0]
 
         # Use the token with updated tags
-        self._token = '[ibuchanan:20170523T161710.490641,1]'
+        # self._token = '[ibuchanan:20170523T161710.490641,1]'
+        self._token = '[Full.Pegasus:20170516T115847.470424,1]'
 
     def get_tokens(self):
         tokens = self._loader.getRunTokens(datetime.datetime(1990, 1, 1), datetime.datetime.utcnow())

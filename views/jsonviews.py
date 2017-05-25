@@ -147,44 +147,14 @@ class HighChartsViewBuilder(JSONViewBuilder):
     """
 
     def build_view(self, view_name, tags, data):
-        # pdb.set_trace()
         view = self.views_cache[view_name]
         ret = view.render_tags(tags)
         ret['renderer'] = 'highcharts'
         logging.debug('build_view(%s, %s)', view_name, tags)
 
-        if view_name == 'accumulated':
-            modified = {}
-            for series_name, series_data in data.items():
-                if series_data is not None:
-                    dates = series_data[:, 0]
-                    accum_ret = series_data[:, 1].cumsum(axis=0)
-                    modified[series_name + '.accumulated'] = np.column_stack((dates, accum_ret))
-                else:
-                    modified[series_name + '.accumulated'] = None
-            ret['series'] = [n + '.accumulated' for n in data.keys()]
-
-        elif view_name == 'correlation':
-            keys = sorted(data.keys())
-            modified, correl = {}, []
-            for i1, first in enumerate(keys):
-                for i2, second in enumerate(keys):
-                    if data[first] is not None and data[second] is not None:
-                        logging.debug('Processing correlation between %s and %s', first, second)
-                        min_length = min(len(data[first]), len(data[second]))
-                        firstData = list(list(zip(*data[first][-min_length:]))[1])
-                        secondData = list(list(zip(*data[second][-min_length:]))[1])
-                        correl.append([i1, i2, np.corrcoef(firstData, secondData)[0, 1]])
-
-                    # If no data for either instrument, return correlation of 0
-                    else:
-                        correl.append([i1, i2, 0])
-            modified['correlation matrix'] = correl
-            ret['series'] = ['correlation matrix']
-
-        elif view_name == 'histogram':
+        if view_name == 'histogram':
             modified, buckets = {}, []
-            pdb.set_trace()
+            # pdb.set_trace()
             keys = sorted(data.keys())
             for item in keys:
                 all_prices = data[item]

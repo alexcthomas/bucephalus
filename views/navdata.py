@@ -1,15 +1,16 @@
 from jsonbuilder import *
 import PQTrading
 import logging
-from viewbuilder import RawManipulator, AccumManipulator
+from datamanipulator import *
 import pdb
 import datetime
 
 logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s', level=logging.DEBUG)
 
 
-def _series(instruments, suffix=None, prefix = RawManipulator.PREFIX):
+def _series(instruments, suffix=None, prefix=RawManipulator.PREFIX):
     return ','.join([prefix + ':' + i + (suffix if suffix is not None else '') for i in instruments])
+
 
 def _build_trading_sys(trading_sys, instruments):
     pages, views = [], []
@@ -76,8 +77,7 @@ def _build_home_page(all_markets):
     row += 1
 
     # Build correlation table
-    all_series = _series(all_markets, '.prices')
-    correl_tag = buildTags("price", series=all_series, market='All Markets', axis=all_markets)
+    correl_tag = buildTags("price", series=CorrelManipulator.PREFIX + ":all", market='All Markets', axis=all_markets)
     home_view.append(buildViews("correlation", correl_tag, row))
     row += 1
 

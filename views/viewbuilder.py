@@ -8,7 +8,7 @@ import logging
 import ujson
 import pprint
 import collections
-import datetime
+from datamanipulator import *
 import numpy as np
 
 from collections import defaultdict
@@ -83,40 +83,6 @@ class SimulatorQuery(object):
         return self._name, self._start, self._finish == other._name, other._start, other._finish
 
 
-class RawManipulator(object):
-    PREFIX = 'raw'
-
-    def generate_queries(self, manipulator, specifier, tags):
-
-        start = tags['start_date']
-        end = tags['end_date']
-        if start is not None and end is not None:
-            start = datetime.datetime.strptime('%Y%m%d', start)
-            end = datetime.datetime.strptime('%Y%m%d', end)
-            return [SimulatorQuery(specifier, start, end)],(manipulator, specifier, tags)
-
-        sim_query = SimulatorQuery(specifier)
-        return [sim_query], (manipulator, specifier, tags)
-
-    def process_queries(self, token, results):
-        """
-        We are passed a map from query -> data.  We "process" this by simply returning the data. 
-        """
-        assert(len(results) == 1)
-        return results[list(results.keys())[0]]
-
-
-class AccumManipulator(RawManipulator):
-    PREFIX = 'accum'
-    def process_queries(self, token, results):
-        assert(len(results) == 1)
-        seriesOrNone = results[list(results.keys())[0]]
-        if seriesOrNone is not None:
-            dates = seriesOrNone[:, 0]
-            accum_ret = seriesOrNone[:, 1].cumsum(axis=0)
-            return np.column_stack((dates, accum_ret))
-
-
 class ViewBuilder(object):
     """
     class for building and providing view definitions
@@ -156,7 +122,8 @@ class ViewBuilder(object):
         counter = 0
         manipulators = {
             RawManipulator.PREFIX: RawManipulator(),
-            AccumManipulator.PREFIX: AccumManipulator()
+            AccumManipulator.PREFIX: AccumManipulator(),
+            CorrelManipulator.PREFIX: CorrelManipulator(self.data_provider)
         }
         for row in jsonlist:
             for graph in row:
