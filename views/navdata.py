@@ -13,6 +13,11 @@ def _series(instruments, suffix=None, prefix=RawManipulator.PREFIX):
 
 
 def _ggrandchild_strategByAsset(trading_sys, instruments):
+    """
+    Build a JSON page under each instrument, containing a bar chart of the weights placed on 
+    every sub trading system under each trading system on a particular day
+    Hierarchy level: great-grandchild
+    """
     pages, views = [], []
     row = 1
     start = '20170519'
@@ -22,16 +27,17 @@ def _ggrandchild_strategByAsset(trading_sys, instruments):
                          start_date=start, end_date=finish, market=system, axis=trading_sys[system])
         views.append(buildViews("stratHistogram", tags, row))
         row += 1
-        # pdb.set_trace()
     page = buildPage("Strategy Weights", views)
     pages.append(page)
     logging.info("Building strategy weights page for %s instruments", instruments)
-    # pdb.set_trace()
     return pages
 
 
 def _grandchild_instrument(sub_pages, sub_instruments):
-
+    """
+    Build a JSON page for each instrument showing several statistical charts on the instrument
+    Hierarchy level: grandchild
+    """
     market = sub_instruments[0][:3]
 
     # Build tags for four graphs
@@ -51,6 +57,10 @@ def _grandchild_instrument(sub_pages, sub_instruments):
 
 
 def _child_sector(sub_pages, series):
+    """
+    Group all instrument pages by sector. Showing all instruments' positions on the home page
+    Hierarchy level: child
+    """
     sector_pages = []
     for sector in sorted(sub_pages.keys()):
         sector_tags = buildTags("position", series=_series(series[sector]), market=sector)
@@ -63,28 +73,35 @@ def _child_sector(sub_pages, series):
 
 
 def _child_strategy(trading_sys, all_markets):
+    """
+    Build a JSON page for each trading system, showing a bar chart of weights on 
+    each sub system across all assets on a particular day
+    Hierarchy level: child
+    """
     pages, views = [], []
-    row = 1
     start = '20170519'
     finish = '20170522'
     for system in sorted(trading_sys):
+        views = []
+        row = 1
         for subsys in trading_sys[system]:
             # pdb.set_trace()
             tags = buildTags(datatype="Weight", series=_series(['all'], prefix=StratManipulator.PREFIX, suffix=':'+subsys),
                              start_date=start, end_date=finish, market=subsys,
-                             axis=[PQTrading.instrumentToLongName[code[:3]] for code in all_markets])
+                             axis=[PQTrading.instrumentToLongName[i[:3]] for i in groupBySector(all_markets)])
             views.append(buildViews("stratHistogram", tags, row))
             row += 1
         page = buildPage(system, views)
         pages.append(page)
-        views = []
-        row = 1
     # pdb.set_trace()
     return pages
 
 
 def _parent_homepage(all_markets):
-    # Build home page with multiple graphs
+    """
+    Build home page with multiple graphs of portfolio-level data
+    Hierarchy level: parent
+    """
     # Build PnL graph
     home_view = []
     row = 1
@@ -106,6 +123,9 @@ def _parent_homepage(all_markets):
 
 
 def build_pages(data_provider):
+    """
+    Build JSONG pages for the entire website
+    """
     # instrument_list = ['CCEC1','CCEC2']
     all_markets = data_provider.get_instruments()
     trading_sys = data_provider.get_trading_sys()
@@ -131,7 +151,7 @@ def build_pages(data_provider):
 
         ggrandchild_pages = _ggrandchild_strategByAsset(trading_sys, sub_instruments)
 
-        grandchild_page = _grandchild_instrument(sub_instruments, ggrandchild_pages)
+        grandchild_page = _grandchild_instrument(ggrandchild_pages, sub_instruments)
 
         # Match sector to corresponding instrument-level position data (for plot on sector home page)
         sector = PQTrading.instrumentToSector[instrument[:3]]
@@ -148,10 +168,10 @@ def build_pages(data_provider):
         sub_instruments = []
 
     sector_pages = _child_sector(sub_pages, instr_by_sector)
-    pages = [buildPage("By Instruments", nodes=sector_pages)]
+    pages = [buildPage("By Instrument", nodes=sector_pages)]
     # pdb.set_trace()
     strategy_pages= _child_strategy(trading_sys, ex_spreads_markets)
-    pages += [buildPage("By Strategies", nodes=strategy_pages)]
+    pages += [buildPage("By Strategy", nodes=strategy_pages)]
 
     pages.insert(0, _parent_homepage(ex_spreads_markets))
     return pages
