@@ -1,10 +1,10 @@
 
-def buildPage(title, views, tags=None, nodes=None):
+def buildPage(title, views=None, tags=None, nodes=None):
     ret = {"text": title, "tags": tags, "views": views, "nodes": nodes}
     return ret
 
 
-def buildViews(viewtype, tag, row):
+def buildViews(viewtype=None, tag=None, row=None):
     """
     Creates a view of the specified type.  Note that you specify a view like "volatility" or
     "overview_distribution", which in the case of Highcharts graphs, refers to a JSON File, 
@@ -19,7 +19,7 @@ def buildViews(viewtype, tag, row):
     return ret
 
 
-def buildTags(datatype, series=None, start_date = None, end_date = None, market=None, axis=""):
+def buildTags(datatype=None, series=None, start_date=None, end_date=None, market=None, axis=""):
     ret = {"datatype": datatype, "series": series, "start_date": start_date, "end_date": end_date,
            "market": market, "axis": axis}
     return ret

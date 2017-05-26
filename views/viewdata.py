@@ -23,8 +23,10 @@ class ViewDataProvider(object):
         # self._token = self.get_tokens()[0]
 
         # Use the token with updated tags
-        # self._token = '[ibuchanan:20170523T161710.490641,1]'
-        self._token = '[Full.Pegasus:20170516T115847.470424,1]'
+        self._token = '[ibuchanan:20170523T161710.490641,1]'
+        # self._token = '[Full.Pegasus:20170516T115847.470424,1]'
+
+        self._meta_obj = self._loader.getRunMeta(self._token)
 
     def get_tokens(self):
         tokens = self._loader.getRunTokens(datetime.datetime(1990, 1, 1), datetime.datetime.utcnow())
@@ -51,44 +53,25 @@ class ViewDataProvider(object):
         logging.debug('Calling getRunData: %s', queries)
         self._loader.getRunData(self._token, queries, callback)
 
-        # sim_data = self._loader.getRunData(self._token, query_list)
-        # dates = []
-        # # pdb.set_trace()
-        # for k, v in sim_data.items():
-        #     if len(v) == 1:
-        #         # User is requesting for daily data, check if they're requesting on the same day
-        #         dates.append(v[0][0])
-        #     else:
-        #         return self._loader.getRunData(self._token, query_list, callback)
-        #
-        # # User requested several data points on the same day. Re-package the sim data before calling callback
-        # if len(set(dates)) <= 1:
-        #     repackaged = [(k, v[0][1]) for k, v in sorted(sim_data.items())]
-        #
-        # # pdb.set_trace()
-        # series = query_list[0][0].split('.')[0]
-        #
-        # callback(series, repackaged, 1, 1)
-
-
     # Create a list of all instruments in simulations using the price data
     def get_instruments(self):
-        global meta_obj
-        meta_obj = self._loader.getRunMeta(self._token)
-        instruments_obj = meta_obj.match({'category': 'asset'})
+        instruments_obj = self._meta_obj.match({'category': 'asset'})
         instruments = sorted(instruments_obj.nodes.keys())
         # pdb.set_trace()
         return instruments
 
-    def get_trading_sys(selfs):
-        # pdb.set_trace()
+    def get_trading_sys(self):
         trading_sys = {}
         # Retrieve a list of all trading systems
-        trading_obj = meta_obj.match({'category':'tradingsystem'})
+        trading_obj = self._meta_obj.match({'category':'tradingsystem'})
         systems = sorted(trading_obj.group('systemName').keys())
 
         # Retrieve a list of sub systems under each trading system
         for sys in systems:
-            subSys_obj = meta_obj.match({'systemName':'{}'.format(sys)})
+            subSys_obj = self._meta_obj.match({'systemName':'{}'.format(sys)})
             trading_sys[sys] = sorted(subSys_obj.group('subSystemName').keys())
         return trading_sys
+
+    # def get_optimizer(self):
+    #     opt_obj = self._meta_obj.match({'category':'optimiser'})
+    #     return sorted(opt_obj.nodes.keys())

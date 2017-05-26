@@ -120,10 +120,12 @@ class ViewBuilder(object):
         query_dependency = defaultdict(list)
         series_dependency = defaultdict(list)
         counter = 0
+        sys_to_subsys = self.data_provider.get_trading_sys()
         manipulators = {
             RawManipulator.PREFIX: RawManipulator(),
             AccumManipulator.PREFIX: AccumManipulator(),
-            CorrelManipulator.PREFIX: CorrelManipulator(self.data_provider)
+            CorrelManipulator.PREFIX: CorrelManipulator(self.data_provider),
+            StratManipulator.PREFIX: StratManipulator(self.data_provider, sys_to_subsys)
         }
         for row in jsonlist:
             for graph in row:
@@ -137,6 +139,7 @@ class ViewBuilder(object):
                         raise RuntimeError("Manipulator '{}' doesn't exist.".format(manipulator_name))
 
                     queries, token = manipulator.generate_queries(manipulator_name, specifier, graph['tags'])
+                    # pdb.set_trace()
                     manipulator_dep = Dependency((manipulator, token, s, queries))
                     series_dependency[s].append(series_dep)
                     series_dep.increment()

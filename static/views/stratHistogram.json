@@ -1,0 +1,39 @@
+{"viewName": "stratHistogram",
+  "prototypes": "basic_bar",
+	"plotOptions": {
+      "series": {
+        "animation": false
+      }
+    },
+	"viewDefinition": {
+		"title": {
+			"text": "{{market}} Histogram"
+		},
+		"xAxis": {
+			"categories": "{{axis}}",
+			"title": {
+				"text": "Sub-strategies"
+			},
+			"offset": 0,
+			"gridLineWidth": 1
+			},
+		"yAxis": [
+          {
+			  "min": -0.5,
+			  "max": 0.5,
+			  "title": {
+				  "text": "Weight"
+				}
+          },
+          {
+				"opposite": true
+			}],
+		"series": [{
+			"name": "Strategy Histogram",
+			"type": "column",
+			"pointPadding": 0,
+			"groupPadding": 0,
+			"pointPlacement": "between"
+		}]
+	}
+}

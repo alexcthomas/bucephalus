@@ -76,7 +76,6 @@ def views():
                 result = result_queue.get(block=True)
                 if not result:
                     break
-                print(result)
                 # pdb.set_trace()
                 partial_result = ujson.dumps(result)
                 yield(partial_result)

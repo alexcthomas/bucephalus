@@ -177,4 +177,3 @@ class HighChartsViewBuilder(JSONViewBuilder):
             ret['series'] = list(data.keys())
 
         return ret, modified
-
