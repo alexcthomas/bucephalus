@@ -56,8 +56,6 @@ def get_nav_data():
     These won't necessarily always be static
     """
     data = build_pages(data_provider)
-    logging.debug("Get nav data %s", data)
-    # pdb.set_trace()
     return jsonify(data)
 
 

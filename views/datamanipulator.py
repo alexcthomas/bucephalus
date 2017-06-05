@@ -98,18 +98,20 @@ class StratManipulator(object):
             start = datetime.datetime.strptime(start, '%Y%m%d')
             end = datetime.datetime.strptime(end, '%Y%m%d')
         instrument, sys = split_series(specifier)
+        all_markets = [i for i in self._data_provider.get_instruments() if not i.startswith("Spread")]
 
         if 'all' == instrument and any(sys in subsys for subsys in self._sys_to_subsys.values()):
             # If specific instruments are not given, loop through all instruments given a certain sub trading system
             # Sort the instruments by sector
-            all_markets = [i for i in self._data_provider.get_instruments() if not i.startswith("Spread")]
+            instrument_list = groupBySector(all_markets)
             queries = [SimulatorQuery(i + 'Combiner.' + sys, start, end) for i in groupBySector(all_markets)]
 
         elif sys in self._sys_to_subsys.keys():
             # If given a specific instrument, but only a trading system category,
             # loop through all sub-systems within the system
             queries = [SimulatorQuery(instrument + 'Combiner.' + s, start, end) for s in self._sys_to_subsys[sys]]
-        return queries, groupBySector(all_markets)
+            instrument_list = [instrument]
+        return queries, instrument_list
 
     def process_queries(self, token, results):
         """
@@ -118,13 +120,30 @@ class StratManipulator(object):
         """
         buckets = []
         queries = {}
-        for keys in list(results.keys()):
-            instrument = keys.name.split('Combiner')[0]
-            queries[instrument] = keys
-        for instrument in token:
-            # results[item] returns an array of a single array, consisting of date and data.
+
+        if 1 == len(token):
+            # This is strategy page under each instrument.
+            # Use strategy as keys to retrieve results.
+            for keys in list(results.keys()):
+                strat = keys.name.split('.')[1]
+                queries[strat] = keys
+            items = queries.keys()
+
+        else:
+            # This is strategy page for all instrument under per strategy.
+            # Use instruments (ordered by sector, passed in as token) as keys to retrieve results.
+            for keys in list(results.keys()):
+                instrument = keys.name.split('Combiner')[0]
+                queries[instrument] = keys
+            items = token
+
+        for item in items:
+            # Loop through strategies / ordered instruments to retrieve data.
+            # Note: results[item] returns an array of a single array, consisting of date and data.
             # Here we only extract the data to be appended in the buckets
-            buckets.append([instrument, results[queries[instrument]][0][1]if results[queries[instrument]] is not None else 0])
+            key = queries[item]
+            buckets.append([item, results[key][0][1] if results[key] is not None else 0])
+
         return buckets
 
 
