@@ -7,6 +7,11 @@
 	<div class="page-header">
 		<h1>Highcharts Graphs!</h1>
 	</div>
+	<div>
+		<b>Date: <input type="text" name="begin date" id="datepicker"></b>
+		<!--<b>Choose a date for daily strategy graph: </b><input type="date" name="begin date" id="begin_date", value="2017-05-22"> value="22/05/2017"-->
+		<input type="submit" id="submit_date" name="Submit">
+	</div>
 	{% for message in get_flashed_messages() %}
 	<div class="alert alert-warning">
 		<button type="button" class="close" data-dismiss="alert">&times;</button>
@@ -26,9 +31,11 @@
 <script>
 $(function () {
 	$(document).ready(function () {
+		renderDateSelector();
 		renderNavPane();
 		renderSimulationSelector();
 	});
 });
 </script>
+
 {% endblock %}

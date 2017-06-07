@@ -122,8 +122,7 @@ class StratManipulator(object):
         queries = {}
 
         if 1 == len(token):
-            # This is strategy page under each instrument.
-            # Use strategy as keys to retrieve results.
+            # This is strategy page under each instrument. Use strategy as keys to retrieve results.
             for keys in list(results.keys()):
                 strat = keys.name.split('.')[1]
                 queries[strat] = keys

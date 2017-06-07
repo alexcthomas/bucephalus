@@ -72,15 +72,15 @@ def _child_sector(sub_pages, series):
     return sector_pages
 
 
-def _child_strategy(trading_sys, all_markets):
+def _child_strategy(trading_sys, all_markets, start, finish):
     """
     Build a JSON page for each trading system, showing a bar chart of weights on 
     each sub system across all assets on a particular day
     Hierarchy level: child
     """
     pages, views = [], []
-    start = '20170519'
-    finish = '20170522'
+    # start = '20170519'
+    # finish = '20170522'
     for system in sorted(trading_sys):
         views = []
         row = 1
@@ -122,7 +122,7 @@ def _parent_homepage(all_markets):
     return home_page
 
 
-def build_pages(data_provider):
+def build_pages(data_provider, start='20170522', end='20170522'):
     """
     Build JSONG pages for the entire website
     """
@@ -170,7 +170,7 @@ def build_pages(data_provider):
     sector_pages = _child_sector(sub_pages, instr_by_sector)
     pages = [buildPage("By Instrument", nodes=sector_pages)]
     # pdb.set_trace()
-    strategy_pages= _child_strategy(trading_sys, ex_spreads_markets)
+    strategy_pages = _child_strategy(trading_sys, ex_spreads_markets, start, end)
     pages += [buildPage("By Strategy", nodes=strategy_pages)]
 
     pages.insert(0, _parent_homepage(ex_spreads_markets))

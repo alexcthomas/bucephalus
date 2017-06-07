@@ -14,6 +14,7 @@ from views.viewbuilder import ViewBuilder
 from views.viewdata import ViewDataProvider
 from views.navdata import build_pages
 from views.jsonbuilder import *
+import datetime as dt
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -37,16 +38,21 @@ def internal_server_error(e):
 def index():
     return render_template('index.html')
 
+@app.route('/?level1=By+Strategy&level2=CTFTS', methods=['GET'])
+def strategy_page():
+    return render_template('strategy.html')
 
 @app.route('/get_tokens', methods=['GET'])
 def get_tokens():
     return json.dumps(data_provider.get_tokens())
+
 
 @app.route('/set_token', methods=['GET'])
 def set_token():
     token = request.args.get('token')
     data_provider.set_token(token)
     return json.dumps({'token': token})
+
 
 # return a json response upon request
 @app.route('/navdata', methods=['GET'])
@@ -55,7 +61,17 @@ def get_nav_data():
     Returns data for building the nav pane contents
     These won't necessarily always be static
     """
-    data = build_pages(data_provider)
+    logging.debug('request: %s', request)
+    date = request.args.get('date')
+    # Convert user input dates from website into datetime
+    begin = dt.datetime.strptime(date.split('to')[0], "%d_%m_%Y")
+    end = dt.datetime.strptime(date.split('to')[1], "%d_%m_%Y")
+    # Convert datetime into string
+    begin = begin.strftime("%Y%m%d")
+    end = end.strftime("%Y%m%d")
+
+    logging.debug('dates: %s, %s', begin, end)
+    data = build_pages(data_provider, begin, end)
     return jsonify(data)
 
 
