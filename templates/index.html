@@ -5,11 +5,10 @@
 
 {% block page_content %}
 	<div class="page-header">
-		<h1>Highcharts Graphs!</h1>
+		<h1 id="strategy_header">Bucephalus Trading Monitor</h1>
 	</div>
-	<div>
-		<b>Date: <input type="text" name="begin date" id="datepicker"></b>
-		<!--<b>Choose a date for daily strategy graph: </b><input type="date" name="begin date" id="begin_date", value="2017-05-22"> value="22/05/2017"-->
+	<div id="datepicker-div">
+		<b>Date: <input type="text" name="begin date" id="begin_date"></b>
 		<input type="submit" id="submit_date" name="Submit">
 	</div>
 	{% for message in get_flashed_messages() %}
@@ -31,7 +30,6 @@
 <script>
 $(function () {
 	$(document).ready(function () {
-		renderDateSelector();
 		renderNavPane();
 		renderSimulationSelector();
 	});

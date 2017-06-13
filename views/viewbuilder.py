@@ -20,7 +20,7 @@ from views.htmlviews import HTMLViewBuilder
 
 
 def get_series(graph):
-    logging.debug('get_series on %s', graph)
+    logging.debug('get_series on %s', graph['tags']['series'])
     return [s.strip() for s in graph['tags']['series'].split(',')]
 
 

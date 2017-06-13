@@ -50,14 +50,13 @@ class ViewDataProvider(object):
             else:
                 queries.append((query_obj.name, query_obj.start, query_obj.finish))
 
-        logging.debug('Calling getRunData: %s', queries)
+        logging.debug('Calling getRunData with queries.')
         self._loader.getRunData(self._token, queries, callback)
 
     # Create a list of all instruments in simulations using the price data
     def get_instruments(self):
         instruments_obj = self._meta_obj.match({'category': 'asset'})
         instruments = sorted(instruments_obj.nodes.keys())
-        # pdb.set_trace()
         return instruments
 
     def get_trading_sys(self):

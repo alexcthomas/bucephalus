@@ -36,11 +36,16 @@ def internal_server_error(e):
 
 @app.route('/', methods=['GET'])
 def index():
-    return render_template('index.html')
-
-@app.route('/?level1=By+Strategy&level2=CTFTS', methods=['GET'])
-def strategy_page():
-    return render_template('strategy.html')
+    datepicker = False
+    if "Strategies" == request.args.get('level1'):
+        datepicker = True
+    elif "Strategy Weights" == request.args.get('level4'):
+        datepicker = True
+    return render_template('index.html', datepicker=datepicker)
+#
+# @app.context_processor
+# def get_time():
+#     return dict(myexample = dt.datetime.utcnow())
 
 @app.route('/get_tokens', methods=['GET'])
 def get_tokens():

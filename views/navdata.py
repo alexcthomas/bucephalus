@@ -23,13 +23,14 @@ def _ggrandchild_strategByAsset(trading_sys, instruments):
     start = '20170519'
     finish = '20170522'
     for system in sorted(trading_sys):
-        tags = buildTags("Weights", series=_series(instruments, prefix=StratManipulator.PREFIX, suffix=':'+ system),
+        tags = buildTags("Weights", series=_series(instruments, prefix=StratManipulator.PREFIX, suffix=':' + system),
                          start_date=start, end_date=finish, market=system, axis=trading_sys[system])
         views.append(buildViews("stratHistogram", tags, row))
         row += 1
-    page = buildPage("Strategy Weights", views)
+    longName = PQTrading.instrumentToLongName[instruments[0][:3]]
+    page = buildPage("Strategy Weights", views=views,
+                     tags={"header": "{} strategy weights".format(longName), "datepicker": True})
     pages.append(page)
-    logging.info("Building strategy weights page for %s instruments", instruments)
     return pages
 
 
@@ -51,8 +52,9 @@ def _grandchild_instrument(sub_pages, sub_instruments):
              buildViews("position", pos_tag, 2), buildViews("accumulated", pnl_tag, 2)]
 
     # Create the child page for the instrument, passing in strategy-level pages
-    grandchild_page = buildPage(PQTrading.instrumentToLongName[sub_instruments[0][:3]], views, nodes=sub_pages)
-    logging.info("Building webpage for %s instrument", sub_instruments[0][:3])
+    instrument_name = PQTrading.instrumentToLongName[sub_instruments[0][:3]]
+    grandchild_page = buildPage(instrument_name, views=views, nodes=sub_pages,
+                                tags={"header": "{} basic graphs".format(instrument_name), "datepicker": False})
     return grandchild_page
 
 
@@ -65,10 +67,11 @@ def _child_sector(sub_pages, series):
     for sector in sorted(sub_pages.keys()):
         sector_tags = buildTags("position", series=_series(series[sector]), market=sector)
         sector_view = [buildViews("position", sector_tags, 1)]
-        sector_page = buildPage(sector, sector_view, nodes=sub_pages[sector])
+        sector_page = buildPage(sector, views=sector_view, nodes=sub_pages[sector],
+                                tags={"header": "{} Positions".format(sector), "datepicker": False})
         sector_pages.append(sector_page)
 
-        logging.info("Building webpage for %s sector", sector)
+        logging.info("Built webpage for %s sector", sector)
     return sector_pages
 
 
@@ -85,15 +88,16 @@ def _child_strategy(trading_sys, all_markets, start, finish):
         views = []
         row = 1
         for subsys in trading_sys[system]:
-            # pdb.set_trace()
             tags = buildTags(datatype="Weight", series=_series(['all'], prefix=StratManipulator.PREFIX, suffix=':'+subsys),
                              start_date=start, end_date=finish, market=subsys,
                              axis=[PQTrading.instrumentToLongName[i[:3]] for i in groupBySector(all_markets)])
             views.append(buildViews("stratHistogram", tags, row))
             row += 1
-        page = buildPage(system, views)
+        page = buildPage(system, views=views,
+                         tags={"header": "{} strategy weights".format(system), "datepicker": True})
         pages.append(page)
-    # pdb.set_trace()
+
+        logging.info("Built webpage for %s", system)
     return pages
 
 
@@ -118,7 +122,9 @@ def _parent_homepage(all_markets):
     histo_tag = buildTags("price", series=RawManipulator.PREFIX + ":Portfolio.netPL", market="Annual Net Portf")
     home_view.append(buildViews("histogram", histo_tag, row))
 
-    home_page = buildPage("Root", home_view)
+    home_page = buildPage("Root", views=home_view,
+                          tags={"header": "Portfolio Monitor", "datepicker": False})
+    logging.info("Built home page")
     return home_page
 
 
@@ -168,10 +174,10 @@ def build_pages(data_provider, start='20170522', end='20170522'):
         sub_instruments = []
 
     sector_pages = _child_sector(sub_pages, instr_by_sector)
-    pages = [buildPage("By Instrument", nodes=sector_pages)]
+    pages = [buildPage("Instruments", nodes=sector_pages)]
     # pdb.set_trace()
     strategy_pages = _child_strategy(trading_sys, ex_spreads_markets, start, end)
-    pages += [buildPage("By Strategy", nodes=strategy_pages)]
+    pages += [buildPage("Strategies", nodes=strategy_pages)]
 
     pages.insert(0, _parent_homepage(ex_spreads_markets))
     return pages

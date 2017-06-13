@@ -32,7 +32,9 @@ function getJsonFromUrl() {
 	}
 	query.split("&").forEach(function(part) {
 		var item = part.split("=");
-		result.push(decodeURIComponent(item[1]));
+		// Remove + sign with space in strings longer than a word
+		var replaced = item[1].split('+').join(' ');
+		result.push(decodeURIComponent(replaced));
 	});
 	return result;
 }
@@ -131,25 +133,37 @@ var renderSimulationSelector = function() {
     });
 };
 
-var renderDateCallback = function (event) {
-	renderNavPane();
-};
-
-var renderDateSelector = function () {
-	$('#submit_date').click(renderDateCallback);
-};
 
 // gets data to fill out the nav pane
 var renderNavPane = function() {
 	// var begin_date = new Date($('datepicker').val());
-	var begin_date = $("#datepicker").datepicker("getDate");
-	// set the end date as the next working day of begin date
-	var end_date = new Date(begin_date.getFullYear(), begin_date.getMonth(), begin_date.getDate()+1);
-	while(end_date.getDay()>=5 | end_date.getDay()<=0){
-		end_date  = new Date(end_date.setDate(end_date.getDate()+1));
+	var begin_date;
+	var end_date;
+
+	// Check if user has submitted any date for strategy graphs
+	var submitted = false
+	document.getElementById('submit_date').onclick = function(){
+		submitted = true
 	}
-	begin_date = [begin_date.getDate(), begin_date.getMonth()+1, begin_date.getFullYear()].join('_')
-	end_date = [end_date.getDate(), end_date.getMonth()+1, end_date.getFullYear()].join('_')
+
+	if (!submitted){
+		// Use default dates as begin / end dates when date picker is not available on the page
+		begin_date = "22_05_2017";
+		end_date = "23_05_2017"
+	}
+
+	else {
+		begin_date = $("#begin_date").datepicker("getDate");
+		end_date = new Date(begin_date.getFullYear(), begin_date.getMonth(), begin_date.getDate()+1);
+
+		// set the end date as the next working day of begin date
+		while(end_date.getDay()>=5 | end_date.getDay()<=0){
+			end_date  = new Date(end_date.setDate(end_date.getDate()+1));
+		}
+
+		begin_date = [begin_date.getDate(), begin_date.getMonth()+1, begin_date.getFullYear()].join('_');
+		end_date = [end_date.getDate(), end_date.getMonth()+1, end_date.getFullYear()].join('_')
+	}
 
 	$.getJSON('/navdata?date='+begin_date+'to'+end_date,
 	function(data) {

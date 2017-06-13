@@ -56,13 +56,25 @@ var renderContentPane = function(views, tags)
 		viewdata = navData['Root'].views;
 		pagetags = navData['Root'].tags
 	} else {
-		viewdata = views
+		viewdata = views;
 		pagetags = tags
 	}
 
 	var rows = getViewRows(viewdata);
 	var viewContainers = createViews(rows, pagetags);
 
+	// Customise the page header using the header title passed in from JSON tags
+	var header = pagetags["header"];
+	$('#strategy_header').text(header);
+
+	// Conditionally display date picker on the page as required by JSON tags
+	var datepicker = pagetags["datepicker"];
+	if (!datepicker) {
+		document.getElementById("datepicker-div").style.display="none";
+	}
+	else {
+		document.getElementById("datepicker-div").style.display="inline";
+	}
 	// Send the JSON for this page to the server in one block so we can do all the queries in one go.
 	// We expect to receive back a series of blocks.  Each block will be either a graph block or
 	// a named data block - seems complicated, but means we can combine data (i.e. if graph A and B both
@@ -120,7 +132,7 @@ var createViews = function(rows, pagetags) {
 	$.each(rows, function(i, row) {
 		var nviews = row.length;
 		if (nviews!=0) {
-			var viewWidth =  (width / nviews) - 10 // margin of the views div
+			var viewWidth =  (width / nviews) - 10; // margin of the views div
 
 			$.each(row, function(j, view) {
 				var viewTarget = createPanel(viewWidth);
@@ -136,7 +148,7 @@ var createViews = function(rows, pagetags) {
 	});
 
 	return views;
-}
+};
 
 
 
