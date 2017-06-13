@@ -12,7 +12,7 @@ def _series(instruments, suffix=None, prefix=RawManipulator.PREFIX):
     return ','.join([prefix + ':' + i + (suffix if suffix is not None else '') for i in instruments])
 
 
-def _ggrandchild_strategByAsset(trading_sys, instruments):
+def _ggrandchild_strategByAsset(trading_sys, instruments, start, finish):
     """
     Build a JSON page under each instrument, containing a bar chart of the weights placed on 
     every sub trading system under each trading system on a particular day
@@ -20,8 +20,6 @@ def _ggrandchild_strategByAsset(trading_sys, instruments):
     """
     pages, views = [], []
     row = 1
-    start = '20170519'
-    finish = '20170522'
     for system in sorted(trading_sys):
         tags = buildTags("Weights", series=_series(instruments, prefix=StratManipulator.PREFIX, suffix=':' + system),
                          start_date=start, end_date=finish, market=system, axis=trading_sys[system])
@@ -42,10 +40,11 @@ def _grandchild_instrument(sub_pages, sub_instruments):
     market = sub_instruments[0][:3]
 
     # Build tags for four graphs
-    price_tag = buildTags("price", series=_series(sub_instruments, '.prices'), market=market)
-    vol_tag = buildTags("volatility", series=_series(sub_instruments, 'PositionVol.volatility'), market=market)
-    pos_tag = buildTags("position", series=_series(sub_instruments, 'FinalPos.position'), market=market)
-    pnl_tag = buildTags("price", series=_series(sub_instruments, 'FinalPL.netPL'), market="{} net PnL".format(market))
+    price_tag = buildTags("price", series=_series(sub_instruments, suffix='.prices'), market='{} Price'.format(market))
+    vol_tag = buildTags("volatility", series=_series(sub_instruments, suffix='PositionVol.volatility'), market=market)
+    pos_tag = buildTags("position", series=_series(sub_instruments, suffix='FinalPos.position'), market=market)
+    pnl_tag = buildTags("accumulated", series=_series(sub_instruments, suffix='FinalPL.netPL', prefix=AccumManipulator.PREFIX),
+                        market="{} accumulated net PnL".format(market))
 
     # Use the tags to build four views
     views = [buildViews("price", price_tag, 1), buildViews("volatility", vol_tag, 1),
@@ -53,6 +52,12 @@ def _grandchild_instrument(sub_pages, sub_instruments):
 
     # Create the child page for the instrument, passing in strategy-level pages
     instrument_name = PQTrading.instrumentToLongName[sub_instruments[0][:3]]
+
+    # If instrument name contains (), use the part within the brackets
+    try:
+        instrument_name = instrument_name[instrument_name.index("(") + 1:instrument_name.rindex(")")]
+    except:
+        pass
     grandchild_page = buildPage(instrument_name, views=views, nodes=sub_pages,
                                 tags={"header": "{} basic graphs".format(instrument_name), "datepicker": False})
     return grandchild_page
@@ -155,7 +160,7 @@ def build_pages(data_provider, start='20170522', end='20170522'):
             i += 1
             continue
 
-        ggrandchild_pages = _ggrandchild_strategByAsset(trading_sys, sub_instruments)
+        ggrandchild_pages = _ggrandchild_strategByAsset(trading_sys, sub_instruments, start, end)
 
         grandchild_page = _grandchild_instrument(ggrandchild_pages, sub_instruments)
 
@@ -175,7 +180,6 @@ def build_pages(data_provider, start='20170522', end='20170522'):
 
     sector_pages = _child_sector(sub_pages, instr_by_sector)
     pages = [buildPage("Instruments", nodes=sector_pages)]
-    # pdb.set_trace()
     strategy_pages = _child_strategy(trading_sys, ex_spreads_markets, start, end)
     pages += [buildPage("Strategies", nodes=strategy_pages)]
 

@@ -23,7 +23,8 @@ class ViewDataProvider(object):
         # self._token = self.get_tokens()[0]
 
         # Use the token with updated tags
-        self._token = '[ibuchanan:20170523T161710.490641,1]'
+        self._token = '[Pegasus-new:20170613T090230.296785,121]'
+        # self._token = '[ibuchanan:20170523T161710.490641,1]'
         # self._token = '[Full.Pegasus:20170516T115847.470424,1]'
 
         self._meta_obj = self._loader.getRunMeta(self._token)
