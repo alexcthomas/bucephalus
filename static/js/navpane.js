@@ -11,7 +11,7 @@ var getNodeLocation = function(node) {
 		loc.push(node.text);
 		node = tree.getParent(node);
 	}
-	while (node != undefined)
+	while (node != undefined);
 
 	loc = loc.reverse();
 
@@ -133,38 +133,25 @@ var renderSimulationSelector = function() {
     });
 };
 
+// Check if user has submitted any date for strategy graphs
+document.getElementById('submit_date').onclick = function(){
+	begin_date = $("#begin_date").datepicker("getDate");
+	end_date = new Date(begin_date.getFullYear(), begin_date.getMonth(), begin_date.getDate()+1);
+
+	// set the end date as the next working day of begin date
+	while(end_date.getDay()>5 | end_date.getDay()<=0){
+		end_date  = new Date(end_date.setDate(end_date.getDate()+1));
+	}
+
+	begin_date = [begin_date.getDate(), begin_date.getMonth()+1, begin_date.getFullYear()].join('_');
+	end_date = [end_date.getDate(), end_date.getMonth()+1, end_date.getFullYear()].join('_');
+
+	renderNavPane(begin_date, end_date)
+};
 
 // gets data to fill out the nav pane
-var renderNavPane = function() {
-	// var begin_date = new Date($('datepicker').val());
-	var begin_date;
-	var end_date;
-
-	// Check if user has submitted any date for strategy graphs
-	var submitted = false
-	document.getElementById('submit_date').onclick = function(){
-		submitted = true
-	}
-
-	if (!submitted){
-		// Use default dates as begin / end dates when date picker is not available on the page
-		begin_date = "22_05_2017";
-		end_date = "23_05_2017"
-	}
-
-	else {
-		begin_date = $("#begin_date").datepicker("getDate");
-		end_date = new Date(begin_date.getFullYear(), begin_date.getMonth(), begin_date.getDate()+1);
-
-		// set the end date as the next working day of begin date
-		while(end_date.getDay()>=5 | end_date.getDay()<=0){
-			end_date  = new Date(end_date.setDate(end_date.getDate()+1));
-		}
-
-		begin_date = [begin_date.getDate(), begin_date.getMonth()+1, begin_date.getFullYear()].join('_');
-		end_date = [end_date.getDate(), end_date.getMonth()+1, end_date.getFullYear()].join('_')
-	}
-
+// Use default dates as begin / end dates when date picker is not available on the page
+var renderNavPane = function(begin_date = '22_05_2017', end_date = '23_05_2017') {
 	$.getJSON('/navdata?date='+begin_date+'to'+end_date,
 	function(data) {
 		var tgt = $("#sidebar-nav");

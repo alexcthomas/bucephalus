@@ -86,6 +86,7 @@ class StratManipulator(object):
     def __init__(self, data_provider, sys_to_subsys):
         self._data_provider = data_provider
         self._sys_to_subsys = sys_to_subsys
+        # pdb.set_trace()
 
     def generate_queries(self, manipulator, specifier, tags):
         """
@@ -109,6 +110,7 @@ class StratManipulator(object):
         elif sys in self._sys_to_subsys.keys():
             # If given a specific instrument, but only a trading system category,
             # loop through all sub-systems within the system
+            # pdb.set_trace()
             queries = [SimulatorQuery(instrument + 'Combiner.' + s, start, end) for s in self._sys_to_subsys[sys]]
             instrument_list = [instrument]
         return queries, instrument_list
@@ -120,13 +122,13 @@ class StratManipulator(object):
         """
         buckets = []
         queries = {}
-
         if 1 == len(token):
             # This is strategy page under each instrument. Use strategy as keys to retrieve results.
             for keys in list(results.keys()):
                 strat = keys.name.split('.')[1]
+                logging.debug('Strategy: %s', strat)
                 queries[strat] = keys
-            items = queries.keys()
+            items = sorted(queries.keys())
 
         else:
             # This is strategy page for all instrument under per strategy.

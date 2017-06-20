@@ -71,7 +71,3 @@ class ViewDataProvider(object):
             subSys_obj = self._meta_obj.match({'systemName':'{}'.format(sys)})
             trading_sys[sys] = sorted(subSys_obj.group('subSystemName').keys())
         return trading_sys
-
-    # def get_optimizer(self):
-    #     opt_obj = self._meta_obj.match({'category':'optimiser'})
-    #     return sorted(opt_obj.nodes.keys())

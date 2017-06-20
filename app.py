@@ -83,10 +83,8 @@ def get_nav_data():
 @app.route('/views', methods=['POST'])
 def views():
     result_queue = Queue()
-
     # This function does not block until the results are all back
     worker_thread = view_defs.build_views(request.json, result_queue)
-
     # Flask can send results back piecemeal, but it needs a generator to do this.  We block on the callback
     # here by waiting on the result_queue.
     def result_generator():
@@ -95,7 +93,6 @@ def views():
                 result = result_queue.get(block=True)
                 if not result:
                     break
-                # pdb.set_trace()
                 partial_result = ujson.dumps(result)
                 yield(partial_result)
                 yield(';')
