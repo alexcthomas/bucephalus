@@ -30,7 +30,18 @@
 <script>
 $(function () {
 	$(document).ready(function () {
-		renderNavPane();
+	    var jsonList = getJsonFromUrl();
+	    var dates = jsonList[jsonList.length-1];
+	    if (typeof dates !== 'undefined') {
+	        var begin = dates.split(',')[0];
+			var end = dates.split(',')[1];
+			console.log(jsonList, dates);
+			renderNavPane(begin, end);
+			$("#begin_date").datepicker('setDate', begin.split('_').join('/'));
+		}
+	    else {
+	        renderNavPane();
+		}
 		renderSimulationSelector();
 	});
 });

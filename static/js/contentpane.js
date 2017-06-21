@@ -9,14 +9,30 @@ var buildTagString = function(tags){
 	return ret;
 }
 
+var isDataEmpty = function(data) {
+	var result = true
+	$.each(data, function (i, obj) {
+		$.each(obj.data, function (index, arr) {
+			if (arr[1] != 0) {
+				result = false;
+			};
+        });
+    });
+	return result;
+};
+
 var renderView = function(target, info, definition, seriesNameToData) {
 	var data = [];
 	$.each(definition.series, function(i, series) {
 		data.push({name: series, data: seriesNameToData[series]});
 	});
 	definition.series = data;
- 	ViewRenderers.render(definition.renderer, target, definition);
 
+	if (isDataEmpty(data)) {
+		target.css('visibility', 'hidden');
+    } else {
+        ViewRenderers.render(definition.renderer, target, definition);
+    }
 };
 
 var createPanel = function(width) {

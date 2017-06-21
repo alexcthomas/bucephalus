@@ -34,6 +34,7 @@ function getJsonFromUrl() {
 		var item = part.split("=");
 		// Remove + sign with space in strings longer than a word
 		var replaced = item[1].split('+').join(' ');
+		replaced = replaced.split('to');
 		result.push(decodeURIComponent(replaced));
 	});
 	return result;
@@ -74,12 +75,12 @@ var selectNode = function(tgt, levels) {
 };
 
 // gets called when a tree node is selected
-var treeNodeSelect = function(event, node) {
+var treeNodeSelect = function(event, node, begin, end) {
 	renderContentPane(node.views, node.tags);
 
 	var nodeLocation = getNodeLocation(node);
-	var nodeUrl = "?" + $.param(nodeLocation);
-	console.log(nodeLocation, nodeUrl);
+	var nodeUrl = "?" + $.param(nodeLocation) + '&date=' + begin + 'to' + end;
+	console.log(nodeLocation + nodeUrl);
 	window.history.pushState("", "", nodeUrl);
 };
 
@@ -158,6 +159,9 @@ var renderNavPane = function(begin_date = '22_05_2017', end_date = '23_05_2017')
 		var viewdata = {};
 		var currentUrl = getJsonFromUrl();
 
+		//remove previous dates from the url
+		currentUrl.pop()
+
 		$.each(data, function(key, val) {
 			viewdata[val.text] = val;
 		});
@@ -171,7 +175,7 @@ var renderNavPane = function(begin_date = '22_05_2017', end_date = '23_05_2017')
 		var tree = tgt.treeview({
 			levels: 1,
 			data: data,
-			onNodeSelected: treeNodeSelect,
+			onNodeSelected: function(event, node){treeNodeSelect(event, node, begin_date, end_date)},
 			onNodeUnselected: treeNodeUnSelect
 		});
 

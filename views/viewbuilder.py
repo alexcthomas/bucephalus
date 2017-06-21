@@ -219,11 +219,12 @@ class ViewBuilder(object):
                                 if series_name in sent_to_client:
                                     continue
                                 sent_to_client.add(series_name)
-                                result_queue.put({'category': 'data', 'series': series_name, 'data': data_series[series_name]})
-
+                                data = data_series[series_name]
+                                result_queue.put({'category': 'data', 'series': series_name, 'data': data})
                         result_queue.put({'id': counter, 'category': 'graph', 'result': result})
 
             except Exception:
+                # pdb.set_trace()
                 ex_type, ex, tb = sys.exc_info()
                 logging.error('Error in callback: {}\n{}'.format(ex, "\n".join(traceback.format_tb(tb))))
 

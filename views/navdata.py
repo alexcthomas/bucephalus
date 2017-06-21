@@ -87,8 +87,6 @@ def _child_strategy(trading_sys, all_markets, start, finish):
     Hierarchy level: child
     """
     pages, views = [], []
-    # start = '20170519'
-    # finish = '20170522'
     for system in sorted(trading_sys):
         views = []
         row = 1
@@ -104,6 +102,17 @@ def _child_strategy(trading_sys, all_markets, start, finish):
 
         logging.info("Built webpage for %s", system)
     return pages
+
+
+def _child_risk(risk_factors):
+    views = []
+    row = 1
+    for factor in risk_factors:
+        tags = buildTags(datatype="position", series=RawManipulator.PREFIX + ":EPV." + factor)
+        views.append(buildViews("price", tags, row))
+        row += 1
+    page = buildPage("Risk", views=views, tags={"header": "Risk factors", "datepicker": False})
+    return page
 
 
 def _parent_homepage(all_markets):
@@ -182,6 +191,8 @@ def build_pages(data_provider, start='20170522', end='20170522'):
     pages = [buildPage("Instruments", nodes=sector_pages)]
     strategy_pages = _child_strategy(trading_sys, ex_spreads_markets, start, end)
     pages += [buildPage("Strategies", nodes=strategy_pages)]
+    risk_pages = _child_risk(["alpha", "multiplier", "thermostat", "var"])
+    # pages += [buildPage("Risk", nodes=risk_pages)]
 
     pages.insert(0, _parent_homepage(ex_spreads_markets))
     return pages
