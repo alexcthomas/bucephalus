@@ -29,6 +29,7 @@ var renderView = function(target, info, definition, seriesNameToData) {
 	definition.series = data;
 
 	if (isDataEmpty(data)) {
+		console.log('Data is empty:', data[0].name);
 		target.css('visibility', 'hidden');
     } else {
         ViewRenderers.render(definition.renderer, target, definition);
@@ -110,6 +111,7 @@ var renderContentPane = function(views, tags)
 				// for the separator semicolons. 
 				var current, response = e.currentTarget.response;
 				var nextSemicolonIdx;
+
 				while (-1 != (nextSemicolonIdx = response.indexOf(';', lastProcessedIdx))) {
 					// Extract a chunk from the data received so far
 					var chunk = response.substring(lastProcessedIdx, nextSemicolonIdx);

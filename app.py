@@ -5,6 +5,7 @@ import sys
 import traceback
 import logging
 import ujson
+import numpy as np
 import PQTrading
 import Psycopg2Tools
 from queue import Queue
@@ -93,6 +94,8 @@ def views():
                 result = result_queue.get(block=True)
                 if not result:
                     break
+                if 'data' == result['category']:
+                    result['data'] = np.nan_to_num(result['data'])
                 partial_result = ujson.dumps(result)
                 yield(partial_result)
                 yield(';')

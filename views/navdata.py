@@ -104,11 +104,11 @@ def _child_strategy(trading_sys, all_markets, start, finish):
     return pages
 
 
-def _child_risk(risk_factors):
+def _parent_risk(risk_factors):
     views = []
     row = 1
     for factor in risk_factors:
-        tags = buildTags(datatype="position", series=RawManipulator.PREFIX + ":EPV." + factor)
+        tags = buildTags(datatype="price", series=RawManipulator.PREFIX + ":EPV." + factor)
         views.append(buildViews("price", tags, row))
         row += 1
     page = buildPage("Risk", views=views, tags={"header": "Risk factors", "datepicker": False})
@@ -144,11 +144,12 @@ def _parent_homepage(all_markets):
 
 def build_pages(data_provider, start='20170522', end='20170522'):
     """
-    Build JSONG pages for the entire website
+    Build JSON pages for the entire website
     """
-    # instrument_list = ['CCEC1','CCEC2']
     all_markets = data_provider.get_instruments()
     trading_sys = data_provider.get_trading_sys()
+
+    # all_markets = ['CCEC1','CCEC2']
     i, sub_instruments, ex_spreads_markets = 0, [], []
 
     sub_pages, instr_by_sector = {}, {}
@@ -191,8 +192,8 @@ def build_pages(data_provider, start='20170522', end='20170522'):
     pages = [buildPage("Instruments", nodes=sector_pages)]
     strategy_pages = _child_strategy(trading_sys, ex_spreads_markets, start, end)
     pages += [buildPage("Strategies", nodes=strategy_pages)]
-    risk_pages = _child_risk(["alpha", "multiplier", "thermostat", "var"])
-    # pages += [buildPage("Risk", nodes=risk_pages)]
+    risk_pages = _parent_risk(["alpha", "multiplier", "thermostat", "var"])
+    pages.append(risk_pages)
 
     pages.insert(0, _parent_homepage(ex_spreads_markets))
     return pages

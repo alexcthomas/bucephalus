@@ -224,7 +224,6 @@ class ViewBuilder(object):
                         result_queue.put({'id': counter, 'category': 'graph', 'result': result})
 
             except Exception:
-                # pdb.set_trace()
                 ex_type, ex, tb = sys.exc_info()
                 logging.error('Error in callback: {}\n{}'.format(ex, "\n".join(traceback.format_tb(tb))))
 
