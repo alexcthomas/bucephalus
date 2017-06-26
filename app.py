@@ -94,6 +94,8 @@ def views():
                 result = result_queue.get(block=True)
                 if not result:
                     break
+
+                # Convert NaN's to 0's
                 if 'data' == result['category']:
                     result['data'] = np.nan_to_num(result['data'])
                 partial_result = ujson.dumps(result)

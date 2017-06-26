@@ -45,10 +45,13 @@ def _grandchild_instrument(sub_pages, sub_instruments):
     pos_tag = buildTags("position", series=_series(sub_instruments, suffix='FinalPos.position'), market=market)
     pnl_tag = buildTags("accumulated", series=_series(sub_instruments, suffix='FinalPL.netPL', prefix=AccumManipulator.PREFIX),
                         market="{} accumulated net PnL".format(market))
+    ret_tag = buildTags("price", series=_series(sub_instruments, suffix='Combiner.expRtn'),
+                        market='{} Expected Return'.format(market))
 
-    # Use the tags to build four views
+    # Use the tags to build the views
     views = [buildViews("price", price_tag, 1), buildViews("volatility", vol_tag, 1),
-             buildViews("position", pos_tag, 2), buildViews("accumulated", pnl_tag, 2)]
+             buildViews("position", pos_tag, 2), buildViews("accumulated", pnl_tag, 2),
+             buildViews("price", ret_tag, 3)]
 
     # Create the child page for the instrument, passing in strategy-level pages
     instrument_name = PQTrading.instrumentToLongName[sub_instruments[0][:3]]

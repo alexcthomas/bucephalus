@@ -7,11 +7,6 @@
 		},
 		"xAxis": {
 			"type": "datetime"
-		},
-		"yAxis": {
-			"title": {
-				"text": "Price"
-			}
 		}
 	}
 }

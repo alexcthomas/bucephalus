@@ -211,6 +211,7 @@ class ViewBuilder(object):
                             raise RuntimeError('Unknown viewtype "{}" - valid options are: {}'.format(
                                 viewtype, ", ".join(self.views.keys())))
                         result, data_series = viewGenerator.build_view(viewtype, graph['tags'], results)
+                        # pdb.set_trace()
 
                         # Send any NEW names back to the client - note that this means that if you MAKE UP any new
                         # data, you've got to give it a NEW name.  Also - no mutating data sets!
