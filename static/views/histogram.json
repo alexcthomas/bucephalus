@@ -8,7 +8,7 @@
     },
 	"viewDefinition": {
 		"title": {
-			"text": "{{market}} Histogram"
+			"text": "{{market}}"
 		},
 		"xAxis": {
 			"type": "datetime",

@@ -6,7 +6,6 @@ import threading
 import pandas as pd
 import logging
 import ujson
-import pprint
 import collections
 from datamanipulator import *
 import numpy as np
@@ -176,7 +175,7 @@ class ViewBuilder(object):
             query = queryNameToQuery[sim_series]
             try:
                 # Convert the results to a usable format
-                if data is not None:
+                if data is not None and 0 != len(data):
                     dates, value = zip(*data)
                     s = pd.Series(value, index=dates)
                     loaded_results[query] = encode_pandas_series(s)

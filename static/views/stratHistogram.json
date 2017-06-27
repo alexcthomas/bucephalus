@@ -7,7 +7,7 @@
     },
 	"viewDefinition": {
 		"title": {
-			"text": "{{market}} Histogram"
+			"text": "{{market}}"
 		},
 		"xAxis": {
 			"categories": "{{axis}}",

@@ -151,7 +151,6 @@ class HighChartsViewBuilder(JSONViewBuilder):
         ret = view.render_tags(tags)
         ret['renderer'] = 'highcharts'
         logging.debug('build_view(%s, %s)', view_name, tags)
-
         if view_name == 'histogram':
             modified, buckets = {}, []
             # pdb.set_trace()

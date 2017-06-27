@@ -31,9 +31,11 @@ app.extensions['bootstrap']['cdns']['jquery'] = WebCDN('//cdnjs.cloudflare.com/a
 def page_not_found(e):
     return render_template('404.html'), 404
 
+
 @app.errorhandler(500)
 def internal_server_error(e):
     return render_template('500.html'), 500
+
 
 @app.route('/', methods=['GET'])
 def index():
@@ -43,10 +45,7 @@ def index():
     elif "Strategy Weights" == request.args.get('level4'):
         datepicker = True
     return render_template('index.html', datepicker=datepicker)
-#
-# @app.context_processor
-# def get_time():
-#     return dict(myexample = dt.datetime.utcnow())
+
 
 @app.route('/get_tokens', methods=['GET'])
 def get_tokens():
@@ -96,8 +95,12 @@ def views():
                     break
 
                 # Convert NaN's to 0's
-                if 'data' == result['category']:
-                    result['data'] = np.nan_to_num(result['data'])
+                if 'data' == result['category'] and result['data'] is not None:
+                    # Convert NaN's into 0's
+                    for l in result['data']:
+                        # pdb.set_trace()
+                        if np.isnan(l[1]):
+                            l[1] = 0
                 partial_result = ujson.dumps(result)
                 yield(partial_result)
                 yield(';')

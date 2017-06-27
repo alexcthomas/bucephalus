@@ -10,14 +10,12 @@ class RawManipulator(object):
     PREFIX = 'raw'
 
     def generate_queries(self, manipulator, specifier, tags):
-
         start = tags['start_date']
         end = tags['end_date']
         if start is not None and end is not None:
             start = datetime.datetime.strptime(start, '%Y%m%d')
             end = datetime.datetime.strptime(end, '%Y%m%d')
-            return [SimulatorQuery(specifier, start, end)],(manipulator, specifier, tags)
-
+            return [SimulatorQuery(specifier, start, end)], (manipulator, specifier, tags)
         sim_query = SimulatorQuery(specifier)
         return [sim_query], (manipulator, specifier, tags)
 
@@ -64,7 +62,6 @@ class CorrelManipulator(object):
         """
         keys = sorted(list(results.keys()), key=lambda q: q.name)
         modified, correl = {}, []
-        # pdb.set_trace()
         for i1, first in enumerate(keys):
             for i2, second in enumerate(keys):
                 if results[first] is not None and results[second] is not None:
@@ -86,7 +83,6 @@ class StratManipulator(object):
     def __init__(self, data_provider, sys_to_subsys):
         self._data_provider = data_provider
         self._sys_to_subsys = sys_to_subsys
-        # pdb.set_trace()
 
     def generate_queries(self, manipulator, specifier, tags):
         """
@@ -110,8 +106,10 @@ class StratManipulator(object):
         elif sys in self._sys_to_subsys.keys():
             # If given a specific instrument, but only a trading system category,
             # loop through all sub-systems within the system
-            # pdb.set_trace()
-            queries = [SimulatorQuery(instrument + 'Combiner.' + s, start, end) for s in self._sys_to_subsys[sys]]
+            if start is None and end is None:
+                queries = [SimulatorQuery(instrument + 'Combiner.' + s) for s in self._sys_to_subsys[sys]]
+            else:
+                queries = [SimulatorQuery(instrument + 'Combiner.' + s, start, end) for s in self._sys_to_subsys[sys]]
             instrument_list = [instrument]
         return queries, instrument_list
 
@@ -130,6 +128,16 @@ class StratManipulator(object):
                 queries[strat] = keys
             items = sorted(queries.keys())
 
+            for item in items:
+                pdb.set_trace()
+                # Loop through strategies / ordered instruments to retrieve data.
+                # Note: results[item] returns an array of a single array, consisting of date and data.
+                # Here we only extract the data to be appended in the buckets
+                key = queries[item]
+                buckets.append([item, results[key] if results[key] is not None else 0])
+
+            return buckets
+
         else:
             # This is strategy page for all instrument under per strategy.
             # Use instruments (ordered by sector, passed in as token) as keys to retrieve results.
@@ -138,14 +146,14 @@ class StratManipulator(object):
                 queries[instrument] = keys
             items = token
 
-        for item in items:
-            # Loop through strategies / ordered instruments to retrieve data.
-            # Note: results[item] returns an array of a single array, consisting of date and data.
-            # Here we only extract the data to be appended in the buckets
-            key = queries[item]
-            buckets.append([item, results[key][0][1] if results[key] is not None else 0])
+            for item in items:
+                # Loop through strategies / ordered instruments to retrieve data.
+                # Note: results[item] returns an array of a single array, consisting of date and data.
+                # Here we only extract the data to be appended in the buckets
+                key = queries[item]
+                buckets.append([item, results[key][0][1] if results[key] is not None else 0])
 
-        return buckets
+            return buckets
 
 
 def groupBySector(all_markets):

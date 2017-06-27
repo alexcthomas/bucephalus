@@ -2,6 +2,7 @@ from jsonbuilder import *
 import PQTrading
 import logging
 from datamanipulator import *
+import math
 import pdb
 import datetime
 
@@ -13,6 +14,7 @@ def _series(instruments, suffix=None, prefix=RawManipulator.PREFIX):
 
 
 def _ggrandchild_strategByAsset(trading_sys, instruments, start, finish):
+    # pdb.set_trace()
     """
     Build a JSON page under each instrument, containing a bar chart of the weights placed on 
     every sub trading system under each trading system on a particular day
@@ -20,15 +22,19 @@ def _ggrandchild_strategByAsset(trading_sys, instruments, start, finish):
     """
     pages, views = [], []
     row = 1
-    for system in sorted(trading_sys):
-        tags = buildTags("Weights", series=_series(instruments, prefix=StratManipulator.PREFIX, suffix=':' + system),
-                         start_date=start, end_date=finish, market=system, axis=trading_sys[system])
-        views.append(buildViews("stratHistogram", tags, row))
-        row += 1
+    for i in instruments:
+        for system in sorted(trading_sys):
+            series = ','.join([RawManipulator.PREFIX + ':' + i + 'Combiner.{}'.format(subsys) for subsys in trading_sys[system]])
+            tags = buildTags("Weights", series=series, market=system, axis=trading_sys[system])
+            views.append(buildViews("price", tags, row))
+                # logging.info("row: %s", math.floor(row/3)+1)
+            row += 1
+        row = 1
     longName = PQTrading.instrumentToLongName[instruments[0][:3]]
-    page = buildPage("Strategy Weights", views=views,
-                     tags={"header": "{} strategy weights".format(longName), "datepicker": True})
+    page = buildPage("Optimised Weights", views=views,
+                     tags={"header": "{} net optimised weights".format(longName), "datepicker": False})
     pages.append(page)
+    # pdb.set_trace()
     return pages
 
 
