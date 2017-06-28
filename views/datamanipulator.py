@@ -3,6 +3,7 @@ import numpy as np
 import logging
 import pdb
 import PQTrading
+import pandas as pd
 from viewbuilder import SimulatorQuery, split_series
 
 
@@ -156,19 +157,62 @@ class StratManipulator(object):
             return buckets
 
 
-def groupBySector(all_markets):
-    """
-    :param all_markets: list of instrument codes (e.g. ADCC1 etc.)
-    :return: a sorted list of instrument codes by their sector
-    """
+class SectorManipulator(object):
+    PREFIX = 'sector'
+
+    def __init__(self, data_provider):
+        self._data_provider = data_provider
+
+    def generate_queries(self, manipulator, specifier, tags):
+        all_markets = [i for i in self._data_provider.get_instruments() if not i.startswith("Spread")]
+        sector_to_instruments = sectorDict(all_markets)
+
+        sector = specifier.split(".")[0]
+        pnl_type = specifier.split(".")[1]
+
+        queries = []
+        queries += [SimulatorQuery(i + 'FinalPL.{}'.format(pnl_type)) for i in sector_to_instruments[sector]]
+        return queries, (manipulator, specifier, tags)
+
+    def process_queries(self, token, results):
+        """
+        :param token: not used
+        :param results: daily returns for each of the instruments under a certain sector
+        :return: combined cumulative returns of all instruments
+        """
+
+        first = True
+        # Summing up all the data together
+        for item in results.values():
+            df = pd.Series(index=[l[0] for l in item], data=[l[1] for l in item])
+            if first:
+                # Use the first data block as the starting point as total
+                total = df
+                first = False
+            else:
+                total = total.add(df, fill_value=0)
+
+        # Converting pandas series into numpy array and calculate the cumulative sum
+        data = total.as_matrix().cumsum(axis=0)
+        dates = total.index.values
+        return np.column_stack((dates, data))
+
+
+def sectorDict(all_markets):
     sector_to_instruments = {}
     for i in all_markets:
         sector_code = PQTrading.instrumentToSector[i[:3]]
         sector = PQTrading.sectorCodeToName[sector_code]
         sector_to_instruments[sector] = sector_to_instruments.get(sector, []) + [i]
+    return sector_to_instruments
 
+def groupBySector(all_markets):
+    """
+    :param all_markets: list of instrument codes (e.g. ADCC1 etc.)
+    :return: a sorted list of instrument codes by their sector
+    """
+    sector_to_instruments = sectorDict(all_markets)
     sorted_markets = []
     for sector in sorted(sector_to_instruments.keys()):
         sorted_markets += [i for i in sector_to_instruments[sector]]
-
     return sorted_markets
