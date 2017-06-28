@@ -182,6 +182,8 @@ class ViewBuilder(object):
                 else:
                     loaded_results[query] = None
 
+                result_queue.put({'category': 'status', 'index': currentIndex, 'maxIndex': maxIndex})
+
                 # Adjust dependencies - when the counters reach zero we know we've all queries that manipulator needs
                 manipulator_deps = [d for d in query_dependency[query] if d.decrement()]
 
@@ -210,7 +212,6 @@ class ViewBuilder(object):
                             raise RuntimeError('Unknown viewtype "{}" - valid options are: {}'.format(
                                 viewtype, ", ".join(self.views.keys())))
                         result, data_series = viewGenerator.build_view(viewtype, graph['tags'], results)
-                        # pdb.set_trace()
 
                         # Send any NEW names back to the client - note that this means that if you MAKE UP any new
                         # data, you've got to give it a NEW name.  Also - no mutating data sets!

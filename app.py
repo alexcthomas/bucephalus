@@ -98,12 +98,11 @@ def views():
                 if 'data' == result['category'] and result['data'] is not None:
                     # Convert NaN's into 0's
                     for l in result['data']:
-                        # pdb.set_trace()
                         if np.isnan(l[1]):
                             l[1] = 0
                 partial_result = ujson.dumps(result)
-                yield(partial_result)
-                yield(';')
+                yield(partial_result.encode('utf-8'))
+                yield(';'.encode('utf-8'))
             logging.debug('Waiting for worker thread')
             worker_thread.join()
             logging.debug('Call completed')
@@ -111,7 +110,7 @@ def views():
             ex_type, ex, tb = sys.exc_info()
             logging.error('Error in result_generator: {}\n{}'.format(ex, "\n".join(traceback.format_tb(tb))))
 
-    return app.response_class(result_generator(), mimetype='text/plain')
+    return app.response_class(result_generator(), mimetype='text/plain', direct_passthrough=True)
 
 
 @app.route("/img/<path:path>")

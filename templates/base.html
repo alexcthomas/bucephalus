@@ -27,6 +27,9 @@
 		<div id="sidebar-nav"></div>
 	</div>
 
+    <div id="progress-dialog" title="Loading data">
+        <div id="progress-bar"></div></div>
+
 	<div class="page-content-wrapper">
 		<div class="container-fluid">
 		{% block page_content %}{% endblock %}
@@ -46,18 +49,33 @@
 <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script>
+  var loadingDialog, progressBar;
+
   $(function() {
     $("#begin_date").datepicker({beforeShowDay: $.datepicker.noWeekends, maxDate: "05/22/2017"});
 	$("#begin_date").datepicker('setDate', "05/22/2017");
+
+	loadingDialog = $("#progress-dialog").dialog({
+        autoOpen: false,
+        resizable: false,
+        draggable: false,
+        modal: true,
+        minHeight: '60px'
+    });
+	loadingDialog.dialog('widget').find('.ui-dialog-titlebar-close').hide();
+
+	progressBar = $("#progress-bar").progressbar({
+        value: false
+    });
   } );
 </script>
 <script type=text/javascript>
 $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
 </script>
 <script>
-$("#menu-toggle").click(function(e) {
-	e.preventDefault();
-	$("#wrapper").toggleClass("toggled");
-});
+    $("#menu-toggle").click(function(e) {
+        e.preventDefault();
+        $("#wrapper").toggleClass("toggled");
+    });
 </script>
 {% endblock %}

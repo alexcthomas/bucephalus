@@ -92,6 +92,9 @@ var renderContentPane = function(views, tags)
 	else {
 		document.getElementById("datepicker-div").style.display="inline";
 	}
+
+	progressBar.progressbar('value', false);
+	loadingDialog.dialog('open');
 	// Send the JSON for this page to the server in one block so we can do all the queries in one go.
 	// We expect to receive back a series of blocks.  Each block will be either a graph block or
 	// a named data block - seems complicated, but means we can combine data (i.e. if graph A and B both
@@ -105,6 +108,9 @@ var renderContentPane = function(views, tags)
 	$.ajax({
 		type: 'POST',
 		url: '/views',
+		complete: function() {
+			loadingDialog.dialog('close');
+		},
 		xhrFields: {
 			onprogress: function(e) {
 				// We cannot make assumptions about where the data is chunked in transport so we look
@@ -115,19 +121,22 @@ var renderContentPane = function(views, tags)
 				while (-1 != (nextSemicolonIdx = response.indexOf(';', lastProcessedIdx))) {
 					// Extract a chunk from the data received so far
 					var chunk = response.substring(lastProcessedIdx, nextSemicolonIdx);
-					console.log('Chunk ' + lastProcessedIdx + '..' + nextSemicolonIdx);
+					//console.log(Date.now() + ': chunk ' + lastProcessedIdx + '..' + nextSemicolonIdx);
 					var chunkObj = JSON.parse(chunk);
 					lastProcessedIdx = nextSemicolonIdx+1;
 
 					// Process the chunk - generate the view
 					if (chunkObj.category == 'data') {
-						console.log('Data [' + chunkObj.series + ']');
+						//console.log('Data [' + chunkObj.series + ']');
 						dataBlocks[chunkObj.series] = chunkObj.data;
 					} else if (chunkObj.category == 'graph') {
-						var reference_id = chunkObj.id;
-						console.log('GRAPH ' + reference_id);
-						var definition = viewContainers[reference_id];
-						renderView(definition.target, definition.view, chunkObj.result, dataBlocks);
+                        var reference_id = chunkObj.id;
+                        //console.log('GRAPH ' + reference_id);
+                        var definition = viewContainers[reference_id];
+                        renderView(definition.target, definition.view, chunkObj.result, dataBlocks);
+                    } else if (chunkObj.category == 'status') {
+						progressBar.progressbar('option', 'max', chunkObj.maxIndex);
+						progressBar.progressbar('value', chunkObj.index);
 					} else {
 						console.log('Unknown category "' + chunkObj.category + '"');
 					}
