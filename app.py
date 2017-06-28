@@ -69,8 +69,8 @@ def get_nav_data():
     logging.debug('request: %s', request)
     date = request.args.get('date')
     # Convert user input dates from website into datetime
-    begin = dt.datetime.strptime(date.split('to')[0], "%d_%m_%Y")
-    end = dt.datetime.strptime(date.split('to')[1], "%d_%m_%Y")
+    begin = dt.datetime.strptime(date.split('to')[0], "%m_%d_%Y")
+    end = dt.datetime.strptime(date.split('to')[1], "%m_%d_%Y")
     # Convert datetime into string
     begin = begin.strftime("%Y%m%d")
     end = end.strftime("%Y%m%d")

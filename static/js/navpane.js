@@ -144,15 +144,15 @@ document.getElementById('submit_date').onclick = function(){
 		end_date  = new Date(end_date.setDate(end_date.getDate()+1));
 	}
 
-	begin_date = [begin_date.getDate(), begin_date.getMonth()+1, begin_date.getFullYear()].join('_');
-	end_date = [end_date.getDate(), end_date.getMonth()+1, end_date.getFullYear()].join('_');
+	begin_date = [begin_date.getMonth()+1, begin_date.getDate(), begin_date.getFullYear()].join('_');
+	end_date = [end_date.getMonth()+1, end_date.getDate(), end_date.getFullYear()].join('_');
 
 	renderNavPane(begin_date, end_date)
 };
 
 // gets data to fill out the nav pane
 // Use default dates as begin / end dates when date picker is not available on the page
-var renderNavPane = function(begin_date = '22_05_2017', end_date = '23_05_2017') {
+var renderNavPane = function(begin_date = '05_22_2017', end_date = '05_23_2017') {
 	$.getJSON('/navdata?date='+begin_date+'to'+end_date,
 	function(data) {
 		var tgt = $("#sidebar-nav");
@@ -160,7 +160,7 @@ var renderNavPane = function(begin_date = '22_05_2017', end_date = '23_05_2017')
 		var currentUrl = getJsonFromUrl();
 
 		//remove previous dates from the url
-		currentUrl.pop()
+		currentUrl.pop();
 
 		$.each(data, function(key, val) {
 			viewdata[val.text] = val;
