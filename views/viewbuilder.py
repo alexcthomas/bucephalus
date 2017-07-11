@@ -130,7 +130,8 @@ class ViewBuilder(object):
             AccumManipulator.PREFIX: AccumManipulator(),
             CorrelManipulator.PREFIX: CorrelManipulator(self.data_provider),
             StratManipulator.PREFIX: StratManipulator(self.data_provider, sys_to_subsys),
-            SectorManipulator.PREFIX: SectorManipulator(self.data_provider)
+            SectorManipulator.PREFIX: SectorManipulator(self.data_provider),
+            StackManipulator.PREFIX: StackManipulator(self.data_provider)
         }
 
         for row in jsonlist:

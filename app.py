@@ -69,8 +69,8 @@ def get_nav_data():
     logging.debug('request: %s', request)
     date = request.args.get('date')
     # Convert user input dates from website into datetime
-    begin = dt.datetime.strptime(date.split('to')[0], "%m_%d_%Y")
-    end = dt.datetime.strptime(date.split('to')[1], "%m_%d_%Y")
+    begin = dt.datetime.strptime(date.split('/')[0], "%m_%d_%Y")
+    end = dt.datetime.strptime(date.split('/')[1], "%m_%d_%Y")
     # Convert datetime into string
     begin = begin.strftime("%Y%m%d")
     end = end.strftime("%Y%m%d")
@@ -96,10 +96,11 @@ def views():
 
                 # Convert NaN's to 0's
                 if 'data' == result['category'] and result['data'] is not None:
-                    # Convert NaN's into 0's
-                    for l in result['data']:
-                        if np.isnan(l[1]):
-                            l[1] = 0
+                    for data in result['data']:
+                        # Portfolio PnL breakdown's data is in the form of dictionary,
+                        # hence can't use np.isnan to check for NaN's
+                        if type(data) is not dict and np.isnan(data[1]):
+                            data[1] = 0
                 partial_result = ujson.dumps(result)
                 yield(partial_result.encode('utf-8'))
                 yield(';'.encode('utf-8'))

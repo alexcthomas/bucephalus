@@ -167,7 +167,7 @@ def parent_risk(risk_factors):
         tags = buildTags(datatype="price", series=RawManipulator.PREFIX + ":EPV." + factor)
         views.append(buildViews("price", tags, row))
         row += 1
-    page = buildPage("Risk", views=views, tags={"header": "Risk Factors", "datepicker": False})
+    page = [buildPage("Risk", views=views, tags={"header": "Risk Factors", "datepicker": False})]
     return page
 
 
@@ -185,6 +185,19 @@ def parent_pnl(instr_to_sector):
         views.append(buildViews("price", tags, row))
         row += 1
     pages = [buildPage("Sector PnL", views=views, tags={"header": "PnL by Sector", "datepicker": False})]
+    return pages
+
+
+def parent_portfPnL(instr_to_sector, start, end):
+    views = []
+    row = 1
+    for i in ["grossPL", "netPL"]:
+        series = _series(['all'], prefix=StackManipulator.PREFIX, suffix=".{}".format(i))
+        # series = _series([sector for sector in instr_to_sector.keys()], prefix=StackManipulator.PREFIX, suffix=".{}".format(i))
+        tags = buildTags("PnL", series=series, start_date=start, end_date=end, market=i)
+        views.append(buildViews("stackcol", tags, row))
+        row += 1
+    pages = [buildPage("Portfolio PnL Breakdown", views=views, tags={"header": "Portfolio PnL Breakdown", "datepicker": "range"})]
     return pages
 
 
@@ -232,13 +245,13 @@ def build_pages(data_provider, start='20170522', end='20170522'):
         i += 1
         sub_instruments = []
 
-    sector = child_sector(sub_pages, instr_to_sector)
-    pages = [buildPage("Instruments", nodes=sector)]
+    sector_pages = child_sector(sub_pages, instr_to_sector)
+    pages = [buildPage("Instruments", nodes=sector_pages)]
     strategy_pages = child_strategy(trading_sys, ex_spreads_markets, start, end)
     pages += [buildPage("Strategies", nodes=strategy_pages)]
-    risk_pages = parent_risk(["alpha", "multiplier", "thermostat", "var"])
-    pages.append(risk_pages)
+    pages += parent_risk(["alpha", "multiplier", "thermostat", "var"])
     pages += parent_pnl(instr_to_sector)
+    pages += parent_portfPnL(instr_to_sector, start, end)
 
     pages.insert(0, parent_homepage(ex_spreads_markets))
     return pages

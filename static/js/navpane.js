@@ -21,7 +21,7 @@ var getNodeLocation = function(node) {
 	}
 
 	return ret;
-}
+};
 
 // Gets a node location from the url
 function getJsonFromUrl() {
@@ -34,7 +34,7 @@ function getJsonFromUrl() {
 		var item = part.split("=");
 		// Remove + sign with space in strings longer than a word
 		var replaced = item[1].split('+').join(' ');
-		replaced = replaced.split('to');
+		replaced = replaced.split('/');
 		result.push(decodeURIComponent(replaced));
 	});
 	return result;
@@ -79,7 +79,7 @@ var treeNodeSelect = function(event, node, begin, end) {
 	renderContentPane(node.views, node.tags);
 
 	var nodeLocation = getNodeLocation(node);
-	var nodeUrl = "?" + $.param(nodeLocation) + '&date=' + begin + 'to' + end;
+	var nodeUrl = "?" + $.param(nodeLocation) + '&date=' + begin + '/' + end;
 	console.log(nodeLocation + nodeUrl);
 	window.history.pushState("", "", nodeUrl);
 };
@@ -137,12 +137,20 @@ var renderSimulationSelector = function() {
 // Check if user has submitted any date for strategy graphs
 document.getElementById('submit_date').onclick = function(){
 	begin_date = $("#begin_date").datepicker("getDate");
-	end_date = new Date(begin_date.getFullYear(), begin_date.getMonth(), begin_date.getDate()+1);
 
-	// set the end date as the next working day of begin date
-	while(end_date.getDay()>5 | end_date.getDay()<=0){
-		end_date  = new Date(end_date.setDate(end_date.getDate()+1));
+	// User is asked to input the range of dates
+	if($("#end_date").is(":visible")){
+		end_date = $("#end_date").datepicker("getDate");
 	}
+
+	// User is only allowed to pick begin date, set the end date as the next working day by default
+	else{
+		end_date = new Date(begin_date.getFullYear(), begin_date.getMonth(), begin_date.getDate()+1);
+
+		while(end_date.getDay()>5 | end_date.getDay()<=0){
+			end_date  = new Date(end_date.setDate(end_date.getDate()+1));
+		}
+    }
 
 	begin_date = [begin_date.getMonth()+1, begin_date.getDate(), begin_date.getFullYear()].join('_');
 	end_date = [end_date.getMonth()+1, end_date.getDate(), end_date.getFullYear()].join('_');
@@ -153,7 +161,7 @@ document.getElementById('submit_date').onclick = function(){
 // gets data to fill out the nav pane
 // Use default dates as begin / end dates when date picker is not available on the page
 var renderNavPane = function(begin_date = '05_22_2017', end_date = '05_23_2017') {
-	$.getJSON('/navdata?date='+begin_date+'to'+end_date,
+	$.getJSON('/navdata?date='+begin_date+'/'+end_date,
 	function(data) {
 		var tgt = $("#sidebar-nav");
 		var viewdata = {};

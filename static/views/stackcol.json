@@ -1,0 +1,17 @@
+{
+	"viewName": "stackcol",
+	"prototypes": "basic_bar",
+    "plotOptions": {
+      "series": {
+        "stacking": "normal"
+      }
+    },
+	"viewDefinition": {
+      "title": {
+        "text": "{{market}} Breakdown by Sector"
+		},
+      "xAxis": {
+        "categories": "{{axis}}"
+		},
+	}
+}

@@ -1,0 +1,9 @@
+{
+	"viewName": "pnlbySec",
+	"prototypes": "basic_pie",
+	"viewDefinition": {
+		"title": {
+			"text": "{{market}} Breakdown by Sector"
+		}
+	}
+}

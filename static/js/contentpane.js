@@ -86,11 +86,20 @@ var renderContentPane = function(views, tags)
 
 	// Conditionally display date picker on the page as required by JSON tags
 	var datepicker = pagetags["datepicker"];
-	if (!datepicker) {
-		document.getElementById("datepicker-div").style.display="none";
+	if (datepicker == false) {
+		document.getElementById("begindata-div").style.display="none";
+		document.getElementById("enddate-div").style.display="none";
+		document.getElementById("submit").style.display="none";
 	}
-	else {
-		document.getElementById("datepicker-div").style.display="inline";
+	else if(datepicker == true) {
+		document.getElementById("begindata-div").style.display="inline";
+		document.getElementById("enddate-div").style.display="none";
+		document.getElementById("submit").style.display="inline";
+	}
+	else if (datepicker == 'range') {
+		document.getElementById("begindata-div").style.display="inline";
+		document.getElementById("enddate-div").style.display="inline";
+		document.getElementById("submit").style.display="inline";
 	}
 
 	progressBar.progressbar('value', false);

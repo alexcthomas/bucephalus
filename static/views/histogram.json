@@ -1,6 +1,6 @@
 {
 	"viewName": "histogram",
-  "prototypes": "basic_bar",
+  	"prototypes": "basic_col",
 	"plotOptions": {
       "series": {
         "animation": false
