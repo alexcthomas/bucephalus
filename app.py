@@ -39,12 +39,7 @@ def internal_server_error(e):
 
 @app.route('/', methods=['GET'])
 def index():
-    datepicker = False
-    if "Strategies" == request.args.get('level1'):
-        datepicker = True
-    elif "Strategy Weights" == request.args.get('level4'):
-        datepicker = True
-    return render_template('index.html', datepicker=datepicker)
+    return render_template('index.html', tokens=data_provider.get_tokens())
 
 
 @app.route('/get_tokens', methods=['GET'])

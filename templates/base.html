@@ -16,12 +16,17 @@
 	<!-- Sidebar -->
 	<div id="sidebar-wrapper">
 		<div id="sidebar-header">
-            <div id="simulation-dropdown" class="dropdown">
-                <button class="btn btn-default dropdown-toggle" data-toggle="dropdown" type="button" id="simulation-dropdown-btn">
-                    Simulation
-                </button>
-                <ul class="dropdown-menu" id="simulation-dropdown-items">
-                </ul>
+            <div style="color: #FFFFFF;"> Current Simulation:</div>
+            <div>
+                <form action="">
+                    <fieldset>
+                        <select id="setSim" onclick="changeSim()">
+                            {%  for token in tokens %}
+                                <option value={{ token }}>{{ token }}</option>
+                            {% endfor %}
+                        </select>
+                    </fieldset>
+                </form>
             </div>
         </div>
 		<div id="sidebar-nav"></div>
@@ -71,9 +76,20 @@
     });
   } );
 </script>
+
+<script type="text/javascript">
+    function changeSim(){
+        var token = document.getElementById("setSim").value;
+        console.log("selected token: %s", token);
+        $.getJSON('/set_token?token=' + token);
+        renderViews() //Refresh the page with updated token
+    }
+</script>
+
 <script type=text/javascript>
 $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
 </script>
+
 <script>
     $("#menu-toggle").click(function(e) {
         e.preventDefault();

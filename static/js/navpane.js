@@ -96,42 +96,21 @@ var treeNodeUnSelect = function(event, node) {
 	}
 };
 
-var renderSimulationSelectorCallback = function(event) {
-	console.log(event.data.token);
-	$("#simulation-dropdown-btn").dropdown("toggle");
-    $('#simulation-dropdown-items').css({
-		position: '',
-		display: 'none',
-		left: '',
-		top: ''
-	});
-    $.getJSON('/set_token?token=' + event.data.token);
-};
-
-var renderSimulationSelector = function() {
-	var list = document.getElementById("simulation-dropdown-items");
-	$.getJSON('/get_tokens', function(items) {
-        $.each(items, function (i, v) {
-            var li = document.createElement("li");
-            var link = document.createElement("a");
-            var text = document.createTextNode(v);
-            list.appendChild(li);
-            link.href = "javascript:void(0);";
-			$(link).click({token: v}, renderSimulationSelectorCallback);
-            li.appendChild(link);
-            link.appendChild(text);
-        })
-    });
-
-	// Fix to allow the pop-up menu to float over the top of the surrounding elements
-    $('#simulation-dropdown-btn').click(function(e) {
-        $('#simulation-dropdown-items').css({
-            position: 'fixed',
-            display: 'block',
-            left: e.pageX,
-            top: e.pageY
-        })
-    });
+var renderViews = function () {
+	$(document).ready(function () {
+			var jsonList = getJsonFromUrl();
+			var dates = jsonList[jsonList.length - 1];
+			if (typeof dates !== 'undefined') {
+				var begin = dates.split(',')[0];
+				var end = dates.split(',')[1];
+				console.log("begin", begin.split('_').join('/'));
+				renderNavPane(begin, end);
+				$("#begin_date").datepicker('setDate', begin.split('_').join('/'));
+			}
+			else {
+				renderNavPane();
+			}
+		});
 };
 
 // Check if user has submitted any date for strategy graphs

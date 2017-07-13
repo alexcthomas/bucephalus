@@ -176,8 +176,9 @@ class SectorManipulator(object):
 
         first = True
         # Summing up all the data together
-        for item in results.values():
-            df = pd.Series(index=[l[0] for l in item], data=[l[1] for l in item])
+        for instrumentPnL in results.values():
+            df = pd.Series(index=[dailyPnL[0] for dailyPnL in instrumentPnL],
+                           data=[dailyPnL[1] for dailyPnL in instrumentPnL])
             if first:
                 # Use the first data block as the starting point as total
                 total = df
