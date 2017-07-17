@@ -191,12 +191,9 @@ def parent_pnl(instr_to_sector):
 def parent_portfPnL(instr_to_sector, start, end):
     views = []
     row = 1
-    for i in ["grossPL", "netPL"]:
-        series = _series(['all'], prefix=StackManipulator.PREFIX, suffix=".{}".format(i))
-        # series = _series([sector for sector in instr_to_sector.keys()], prefix=StackManipulator.PREFIX, suffix=".{}".format(i))
-        tags = buildTags("PnL", series=series, start_date=start, end_date=end, market=i)
-        views.append(buildViews("stackcol", tags, row))
-        row += 1
+    series = _series(['all.grossPL', 'all.netPL'], prefix=StackManipulator.PREFIX)
+    tags = buildTags("PnL", series=series, start_date=start, end_date=end, market='PnL')
+    views.append(buildViews("stackcol", tags, row))
     pages = [buildPage("Portfolio PnL Breakdown", views=views, tags={"header": "Portfolio PnL Breakdown", "datepicker": "range"})]
     return pages
 

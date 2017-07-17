@@ -159,4 +159,4 @@ if __name__ == '__main__':
     PQTrading.populateStaticData(factory)
     data_provider = ViewDataProvider(params.server, factory)
     view_defs = ViewBuilder(data_provider)
-    app.run(debug=True, host=params.host, port=params.port)
+    app.run(debug=True, host=params.host, port=params.port, threaded=True)
