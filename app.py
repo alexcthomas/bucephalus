@@ -10,7 +10,7 @@ from queue import Queue
 
 import numpy as np
 
-from flask import Flask, render_template, request, make_response, jsonify
+from flask import Flask, render_template, request, jsonify, send_file
 from flask_bootstrap import Bootstrap, WebCDN
 
 from views.viewbuilder import ViewBuilder
@@ -121,21 +121,7 @@ def images(path):
     Returns an image, if created by a view.
     """
     fullpath = "./img/" + path
-    resp = make_response(open(fullpath, 'rb').read())
-    resp.content_type = "image/jpeg"
-    return resp
-
-
-class LoadFromFile(argparse.Action):
-    
-    def __call__(self, parser, namespace, values, option_string = None):
-        
-        with values as f:
-            contents = f.read()
-            data = parser.parse_args(contents.split())
-            for k, v in vars(data).items():
-                if v and k != option_string.lstrip('-'):
-                    setattr(namespace, k, v)
+    return send_file(fullpath, mimetype='image/png')
 
 
 if __name__ == '__main__':
