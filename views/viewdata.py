@@ -1,6 +1,6 @@
 import numpy as np, pdb
 import pandas as pd
-from viewtools import encode_series, encode_pandas_series
+from views.viewtools import encode_series, encode_pandas_series
 
 class ViewDataProvider(object):
     """

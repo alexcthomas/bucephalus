@@ -1,5 +1,5 @@
 import os, pdb
-from flask import Flask, render_template, request, make_response
+from flask import Flask, render_template, request, make_response, send_file
 from flask_bootstrap import Bootstrap, WebCDN
 from views.viewbuilder import ViewBuilder
 from views.viewdata import ViewDataProvider
@@ -59,9 +59,7 @@ def images(path):
     Returns an image, if created by a view.
     """
     fullpath = "./img/" + path
-    resp = make_response(open(fullpath).read())
-    resp.content_type = "image/jpeg"
-    return resp
+    return send_file(fullpath, mimetype='image/png')
 
 def reload_views_provider(path):
     """For reloading the views"""

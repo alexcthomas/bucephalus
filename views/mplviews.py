@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 plt.ioff()
 
-from baseviews import BaseViewBuilder
+from views.baseviews import BaseViewBuilder
 
 class MPLViewBuilder(BaseViewBuilder):
     """

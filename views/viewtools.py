@@ -13,7 +13,7 @@ def parse_tags(tags):
 
 def dict_merge_impl(dct, merge_dct):
     "Inner function for recursively merging dicts"
-    for k, v in merge_dct.iteritems():
+    for k, v in merge_dct.items():
         if (k in dct
                 and isinstance(dct[k], dict)
                 and isinstance(v, dict)):
@@ -34,9 +34,9 @@ def dict_merge(dcts):
 
 def template_recurse(tmpl, tags):
     "Recursively applies string templating to a dict or list"
-    if isinstance(tmpl, basestring):
+    if isinstance(tmpl, str):
         ret = tmpl
-        for k,v in tags.iteritems():
+        for k,v in tags.items():
             ret = ret.replace(k, v)
         return ret
 
@@ -44,7 +44,7 @@ def template_recurse(tmpl, tags):
         return [template_recurse(v, tags) for v in tmpl]
 
     if isinstance(tmpl, dict):
-        return {k:template_recurse(v, tags) for k, v in tmpl.iteritems()}
+        return {k:template_recurse(v, tags) for k, v in tmpl.items()}
 
     return tmpl
 
@@ -70,10 +70,10 @@ if __name__ == '__main__':
          'b': 6}
 
     result = dict_merge([a, b])
-    print result
+    print(result)
 #    pdb.set_trace()
 
     tags = {'{{asset}}':'adcc'}
 
-    print template_recurse({'a':'{{asset}} Name'}, tags)
-    print template_recurse({'a':['{{asset}} Name',{'b': '{{asset}} Vol','c':4}]}, tags)
+    print(template_recurse({'a':'{{asset}} Name'}, tags))
+    print(template_recurse({'a':['{{asset}} Name',{'b': '{{asset}} Vol','c':4}]}, tags))
