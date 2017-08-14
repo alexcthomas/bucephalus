@@ -1,21 +1,24 @@
 import os, pdb
-import argparse
-import json
 import sys
-import traceback
-import logging
+import json
 import ujson
-import numpy as np
-import PQTrading
-import Psycopg2Tools
+import logging
+import argparse
+import traceback
+import datetime as dt
 from queue import Queue
-from flask import Flask, render_template, request, make_response, send_file, jsonify, Response
+
+import numpy as np
+import Psycopg2Tools
+
+from flask import Flask, render_template, request, make_response, jsonify
 from flask_bootstrap import Bootstrap, WebCDN
+
+import PQTrading
+
 from views.viewbuilder import ViewBuilder
 from views.viewdata import ViewDataProvider
 from views.navdata import build_pages
-from views.jsonbuilder import *
-import datetime as dt
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -96,9 +99,11 @@ def views():
                         # hence can't use np.isnan to check for NaN's
                         if type(data) is not dict and np.isnan(data[1]):
                             data[1] = 0
+                            
                 partial_result = ujson.dumps(result)
                 yield(partial_result.encode('utf-8'))
                 yield(';'.encode('utf-8'))
+                
             logging.debug('Waiting for worker thread')
             worker_thread.join()
             logging.debug('Call completed')
@@ -121,7 +126,9 @@ def images(path):
 
 
 class LoadFromFile(argparse.Action):
+    
     def __call__(self, parser, namespace, values, option_string = None):
+        
         with values as f:
             contents = f.read()
             data = parser.parse_args(contents.split())
@@ -154,9 +161,24 @@ if __name__ == '__main__':
     params = parser.parse_args()
 
     global data_provider, view_defs
-    factory = Psycopg2Tools.ConnectionFactory(params.dbhost, params.dbname, params.dbuser,
-        params.dbpassword, params.dbport)
+    
+    factory = Psycopg2Tools.ConnectionFactory(params.dbhost,
+                                              params.dbname, 
+                                              params.dbuser,
+                                              params.dbpassword, 
+                                              params.dbport)
+    
     PQTrading.populateStaticData(factory)
     data_provider = ViewDataProvider(params.server, factory)
     view_defs = ViewBuilder(data_provider)
     app.run(debug=True, host=params.host, port=params.port, threaded=True)
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    

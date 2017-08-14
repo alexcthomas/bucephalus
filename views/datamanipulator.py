@@ -1,11 +1,13 @@
-import datetime
-import numpy as np
 import logging
-import pdb
-import PQTrading
 import operator
+import datetime
+
+import numpy as np
 import pandas as pd
+
 from viewbuilder import SimulatorQuery, split_series
+
+import PQTrading
 
 
 class RawManipulator(object):
@@ -63,7 +65,7 @@ class CorrelManipulator(object):
         Loop through results to calculate the correlation between any two assets
         """
         keys = sorted(list(results.keys()), key=lambda q: q.name)
-        modified, correl = {}, []
+        correl = []
         for i1, first in enumerate(keys):
             for i2, second in enumerate(keys):
                 if results[first] is not None and results[second] is not None:

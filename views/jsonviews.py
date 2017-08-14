@@ -1,12 +1,14 @@
-import os, copy, pdb
-import ujson, yaml
+import os, pdb
+import copy
+import yaml
+import ujson
 import logging
-import pandas as pd
 import datetime as dt
+
 import numpy as np
+
 from views.baseviews import BaseViewBuilder
 from views.viewtools import dict_merge, template_recurse
-import collections
 
 
 class JSONView(object):
@@ -151,6 +153,7 @@ class HighChartsViewBuilder(JSONViewBuilder):
         ret = view.render_tags(tags)
         ret['renderer'] = 'highcharts'
         logging.debug('build_view(%s, %s)', view_name, tags)
+        
         if view_name == 'histogram':
             modified, buckets = {}, []
             # pdb.set_trace()

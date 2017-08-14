@@ -1,22 +1,21 @@
 import os
 import pdb
 import sys
+import ujson
+import logging
 import traceback
 import threading
-import pandas as pd
-import logging
-import ujson
 import collections
-from datamanipulator import *
-import numpy as np
+import pandas as pd
 
-from collections import defaultdict
 from views.viewtools import build_error
 from views.viewtools import encode_pandas_series
+
 from views.jsonviews import HighChartsViewBuilder
 from views.mplviews import MPLViewBuilder
 from views.htmlviews import HTMLViewBuilder
 
+import datamanipulator as dm
 
 def get_series(graph):
     logging.debug('get_series on %s', graph['tags']['series'])
@@ -91,8 +90,8 @@ class ViewBuilder(object):
         jsonpath = os.path.realpath(os.path.join('static', 'views'))
 
         self.viewproviders = [HighChartsViewBuilder(jsonpath),
-                                MPLViewBuilder(),
-                                HTMLViewBuilder()]
+                              MPLViewBuilder(),
+                              HTMLViewBuilder()]
 
         self.data_provider = dataprovider
 
@@ -121,17 +120,17 @@ class ViewBuilder(object):
             {queries} --(depends)--> manipulator --(generates)--> manipulated data
             {manipulated data} --(depends)--> graph
         """
-        query_dependency = defaultdict(list)
-        series_dependency = defaultdict(list)
+        query_dependency = collections.defaultdict(list)
+        series_dependency = collections.defaultdict(list)
         counter = 0
         sys_to_subsys = self.data_provider.get_trading_sys()
         manipulators = {
-            RawManipulator.PREFIX: RawManipulator(),
-            AccumManipulator.PREFIX: AccumManipulator(),
-            CorrelManipulator.PREFIX: CorrelManipulator(self.data_provider),
-            StratManipulator.PREFIX: StratManipulator(self.data_provider, sys_to_subsys),
-            SectorManipulator.PREFIX: SectorManipulator(self.data_provider),
-            StackManipulator.PREFIX: StackManipulator(self.data_provider)
+            dm.RawManipulator.PREFIX: dm.RawManipulator(),
+            dm.AccumManipulator.PREFIX: dm.AccumManipulator(),
+            dm.CorrelManipulator.PREFIX: dm.CorrelManipulator(self.data_provider),
+            dm.StratManipulator.PREFIX: dm.StratManipulator(self.data_provider, sys_to_subsys),
+            dm.SectorManipulator.PREFIX: dm.SectorManipulator(self.data_provider),
+            dm.StackManipulator.PREFIX: dm.StackManipulator(self.data_provider)
         }
 
         for row in jsonlist:

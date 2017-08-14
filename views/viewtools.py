@@ -1,6 +1,7 @@
 import copy, pdb
+
 import pandas as pd
-import logging
+
 
 def parse_tags(tags):
     "Parses tags passed un the url arguments"

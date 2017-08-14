@@ -1,10 +1,6 @@
 import numpy as np, pdb
-import pandas as pd
 import datetime
-import PQTrading
-from views.viewtools import encode_series, encode_pandas_series
 from StrategyBuilder import SimLoader
-from SimTools import SimulationStore
 import logging
 
 
@@ -22,11 +18,6 @@ class ViewDataProvider(object):
         # Default to the latest token retrieved
         self._token = self.get_tokens()[0]
         logging.info('Current token is %s: ', self._token)
-
-        # Use the token with updated tags
-        # self._token = '[Pegasus-new:20170613T090230.296785,121]'
-        # self._token = '[ibuchanan:20170523T161710.490641,1]'
-        # self._token = '[Full.Pegasus:20170516T115847.470424,1]'
 
         self._meta_obj = self._loader.getRunMeta(self._token)
 

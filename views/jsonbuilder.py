@@ -1,10 +1,9 @@
 
-def buildPage(title, views=None, tags=None, nodes=None):
-    ret = {"text": title, "tags": tags, "views": views, "nodes": nodes}
-    return ret
+def build_page(title, views=None, tags=None, nodes=None):
+    return {"text": title, "tags": tags, "views": views, "nodes": nodes}
 
 
-def buildViews(viewtype=None, tag=None, row=None):
+def build_views(viewtype=None, tag=None, row=None):
     """
     Creates a view of the specified type.  Note that you specify a view like "volatility" or
     "overview_distribution", which in the case of Highcharts graphs, refers to a JSON File, 
@@ -15,11 +14,13 @@ def buildViews(viewtype=None, tag=None, row=None):
     :param row: the index of the row, starting at 1.
     :return: an object ready for conversion into JSON for the client
     """
-    ret = {"viewtype": viewtype, "tags": tag, "row": row}
-    return ret
+    return {"viewtype": viewtype, "tags": tag, "row": row}
 
 
-def buildTags(datatype=None, series=None, start_date=None, end_date=None, market=None, axis=""):
-    ret = {"datatype": datatype, "series": series, "start_date": start_date, "end_date": end_date,
-           "market": market, "axis": axis}
-    return ret
+def build_tags(datatype=None, series=None, start_date=None, end_date=None, market=None, axis=""):
+    return {"datatype": datatype, 
+           "series": series, 
+           "start_date": start_date, 
+           "end_date": end_date,
+           "market": market, 
+           "axis": axis}
