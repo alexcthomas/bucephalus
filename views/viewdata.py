@@ -1,12 +1,21 @@
-import numpy as np, pdb
+import logging
+import datetime
+
+import numpy as np
 import pandas as pd
+
 from views.viewtools import encode_series, encode_pandas_series
 
+
 class ViewDataProvider(object):
+    logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s', level=logging.DEBUG)
     """
     This class maps from tags to datasets
     Could be e.g. from a database
     """
+    
+    def __init__(self, config):
+        logging.info("Initialising ViewDataProvider with config:".format(config))
 
     def get_view_data(self, tags, **kwargs):
 
