@@ -1,7 +1,10 @@
-import numpy as np, pdb
-import datetime
-from StrategyBuilder import SimLoader
 import logging
+import datetime
+
+from StrategyBuilder import SimLoader
+
+import PQTrading
+import Psycopg2Tools
 
 
 class ViewDataProvider(object):
@@ -10,24 +13,28 @@ class ViewDataProvider(object):
     This class maps from tags to datasets
     Could be e.g. from a database
     """
-    def __init__(self, server, factory):
-        logging.info("Connecting to {}".format(server))
-        self._loader = SimLoader(server)
-        self._factory = factory
+    def __init__(self, config):
+        logging.info("Connecting to {}".format(config['SIMSERVER']))
+        self._loader = SimLoader(config['SIMSERVER'])
+        self._factory = Psycopg2Tools.ConnectionFactory(config['DBHOST'],
+                                                  config['DBNAME'],
+                                                  config['DBUSER'],
+                                                  config['DBPASSWORD'],
+                                                  config['DBPORT'])
+        
+        PQTrading.populateStaticData(self._factory)
 
         # Default to the latest token retrieved
-        self._token = self.get_tokens()[0]
-        logging.info('Current token is %s: ', self._token)
-
-        self._meta_obj = self._loader.getRunMeta(self._token)
+        self.set_token(self.get_tokens()[0])
 
     def get_tokens(self):
         tokens = self._loader.getRunTokens(datetime.datetime(1990, 1, 1), datetime.datetime.utcnow())
         return [t[0] for t in sorted(tokens, key=lambda x: x[1], reverse=True) if t[0].startswith('[Parallelism.Pegasus')][:10]
 
     def set_token(self, token):
-        logging.debug('Changing token to %s', token)
+        logging.debug('Setting token to %s', token)
         self._token = token
+        self._meta_obj = self._loader.getRunMeta(self._token)
 
     def get_view_data(self, query_list, callback):
         """
@@ -63,3 +70,4 @@ class ViewDataProvider(object):
             subSys_obj = self._meta_obj.match({'systemName':'{}'.format(sys)})
             trading_sys[sys] = sorted(subSys_obj.group('subSystemName').keys())
         return trading_sys
+

@@ -9,12 +9,9 @@ import datetime as dt
 from queue import Queue
 
 import numpy as np
-import Psycopg2Tools
 
 from flask import Flask, render_template, request, make_response, jsonify
 from flask_bootstrap import Bootstrap, WebCDN
-
-import PQTrading
 
 from views.viewbuilder import ViewBuilder
 from views.viewdata import ViewDataProvider
@@ -23,6 +20,10 @@ from views.navdata import build_pages
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 app = Flask(__name__)
+app.config.from_json('app.config')
+
+data_provider = ViewDataProvider(app.config)
+view_defs = ViewBuilder(data_provider)
 
 bootstrap = Bootstrap(app)
 
@@ -142,37 +143,11 @@ if __name__ == '__main__':
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--port', type=int, default=5000,
         help="Web port")
-    parser.add_argument('--config', type=open, default='app.config',
-        help='Configuration file to load')
-    parser.add_argument('--server', type=str, action=LoadFromFile, default="Builder:tcp -h amazon1-stp -p 30100",
-        help="URL for the StrategyBuilderServer")
-    parser.add_argument('--dbhost', type=str, default="amazon1-postgres",
-        help="Database hostname")
-    parser.add_argument('--dbname', type=str, default="marketdata",
-        help="Database name")
-    parser.add_argument('--dbport', type=int, default=5440,
-        help="Database port")
-    parser.add_argument('--dbuser', type=str, default="readonly",
-        help="Database user")
-    parser.add_argument('--dbpassword', type=str, default="readonly",
-        help="Database password")
     parser.add_argument('--host', type=str, default="0.0.0.0",
         help="IP address to listen on")
     params = parser.parse_args()
-
-    global data_provider, view_defs
     
-    factory = Psycopg2Tools.ConnectionFactory(params.dbhost,
-                                              params.dbname, 
-                                              params.dbuser,
-                                              params.dbpassword, 
-                                              params.dbport)
-    
-    PQTrading.populateStaticData(factory)
-    data_provider = ViewDataProvider(params.server, factory)
-    view_defs = ViewBuilder(data_provider)
     app.run(debug=True, host=params.host, port=params.port, threaded=True)
-    
     
     
     
