@@ -1,5 +1,7 @@
 import copy, pdb
+
 import pandas as pd
+
 
 def parse_tags(tags):
     "Parses tags passed un the url arguments"
@@ -33,7 +35,9 @@ def dict_merge(dcts):
     return ret
 
 def template_recurse(tmpl, tags):
-    "Recursively applies string templating to a dict or list"
+    """
+    Recursively applies string templating to a dict or list
+    """
     if isinstance(tmpl, str):
         ret = tmpl
         for k,v in tags.items():
@@ -71,7 +75,6 @@ if __name__ == '__main__':
 
     result = dict_merge([a, b])
     print(result)
-#    pdb.set_trace()
 
     tags = {'{{asset}}':'adcc'}
 

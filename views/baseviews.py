@@ -9,3 +9,4 @@ class BaseViewBuilder(object):
 
     def has_view(self, typ):
         return typ in self.views_cache
+

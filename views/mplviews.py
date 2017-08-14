@@ -1,5 +1,5 @@
 import uuid
-
+import logging
 import matplotlib as mpl
 mpl.use('agg')
 import matplotlib.pyplot as plt
@@ -14,7 +14,9 @@ class MPLViewBuilder(BaseViewBuilder):
     """
     def __init__(self):
         self.image_dir = 'img'
-        self.views_cache = {'overview_distribution': self.overview_distribution}
+        self.views_cache = {
+            'overview_distribution': self.overview_distribution
+        }
 
     def list_views(self):
         return sorted(self.views_cache.keys())
@@ -38,4 +40,5 @@ class MPLViewBuilder(BaseViewBuilder):
         sns.distplot(data, hist=False, color="g", kde_kws={"shade": True}, ax=axes[2])
         sns.distplot(data, color="m")
         f.savefig(ret)
+        logging.debug('Saved image %s', ret)
         return ret

@@ -1,5 +1,9 @@
-import os, pdb, copy
-import ujson, yaml
+import os, pdb
+import copy
+import yaml
+import ujson
+import logging
+
 from views.baseviews import BaseViewBuilder
 from views.viewtools import dict_merge, template_recurse
 
@@ -18,9 +22,7 @@ class JSONView(object):
         self.builder = builder
         self.compiled = False
         self.prototypes = []
-
         self.read_view()
-
 
     def read_view(self):
         """
@@ -49,7 +51,9 @@ class JSONView(object):
             self.compiled = True
 
     def build(self, force=False):
-        "Makes sure all prototypes have been built then derives from them"
+        """
+        Makes sure all prototypes have been built then derives from them
+        """
         if self.compiled and not force:
             return
 
@@ -61,11 +65,12 @@ class JSONView(object):
         self.compiled = True
 
     def render_tags(self, tags):
-        "Recursively apply given tags as template arguments"
+        """
+        Recursively apply given tags as template arguments
+        """
         tmpl_tags = {'{{'+k+'}}':v for k,v in tags.items()}
         tmpl = copy.deepcopy(self.view_def)
         return template_recurse(tmpl, tmpl_tags)
-
 
 
 class JSONViewBuilder(BaseViewBuilder):
@@ -88,6 +93,7 @@ class JSONViewBuilder(BaseViewBuilder):
         Keeps track of modification time so we can reload
         only those that have changed.
         """
+        logging.debug('Loading views from %s', os.path.abspath(self.location))
         for r, dirs, files in os.walk(self.location):
             for file_name in files:
 
@@ -115,6 +121,7 @@ class JSONViewBuilder(BaseViewBuilder):
 
                 # read the view
                 v = JSONView(view_name,  mtime, file_path, typ, self)
+                logging.debug('Loaded view %s', view_name)
                 self.views_cache[view_name] = v
 
     def get_view(self, name):
@@ -129,7 +136,6 @@ class JSONViewBuilder(BaseViewBuilder):
     def reload_views(self):
         self.read_views()
         self.build_views(force=True)
-
 
 
 class HighChartsViewBuilder(JSONViewBuilder):

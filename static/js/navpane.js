@@ -11,7 +11,7 @@ var getNodeLocation = function(node) {
 		loc.push(node.text);
 		node = tree.getParent(node);
 	}
-	while (node != undefined)
+	while (node != undefined);
 	
 	loc = loc.reverse();
 	
@@ -21,7 +21,7 @@ var getNodeLocation = function(node) {
 	}
 	
 	return ret;
-}
+};
 
 // Gets a node location from the url
 function getJsonFromUrl() {
@@ -69,7 +69,7 @@ var selectNode = function(tgt, levels) {
 			}
 		}
 	}
-}
+};
 
 // gets called when a tree node is selected
 var treeNodeSelect = function(event, node) {
@@ -78,7 +78,7 @@ var treeNodeSelect = function(event, node) {
 	var nodeLocation = getNodeLocation(node);
 	var nodeUrl = "?" + $.param(nodeLocation);
 	window.history.pushState("", "", nodeUrl);
-}
+};
 
 // gets called when a tree node is unselected
 var treeNodeUnSelect = function(event, node) {
@@ -90,7 +90,7 @@ var treeNodeUnSelect = function(event, node) {
 		renderContentPane();
 		window.history.pushState("", "", "/");
 	}
-}
+};
 
 // gets data to fill out the nav pane
 var renderNavPane = function() {
