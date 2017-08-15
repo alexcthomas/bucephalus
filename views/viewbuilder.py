@@ -15,7 +15,7 @@ from views.jsonviews import HighChartsViewBuilder
 from views.mplviews import MPLViewBuilder
 from views.htmlviews import HTMLViewBuilder
 
-import datamanipulator as dm
+import views.datamanipulator as dm
 
 def get_series(graph):
     logging.debug('get_series on %s', graph['tags']['series'])
@@ -106,7 +106,7 @@ class ViewBuilder(object):
                 for s in get_series(graph):
                     # For each graph to be plotted, generate a list queries required for retrieving data from
                     # simulation, manipulate the data if required
-                    manipulator_name, specifier = split_series(s)
+                    manipulator_name, specifier = dm.split_series(s)
                     manipulator = manipulators.get(manipulator_name)
                     if manipulator is None:
                         raise RuntimeError("Manipulator '{}' doesn't exist.".format(manipulator_name))
@@ -167,7 +167,7 @@ class ViewBuilder(object):
                         # the last for loop to retrieve manipulated data for each series
                         graph, counter = dep.token
                         for s in get_series(graph):
-                            _, specifier = split_series(s)
+                            _, specifier = dm.split_series(s)
                             results[specifier] = manipulator_output[s]
 
                         # Use the manipulated data to build view for the graph
