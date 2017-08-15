@@ -82,7 +82,7 @@ class JSONViewBuilder(BaseViewBuilder):
     def __init__(self, loc):
         self.location = loc
         self.views_cache = {}
-        self.allowed_types = ['json','yaml']
+        self.allowed_types = ['json', 'yaml']
 
         self.read_views()
         self.build_views()
@@ -97,7 +97,7 @@ class JSONViewBuilder(BaseViewBuilder):
         for r, dirs, files in os.walk(self.location):
             for file_name in files:
 
-                view_name,_,typ = file_name.rpartition('.')
+                view_name, _, typ = file_name.rpartition('.')
                 file_path = os.path.join(r, file_name)
 
                 # check we accept views in that language
