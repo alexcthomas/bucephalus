@@ -39,7 +39,19 @@ def internal_server_error(e):
 
 @app.route('/', methods=['GET'])
 def index():
-    return render_template('index.html')
+    return render_template('index.html', tokens=data_provider.get_tokens())
+
+
+@app.route('/get_tokens', methods=['GET'])
+def get_tokens():
+    return json.dumps(data_provider.get_tokens())
+
+
+@app.route('/set_token', methods=['GET'])
+def set_token():
+    token = request.args.get('token')
+    data_provider.set_token(token)
+    return json.dumps({'token': token})
 
 
 # return a json response upon request

@@ -1,3 +1,4 @@
+import uuid
 import logging
 import datetime
 
@@ -11,11 +12,36 @@ class ViewDataProvider(object):
     logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s', level=logging.DEBUG)
     """
     This class maps from tags to datasets
-    Could be e.g. from a database
+
+    Connection settings can be modified by changing the "token"
+    which could be e.g. a db schema/instance or computation output
     """
     
     def __init__(self, config):
         logging.info("Initialising ViewDataProvider with config:".format(config))
+        
+        # Default to the latest token retrieved
+        self.set_token(self.get_tokens()[0])
+
+    def get_tokens(self):
+        """
+        Return the list of valid tokens
+        Use random uuids for example values
+        """
+        tokens = [str(uuid.uuid4()) for _ in range(10)]
+        return sorted(tokens)
+
+    def set_token(self, token):
+        """
+        Sets the data connection token to the one given
+        Then performs any connecting/reloading necessary.
+        """
+        logging.debug('Setting token to %s', token)
+        # TODO - validate token
+        self._token = token
+        
+        # Reload the db connection here
+        # connection.reload()
 
     def get_view_data(self, tags, **kwargs):
 
