@@ -110,7 +110,7 @@ var renderNavPane = function() {
 			data.splice(0,1)
 		}
 
-		// build the nav tree 
+		// build the nav tree
 		var tree = tgt.treeview({
 			levels: 1,
 			data: data,

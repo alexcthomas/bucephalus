@@ -33,9 +33,9 @@ var createPanel = function(width) {
 }
 
 var getViewRows = function(viewdata) {
-	
+
 	var rows = [];
-	
+
 	$.each(viewdata, function(i, item) {
 		if (rows[item.row-1]==undefined) {
 			rows.push([item]);
@@ -43,23 +43,24 @@ var getViewRows = function(viewdata) {
 			rows[item.row-1].push(item);
 		}
 	});
-	
+
 	return rows;
 }
 
 // figures out the content pane layout
 // and hands off the view rendering to renderView
-var renderContentPane = function(views, tags) {
+var renderContentPane = function(views, tags) 
+{
 	
 	var navData = $("#sidebar-nav").data("viewdata");
 	var viewdata, pagetags;
 	
 	if (views == undefined) {
 		viewdata = navData['Root'].views;
-		pagetags = navData['Root'].tags
+		pagetags = navData['Root'].tags;
 	} else {
-		viewdata = views
-		pagetags = tags
+		viewdata = views;
+		pagetags = tags;
 	}
 	
 	var tgt = $("#page-content");
