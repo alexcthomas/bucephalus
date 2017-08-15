@@ -44,42 +44,6 @@ class Dependency(object):
         return self._token
 
 
-def split_series(series):
-    """
-    Split series into two parts: manipulator (usually prefix) and specifier (usually suffix)
-    """
-    index = series.find(":")
-    if -1 == index:
-        raise Exception("Colon not found in series '{}'.".format(series))
-    manipulator = series[:index]
-    specifier = series[index+1:]
-    return manipulator, specifier
-
-
-class SimulatorQuery(object):
-    def __init__(self, name, start=None, finish=None):
-        self._name = name
-        self._start = start
-        self._finish = finish
-
-    @property
-    def name(self):
-        return  self._name
-
-    @property
-    def start(self):
-        return self._start
-
-    @property
-    def finish(self):
-        return self._finish
-
-    def __hash__(self):
-        return hash((self._name, self._start, self._finish))
-
-    def __eq__(self, other):
-        return self._name, self._start, self._finish == other._name, other._start, other._finish
-
 
 class ViewBuilder(object):
     """

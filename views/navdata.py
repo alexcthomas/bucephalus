@@ -1,7 +1,9 @@
-from jsonbuilder import build_page, build_views, build_tags
-import PQTrading
 import logging
-import datamanipulator as dm
+
+import views.datamanipulator as dm
+from views.jsonbuilder import build_page, build_views, build_tags
+
+import PQTrading
 
 logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s', level=logging.DEBUG)
 
