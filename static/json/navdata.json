@@ -11,8 +11,6 @@
       }
     ]
   },
-  
-  
   {
     "text": "Parent1",
     "tags": {"level": "city"},
@@ -30,7 +28,6 @@
         "row": 2
       }
     ],
-    
     "nodes": [
       {
         "text": "Child1",
@@ -54,8 +51,6 @@
       }
     ]
   },
-  
-  
   {
     "text": "British Pound",
     "tags": {
