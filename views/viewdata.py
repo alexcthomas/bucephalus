@@ -17,10 +17,10 @@ class ViewDataProvider(object):
         logging.info("Connecting to {}".format(config['SIMSERVER']))
         self._loader = SimLoader(config['SIMSERVER'])
         self._factory = Psycopg2Tools.ConnectionFactory(config['DBHOST'],
-                                                  config['DBNAME'],
-                                                  config['DBUSER'],
-                                                  config['DBPASSWORD'],
-                                                  config['DBPORT'])
+                                                        config['DBNAME'],
+                                                        config['DBUSER'],
+                                                        config['DBPASSWORD'],
+                                                        config['DBPORT'])
         
         PQTrading.populateStaticData(self._factory)
 

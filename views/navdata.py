@@ -19,14 +19,12 @@ def ggrandchild_strategByAsset(trading_sys, instruments):
     Hierarchy level: great-grandchild
     """
     views = []
-    row = 1
     for i in instruments:
-        for system in sorted(trading_sys):
+        for row, system in enumerate(sorted(trading_sys)):
             series = ','.join([dm.RawManipulator.PREFIX + ':' + i + 'Combiner.{}'.format(subsys) for subsys in trading_sys[system]])
             tags = build_tags("Weights", series=series, market=system, axis=trading_sys[system])
-            views.append(build_views("price", tags, row))
-            row += 1
-        row = 1
+            views.append(build_views("price", tags, row+1))
+
     longName = PQTrading.instrumentToLongName[instruments[0][:3]]
     pages = [build_page("Optimised Weights", views=views, tags={
         "header": "{} Net Optimised Weights".format(longName), "datepicker": False})]
@@ -40,12 +38,11 @@ def ggrandchild_expRtn(trading_sys, instruments):
     Hierarchy level: great-grandchild
     """
     views = []
-    row = 1
-    for subsys in trading_sys['STS']:
+    for row, subsys in enumerate(trading_sys['STS']):
         series = _series(instruments, suffix='{}.expRtn'.format(subsys))
         tags = build_tags("Returns", series=series, market="STS")
-        views.append(build_views("price", tags, row))
-        row += 1
+        views.append(build_views("price", tags, row+1))
+
     longName = PQTrading.instrumentToLongName[instruments[0][:3]]
     pages = [build_page("Expected Return", views=views, tags={
         "header": "{} Expected Return".format(longName), "datepicker": False})]
@@ -117,13 +114,12 @@ def child_strategy(trading_sys, all_markets, start, finish):
     pages, views = [], []
     for system in sorted(trading_sys):
         views = []
-        row = 1
-        for subsys in trading_sys[system]:
+        for row, subsys in enumerate(trading_sys[system]):
             tags = build_tags(datatype="Weight", series=_series(['all'], prefix=dm.StratManipulator.PREFIX, suffix=':'+subsys),
                              start_date=start, end_date=finish, market=subsys,
                              axis=[PQTrading.instrumentToLongName[i[:3]] for i in dm.groupBySector(all_markets)])
-            views.append(build_views("stratHistogram", tags, row))
-            row += 1
+            views.append(build_views("stratHistogram", tags, row+1))
+
         page = build_page(system, views=views,
                          tags={"header": "{} Strategy Weights".format(system), "datepicker": True})
         pages.append(page)
@@ -161,11 +157,10 @@ def parent_homepage(all_markets):
 
 def parent_risk(risk_factors):
     views = []
-    row = 1
-    for factor in risk_factors:
+    for row, factor in enumerate(risk_factors):
         tags = build_tags(datatype="price", series=dm.RawManipulator.PREFIX + ":EPV." + factor)
-        views.append(build_views("price", tags, row))
-        row += 1
+        views.append(build_views("price", tags, row+1))
+
     page = [build_page("Risk", views=views, tags={"header": "Risk Factors", "datepicker": False})]
     return page
 
@@ -176,23 +171,21 @@ def parent_pnl(instr_to_sector):
     Hierarchy level: parent
     """
     views = []
-    row = 1
-    for i in ["grossPL", "netPL"]:
+    for row, i in enumerate(["grossPL", "netPL"]):
         series = _series([sector for sector in instr_to_sector.keys()], prefix=dm.SectorManipulator.PREFIX,
                          suffix=".{}".format(i))
         tags = build_tags("PnL", series=series, market=i)
-        views.append(build_views("price", tags, row))
-        row += 1
+        views.append(build_views("price", tags, row+1))
+
     pages = [build_page("Sector PnL", views=views, tags={"header": "PnL by Sector", "datepicker": False})]
     return pages
 
 
 def parent_portfPnL(instr_to_sector, start, end):
     views = []
-    row = 1
     series = _series(['all.grossPL', 'all.netPL'], prefix=dm.StackManipulator.PREFIX)
     tags = build_tags("PnL", series=series, start_date=start, end_date=end, market='PnL')
-    views.append(build_views("stackcol", tags, row))
+    views.append(build_views("stackcol", tags, 1))
     pages = [build_page("Portfolio PnL Breakdown", views=views, tags={"header": "Portfolio PnL Breakdown", "datepicker": "range"})]
     return pages
 
