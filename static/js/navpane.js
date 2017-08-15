@@ -143,6 +143,7 @@ var renderNavPane = function(begin_date = '05_22_2017', end_date = '05_23_2017')
 	$.getJSON('/navdata?date='+begin_date+'/'+end_date,
 	function(data) {
 		var tgt = $("#sidebar-nav");
+		tgt.html("");
 		var viewdata = {};
 		var currentUrl = getJsonFromUrl();
 

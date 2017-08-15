@@ -16,19 +16,19 @@
 	<!-- Sidebar -->
 	<div id="sidebar-wrapper">
 		<div id="sidebar-header">
-            <div style="color: #FFFFFF;"> Current Simulation:</div>
-            <div>
-                <form action="">
-                    <fieldset>
-                        <select id="setSim" onclick="changeSim()">
-                            {%  for token in tokens %}
-                                <option value={{ token }}>{{ token }}</option>
-                            {% endfor %}
-                        </select>
-                    </fieldset>
+			<div id="sidebar-token-header" style="color:#FFFFFF;">Current Simulation:</div>
+			
+            <div id="sidebar-token-body" data-width="100%">
+                <form id="sidebar-token-form" action="" data-width="100%">
+					<select name="sidebar-token-picker" class="selectpicker show-tick" data-width="100%" onchange="if (this.selectedIndex) changeToken(this, event);">
+					{%  for token in tokens %}
+						<option value={{ token }}>{{ token }}</option>
+					{% endfor %}
+					</select>
                 </form>
             </div>
-        </div>
+				  
+		</div>
 		<div id="sidebar-nav"></div>
 	</div>
 
@@ -36,7 +36,7 @@
         <div id="progress-bar"></div></div>
 
 	<div class="page-content-wrapper">
-		<div class="container-fluid">
+		<div id="page-content-inner" class="container-fluid">
 		{% block page_content %}{% endblock %}
 		</div>
 	</div>
@@ -78,8 +78,8 @@
 </script>
 
 <script type="text/javascript">
-    function changeSim(){
-        var token = document.getElementById("setSim").value;
+    function changeToken(form, event){
+        var token = $("#sidebar-token-form :selected").text();
         console.log("selected token: %s", token);
         $.getJSON('/set_token?token=' + token);
         renderViews() //Refresh the page with updated token
