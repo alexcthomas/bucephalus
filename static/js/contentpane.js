@@ -49,19 +49,27 @@ var getViewRows = function(viewdata) {
 
 // figures out the content pane layout
 // and hands off the view rendering to renderView
-var renderContentPane = function(views, tags) 
+var renderContentPane = function(views, tags, title) 
 {
-	
 	var navData = $("#sidebar-nav").data("viewdata");
-	var viewdata, pagetags;
+	var viewdata, pagetags, pagetitle;
 	
 	if (views == undefined) {
 		viewdata = navData['Root'].views;
 		pagetags = navData['Root'].tags;
+		pagetitle = navData['Root'].title;
 	} else {
 		viewdata = views;
 		pagetags = tags;
+		pagetitle = title;
 	}
+
+	// Customise the page header using the header title passed in from JSON tags
+	if (pagetitle == undefined){
+		pagetitle = "Bucephalus Dashboard";
+	}
+	$('#page-header-title').text(pagetitle);
+
 	
 	var tgt = $("#page-content");
 	tgt.html('');

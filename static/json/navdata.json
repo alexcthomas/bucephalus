@@ -13,6 +13,7 @@
   },
   {
     "text": "Parent1",
+    "title": "Title of Parent1 Page",
     "tags": {"level": "city"},
     "views": [
       {
@@ -31,6 +32,7 @@
     "nodes": [
       {
         "text": "Child1",
+        "title": "Title of Child1 Page",
         "tags": {
           "tag1": "value12",
           "tag2": "value22"
@@ -53,6 +55,7 @@
   },
   {
     "text": "Parent2",
+    "title": "Title of Parent2 Page",
     "tags": {
       "tag1": "value11",
       "tag2": "value21"
