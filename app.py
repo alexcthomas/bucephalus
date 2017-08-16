@@ -88,20 +88,6 @@ def images(path):
     return send_file(fullpath, mimetype='image/png')
 
 
-def reload_views_provider(path):
-    """For reloading the views"""
-    view_defs.reload_views()
-
-
-def reload_data_provider(path):
-    """
-    For reloading the data provider
-    e.g. switching database
-    """
-    global data_provider
-    data_provider = ViewDataProvider()
-    view_defs.set_data_provider(data_provider)
-
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Bucephalus',
@@ -111,14 +97,14 @@ if __name__ == '__main__':
     parser.add_argument('--host', type=str, default="0.0.0.0",
         help="IP address to listen on")
     params = parser.parse_args()
-    
-    app.run(debug=True, host=params.host, port=params.port, threaded=True)
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
+    app.run(debug=True, host=params.host, port=params.port, threaded=True, use_reloader=False)
+
+
+
+
+
+
+
+
+
