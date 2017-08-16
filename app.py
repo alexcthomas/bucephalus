@@ -5,13 +5,13 @@ import ujson
 import logging
 import argparse
 import traceback
+from queue import Queue
 
-from flask import Flask, render_template, request, make_response, send_file
+from flask import Flask, render_template, request, send_file
 from flask_bootstrap import Bootstrap, WebCDN
 
 from views.viewbuilder import ViewBuilder
 from views.viewdata import ViewDataProvider
-from views.viewtools import parse_tags
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -64,19 +64,37 @@ def get_nav_data():
     return app.send_static_file(r'json/navdata.json')
 
 
-# return the individual view data
-@app.route('/view', methods=['GET'])
-def view():
-    """
-    Returns a json response containing instructions for
-    the javascript to render a single pane
-    """
-    args = dict(request.args)
-    typ = args.pop('type')[0]
-    argtags = args.pop('tags', [])
-    tags = parse_tags(argtags)
-    kwargs = {k:v[0] for k,v in args.items()}
-    return view_defs.build_view(typ, tags, **kwargs)
+
+@app.route('/views', methods=['POST'])
+def views():
+    result_queue = Queue()
+
+    pdb.set_trace()
+
+    # This function does not block until the results are all back
+    worker_thread = view_defs.build_views(request.json, result_queue)
+
+    # Flask can send results back piecemeal, but it needs a generator to do this.  We block on the callback
+    # here by waiting on the result_queue.
+    def result_generator():
+        try:
+            while True:
+                result = result_queue.get(block=True)
+                if not result:
+                    break
+
+                partial_result = ujson.dumps(result)
+                yield(partial_result.encode('utf-8'))
+                yield(';'.encode('utf-8'))
+
+            logging.debug('Waiting for worker thread')
+            worker_thread.join()
+            logging.debug('Call completed')
+        except Exception:
+            ex_type, ex, tb = sys.exc_info()
+            logging.error('Error in result_generator: {}\n{}'.format(ex, "\n".join(traceback.format_tb(tb))))
+
+    return app.response_class(result_generator(), mimetype='text/plain', direct_passthrough=True)
 
 
 @app.route("/img/<path:path>")
@@ -86,7 +104,6 @@ def images(path):
     """
     fullpath = "./img/" + path
     return send_file(fullpath, mimetype='image/png')
-
 
 
 if __name__ == '__main__':
