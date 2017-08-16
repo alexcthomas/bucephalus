@@ -72,18 +72,18 @@ var renderContentPane = function(views, tags)
 	
 	if (views == undefined) {
 		viewdata = navData['Root'].views;
-		pagetags = navData['Root'].tags
+		pagetags = navData['Root'].tags;
 	} else {
 		viewdata = views;
-		pagetags = tags
+		pagetags = tags;
 	}
 
 	var rows = getViewRows(viewdata);
 	var viewContainers = createViews(rows, pagetags);
 
 	// Customise the page header using the header title passed in from JSON tags
-	var header = pagetags["header"];
-	$('#strategy_header').text(header);
+	var title = pagetags["title"];
+	$('#page-header-title').text(title);
 
 	// Conditionally display date picker on the page as required by JSON tags
 	var datepicker = pagetags["datepicker"];
