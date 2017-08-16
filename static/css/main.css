@@ -17,9 +17,8 @@ div.view_row_cont {
 }
 
 .page-header {
-	padding-top: 5px;
-	padding-bottom: 5px;
-	margin-top: 5px;
+	padding: 0px;
+	margin-top: 2px;
 	margin-bottom: 5px;
 }
 
@@ -32,7 +31,7 @@ div.view_row_cont {
 }
 
 #page-header-title {
-	margin-top: 5px;
+	margin-top: 0px;
 	margin-left: 5px;
 }
 

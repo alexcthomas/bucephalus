@@ -64,26 +64,30 @@ var getViewRows = function(viewdata) {
 
 // figures out the content pane layout
 // and hands off the view rendering to renderView
-var renderContentPane = function(views, tags)
+var renderContentPane = function(views, tags, title) 
 {
 	// Create the views up front, then query for their data and initialise them as it arrives
 	var navData = $("#sidebar-nav").data("viewdata");
-	var viewdata, pagetags;
+	var viewdata, pagetags, pagetitle;
 	
 	if (views == undefined) {
 		viewdata = navData['Root'].views;
 		pagetags = navData['Root'].tags;
+		pagetitle = navData['Root'].title;
 	} else {
 		viewdata = views;
 		pagetags = tags;
+		pagetitle = title;
 	}
 
 	var rows = getViewRows(viewdata);
 	var viewContainers = createViews(rows, pagetags);
 
-	// Customise the page header using the header title passed in from JSON tags
-	var title = pagetags["title"];
-	$('#page-header-title').text(title);
+	// Set the page title
+	if (pagetitle == undefined){
+		pagetitle = "Bucephalus Dashboard";
+	}
+	$('#page-header-title').text(pagetitle);
 
 	// Conditionally display date picker on the page as required by JSON tags
 	var datepicker = pagetags["datepicker"];

@@ -76,7 +76,7 @@ var selectNode = function(tgt, levels) {
 
 // gets called when a tree node is selected
 var treeNodeSelect = function(event, node, begin, end) {
-	renderContentPane(node.views, node.tags);
+	renderContentPane(node.views, node.tags, node.title);
 
 	var nodeLocation = getNodeLocation(node);
 	var nodeUrl = "?" + $.param(nodeLocation) + '&date=' + begin + '/' + end;

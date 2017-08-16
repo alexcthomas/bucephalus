@@ -32,7 +32,8 @@ def ggrandchild_strategByAsset(trading_sys, instruments):
 
     page = build_page("Optimised Weights",
                       views=views,
-                      tags={"title": "{} Net Optimised Weights".format(longName), "datepicker": False})
+                      tags={"datepicker": False},
+                      title="{} Net Optimised Weights".format(longName))
 
     return page
 
@@ -53,7 +54,8 @@ def ggrandchild_expRtn(trading_sys, instruments):
 
     page = build_page("Expected Return",
                       views=views,
-                      tags={"title": "{} Expected Return".format(longName), "datepicker": False})
+                      tags={"datepicker": False},
+                      title="{} Expected Return".format(longName))
 
     return page
 
@@ -105,7 +107,8 @@ def grandchild_instrument(sub_pages, sub_instruments):
     page = build_page(instrument_name,
                       views=views,
                       nodes=sub_pages,
-                      tags={"title": "{} Basic Graphs".format(instrument_name), "datepicker": False})
+                      tags={"datepicker": False},
+                      title="{} Basic Graphs".format(instrument_name))
     return page
 
 
@@ -138,7 +141,8 @@ def child_sector(sub_pages, sector_dict):
         page = build_page(sector,
                           views=sector_view,
                           nodes=sub_pages[sector],
-                          tags={"title": "{} Basic Graphs".format(sector), "datepicker": False})
+                          tags={"datepicker": False},
+                          title="{} Basic Graphs".format(sector))
 
         pages.append(page)
 
@@ -165,7 +169,8 @@ def child_strategy(trading_sys, all_markets, start, finish):
 
         page = build_page(system,
                           views=views,
-                          tags={"title": "{} Strategy Weights".format(system), "datepicker": True})
+                          tags={"datepicker": True},
+                          title="{} Strategy Weights".format(system))
 
         pages.append(page)
 
@@ -205,7 +210,8 @@ def parent_homepage(all_markets):
 
     page = build_page("Root",
                       views=home_view,
-                      tags={"title": "Portfolio Monitor", "datepicker": False})
+                      tags={"datepicker": False},
+                      title="Portfolio Monitor")
 
     logging.info("Built home page")
     return page
@@ -221,7 +227,8 @@ def parent_risk(risk_factors):
 
     page = build_page("Risk",
                       views=views,
-                      tags={"title": "Risk Factors", "datepicker": False})
+                      tags={"datepicker": False},
+                      title="Risk Factors")
 
     return page
 
@@ -244,7 +251,8 @@ def parent_pnl(instr_to_sector):
 
     page = build_page("Sector PnL",
                       views=views,
-                      tags={"title": "PnL by Sector", "datepicker": False})
+                      tags={"datepicker": False},
+                      title="PnL by Sector")
 
     return page
 
@@ -259,7 +267,8 @@ def parent_portfPnL(instr_to_sector, start, end):
 
     page = build_page("Portfolio PnL Breakdown",
                       views=views,
-                      tags={"title": "Portfolio PnL Breakdown", "datepicker": "range"})
+                      tags={"datepicker": "range"},
+                      title="Portfolio PnL Breakdown")
 
     return page
 

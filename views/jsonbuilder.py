@@ -1,14 +1,14 @@
 
-def build_page(title, views=None, tags=None, nodes=None):
-    return {"text": title, "tags": tags, "views": views, "nodes": nodes}
+def build_page(name, views=None, tags=None, title=None, nodes=None):
+    return {"text": name, "tags": tags, "views": views, "title": title, "nodes": nodes}
 
 
 def build_views(viewtype=None, tag=None, row=None):
     """
     Creates a view of the specified type.  Note that you specify a view like "volatility" or
-    "overview_distribution", which in the case of Highcharts graphs, refers to a JSON File, 
+    "overview_distribution", which in the case of Highcharts graphs, refers to a JSON File,
     and in the case of Matplotlib graphs refers to an entry at the top of the MplViewBuilder class.
-    
+
     :param viewtype: the name of the view type - this is a high-level type like "volatility"
     :param tag: the tags to attach (arbitrary)
     :param row: the index of the row, starting at 1.
@@ -18,9 +18,9 @@ def build_views(viewtype=None, tag=None, row=None):
 
 
 def build_tags(datatype=None, series=None, start_date=None, end_date=None, market=None, axis=""):
-    return {"datatype": datatype, 
-           "series": series, 
-           "start_date": start_date, 
+    return {"datatype": datatype,
+           "series": series,
+           "start_date": start_date,
            "end_date": end_date,
-           "market": market, 
+           "market": market,
            "axis": axis}
