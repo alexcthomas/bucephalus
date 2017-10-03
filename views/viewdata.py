@@ -1,4 +1,4 @@
-import logging
+import logging, pdb
 import datetime
 
 from StrategyBuilder import SimLoader
@@ -16,16 +16,22 @@ class ViewDataProvider(object):
     def __init__(self, config):
         logging.info("Connecting to {}".format(config['SIMSERVER']))
         self._loader = SimLoader(config['SIMSERVER'])
+        logging.info("Building factory")
         self._factory = Psycopg2Tools.ConnectionFactory(config['DBHOST'],
                                                         config['DBNAME'],
                                                         config['DBUSER'],
                                                         config['DBPASSWORD'],
                                                         config['DBPORT'])
 
+        logging.info("Getting static data")
         PQTrading.populateStaticData(self._factory)
 
+        logging.info("Getting tokens")
         # Default to the latest token retrieved
-        self.set_token(self.get_tokens()[0])
+        token = self.get_tokens()[0]
+
+        logging.info("Setting tokens")
+        self.set_token(token)
 
     def get_tokens(self):
         tokens = self._loader.getRunTokens(datetime.datetime(1990, 1, 1), datetime.datetime.utcnow())

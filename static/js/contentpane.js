@@ -155,7 +155,7 @@ var createViews = function(rows, pagetags) {
 	$.each(rows, function(i, row) {
 		var nviews = row.length;
 		if (nviews!=0) {
-			var viewWidth =  (width / nviews) - 20; // margin of the views div
+			var viewWidth =  (width / nviews) - 10; // margin of the views div
 
 			$.each(row, function(j, view) {
 				var viewTarget = createPanel(viewWidth);

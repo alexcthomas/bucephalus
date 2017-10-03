@@ -96,24 +96,14 @@ var treeNodeUnSelect = function(event, node) {
 	}
 };
 
-var renderViews = function () {
-	$(document).ready(function () {
-			renderNavPane();
-		}
-	);
-};
-
 // gets data to fill out the nav pane
 var renderNavPane = function() {
-	$.getJSON('/navdata',
+	$.getJSON("/navdata",
 	function(data) {
 		var tgt = $("#sidebar-nav");
 		tgt.html("");
 		var viewdata = {};
 		var currentUrl = getJsonFromUrl();
-
-		//remove previous dates from the url
-		currentUrl.pop();
 
 		$.each(data, function(key, val) {
 			viewdata[val.text] = val;

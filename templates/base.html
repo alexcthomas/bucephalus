@@ -1,6 +1,6 @@
 {% extends "bootstrap/base.html" %}
 
-{% block title %}Simulation monitor{% endblock %}
+{% block title %}Bucephalus{% endblock %}
 
 {% block head %}
 {{ super() }}
@@ -20,7 +20,7 @@
 <div id="wrapper" class="toggled">
 	<!-- Sidebar -->
 	<div id="sidebar-wrapper">
-		<div id="sidebar-header">
+		<div id="sidebar-token">
 			<div id="sidebar-token-header" style="color:#FFFFFF;">Current Simulation:</div>
 			
             <div id="sidebar-token-body" data-width="100%">
@@ -82,7 +82,7 @@
         var token = $("#sidebar-token-form :selected").text();
         console.log("selected token: %s", token);
         $.getJSON('/set_token?token=' + token);
-        renderViews() //Refresh the page with updated token
+        renderNavPane() //Refresh the page with updated token
     }
 </script>
 

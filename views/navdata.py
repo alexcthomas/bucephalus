@@ -10,7 +10,7 @@ def build_pages(data_provider):
     Build JSON pages for the entire website
     """
 
-    return json.load(open(r'json/navdata.json', 'rb'))
+    return json.load(open(r'static/json/navdata.json', 'r'))
 
 
 
