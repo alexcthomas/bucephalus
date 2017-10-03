@@ -118,7 +118,7 @@ var renderNavPane = function() {
 		var tree = tgt.treeview({
 			levels: 1,
 			data: data,
-			onNodeSelected: function(event, node){treeNodeSelect(event, node)},
+			onNodeSelected: treeNodeSelect,
 			onNodeUnselected: treeNodeUnSelect
 		});
 
