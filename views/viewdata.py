@@ -21,7 +21,7 @@ class ViewDataProvider(object):
                                                         config['DBUSER'],
                                                         config['DBPASSWORD'],
                                                         config['DBPORT'])
-        
+
         PQTrading.populateStaticData(self._factory)
 
         # Default to the latest token retrieved
@@ -29,7 +29,7 @@ class ViewDataProvider(object):
 
     def get_tokens(self):
         tokens = self._loader.getRunTokens(datetime.datetime(1990, 1, 1), datetime.datetime.utcnow())
-        return [t[0] for t in sorted(tokens, key=lambda x: x[1], reverse=True) if t[0].startswith('[Parallelism.Pegasus')][:10]
+        return [t[0] for t in sorted(tokens, key=lambda x: x[1], reverse=True) if t[0].startswith('[Taurus')][:10]
 
     def set_token(self, token):
         logging.debug('Setting token to %s', token)
