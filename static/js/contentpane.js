@@ -89,24 +89,6 @@ var renderContentPane = function(views, tags, title)
 	}
 	$('#page-header-title').text(pagetitle);
 
-	// Conditionally display date picker on the page as required by JSON tags
-	var datepicker = pagetags["datepicker"];
-	if (datepicker == false) {
-		document.getElementById("begindata-div").style.display="none";
-		document.getElementById("enddate-div").style.display="none";
-		document.getElementById("submit").style.display="none";
-	}
-	else if(datepicker == true) {
-		document.getElementById("begindata-div").style.display="inline";
-		document.getElementById("enddate-div").style.display="none";
-		document.getElementById("submit").style.display="inline";
-	}
-	else if (datepicker == 'range') {
-		document.getElementById("begindata-div").style.display="inline";
-		document.getElementById("enddate-div").style.display="inline";
-		document.getElementById("submit").style.display="inline";
-	}
-
 	progressBar.progressbar('value', false);
 	loadingDialog.dialog('open');
 	// Send the JSON for this page to the server in one block so we can do all the queries in one go.

@@ -150,7 +150,7 @@ def child_sector(sub_pages, sector_dict):
     return pages
 
 
-def child_strategy(trading_sys, all_markets, start, finish):
+def child_strategy(trading_sys, all_markets):
     """
     Build a JSON page for each trading system, showing a bar chart of weights on
     each sub system across all assets on a particular day
@@ -162,7 +162,7 @@ def child_strategy(trading_sys, all_markets, start, finish):
         for row, subsys in enumerate(trading_sys[system]):
             tags = build_tags(datatype="Weight",
                               series=_series(['all'], prefix=dm.StratManipulator.PREFIX, suffix=':'+subsys),
-                              start_date=start, end_date=finish, market=subsys,
+                              market=subsys,
                               axis=[PQTrading.instrumentToLongName[i[:3]] for i in dm.groupBySector(all_markets)])
 
             views.append(build_views("stratHistogram", tags, row+1))
@@ -257,11 +257,11 @@ def parent_pnl(instr_to_sector):
     return page
 
 
-def parent_portfPnL(instr_to_sector, start, end):
+def parent_portfPnL(instr_to_sector):
     views = []
     series = _series(['all.grossPL', 'all.netPL'], prefix=dm.StackManipulator.PREFIX)
 
-    tags = build_tags("PnL", series=series, start_date=start, end_date=end, market='PnL')
+    tags = build_tags("PnL", series=series, market='PnL')
 
     views.append(build_views("stackcol", tags, 1))
 
@@ -273,7 +273,7 @@ def parent_portfPnL(instr_to_sector, start, end):
     return page
 
 
-def build_pages(data_provider, start='20170522', end='20170522'):
+def build_pages(data_provider):
     """
     Build JSON pages for the entire website
     """
@@ -320,14 +320,14 @@ def build_pages(data_provider, start='20170522', end='20170522'):
         sub_instruments = []
 
     sector_pages = child_sector(sub_pages, instr_to_sector)
-    strategy_pages = child_strategy(trading_sys, ex_spreads_markets, start, end)
+    strategy_pages = child_strategy(trading_sys, ex_spreads_markets)
 
     pages = [parent_homepage(ex_spreads_markets),
              build_page("Instruments", nodes=sector_pages),
              build_page("Strategies", nodes=strategy_pages),
              parent_risk(["alpha", "multiplier", "thermostat", "var"]),
              parent_pnl(instr_to_sector),
-             parent_portfPnL(instr_to_sector, start, end)]
+             parent_portfPnL(instr_to_sector)]
 
     return pages
 

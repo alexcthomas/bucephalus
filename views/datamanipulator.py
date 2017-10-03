@@ -9,28 +9,18 @@ import PQTrading
 
 
 class SimulatorQuery(object):
-    def __init__(self, name, start=None, finish=None):
+    def __init__(self, name):
         self._name = name
-        self._start = start
-        self._finish = finish
 
     @property
     def name(self):
         return  self._name
 
-    @property
-    def start(self):
-        return self._start
-
-    @property
-    def finish(self):
-        return self._finish
-
     def __hash__(self):
-        return hash((self._name, self._start, self._finish))
+        return hash((self._name, ))
 
     def __eq__(self, other):
-        return self._name, self._start, self._finish == other._name, other._start, other._finish
+        return self._name == other._name
 
 
 def split_series(series):
@@ -49,18 +39,11 @@ class RawManipulator(object):
     PREFIX = 'raw'
 
     def generate_queries(self, manipulator, specifier, tags):
-        start = tags['start_date']
-        end = tags['end_date']
-        if start is not None and end is not None:
-            start = datetime.datetime.strptime(start, '%Y%m%d')
-            end = datetime.datetime.strptime(end, '%Y%m%d')
-            return [SimulatorQuery(specifier, start, end)], (manipulator, specifier, tags)
-        sim_query = SimulatorQuery(specifier)
-        return [sim_query], (manipulator, specifier, tags)
+        return [SimulatorQuery(specifier)], (manipulator, specifier, tags)
 
     def process_queries(self, token, results):
         """
-        We are passed a map from query -> data.  We "process" this by simply returning the data. 
+        We are passed a map from query -> data.  We "process" this by simply returning the data.
         """
         assert(len(results) == 1)
         return results[list(results.keys())[0]]
@@ -93,7 +76,7 @@ class CorrelManipulator(object):
         Generates all the queries required to plot the graph
         """
         all_markets = [i for i in self._data_provider.get_instruments() if not i.startswith("Spread")]
-        return [SimulatorQuery(name+'.prices', datetime.datetime(1978,1,1), datetime.datetime(1978, 3, 31)) for name in all_markets], None
+        return [SimulatorQuery(name+'.prices') for name in all_markets], None
 
     def process_queries(self, token, results):
         """
@@ -126,12 +109,8 @@ class StratManipulator(object):
         """
         Generates all the queries required to plot the graph
         """
-        start = tags['start_date']
-        end = tags['end_date']
         queries = []
-        if start is not None and end is not None:
-            start = datetime.datetime.strptime(start, '%Y%m%d')
-            end = datetime.datetime.strptime(end, '%Y%m%d')
+
         instrument, sys = split_series(specifier)
         all_markets = [i for i in self._data_provider.get_instruments() if not i.startswith("Spread")]
 
@@ -139,15 +118,12 @@ class StratManipulator(object):
             # If specific instruments are not given, loop through all instruments given a certain sub trading system
             # Sort the instruments by sector
             instrument_list = groupBySector(all_markets)
-            queries = [SimulatorQuery(i + 'Combiner.' + sys, start, end) for i in instrument_list]
+            queries = [SimulatorQuery(i + 'Combiner.' + sys) for i in instrument_list]
 
         elif sys in self._sys_to_subsys.keys():
             # If given a specific instrument, but only a trading system category,
             # loop through all sub-systems within the system
-            if start is None and end is None:
-                queries = [SimulatorQuery(instrument + 'Combiner.' + s) for s in self._sys_to_subsys[sys]]
-            else:
-                queries = [SimulatorQuery(instrument + 'Combiner.' + s, start, end) for s in self._sys_to_subsys[sys]]
+            queries = [SimulatorQuery(instrument + 'Combiner.' + s) for s in self._sys_to_subsys[sys]]
             instrument_list = [instrument]
         return queries, instrument_list
 
@@ -240,14 +216,9 @@ class StackManipulator(object):
         pnl_type = specifier.split(".")[1]
         assert(sector == 'all')
 
-        start = tags['start_date']
-        end = tags['end_date']
-        if start is not None and end is not None:
-            start = datetime.datetime.strptime(start, '%Y%m%d')
-            end = datetime.datetime.strptime(end, '%Y%m%d')
         all_markets = [i for i in self._data_provider.get_instruments() if not i.startswith("Spread")]
 
-        queries = [SimulatorQuery(i + 'FinalPL.{}'.format(pnl_type), start, end) for i in all_markets]
+        queries = [SimulatorQuery(i + 'FinalPL.{}'.format(pnl_type)) for i in all_markets]
         return queries, (manipulator, specifier, tags)
 
     def process_queries(self, token, results):

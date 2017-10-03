@@ -45,10 +45,7 @@ class ViewDataProvider(object):
         """
         queries = []
         for query_obj in query_list:
-            if query_obj.start is None and query_obj.finish is None:
-                queries.append(query_obj.name)
-            else:
-                queries.append((query_obj.name, query_obj.start, query_obj.finish))
+            queries.append(query_obj.name)
 
         logging.debug('Calling getRunData with queries.')
         self._loader.getRunData(self._token, queries, callback)

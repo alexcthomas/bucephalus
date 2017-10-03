@@ -75,11 +75,11 @@ var selectNode = function(tgt, levels) {
 };
 
 // gets called when a tree node is selected
-var treeNodeSelect = function(event, node, begin, end) {
+var treeNodeSelect = function(event, node) {
 	renderContentPane(node.views, node.tags, node.title);
 
 	var nodeLocation = getNodeLocation(node);
-	var nodeUrl = "?" + $.param(nodeLocation) + '&date=' + begin + '/' + end;
+	var nodeUrl = "?" + $.param(nodeLocation);
 	console.log(nodeLocation + nodeUrl);
 	window.history.pushState("", "", nodeUrl);
 };
@@ -98,49 +98,14 @@ var treeNodeUnSelect = function(event, node) {
 
 var renderViews = function () {
 	$(document).ready(function () {
-			var jsonList = getJsonFromUrl();
-			var dates = jsonList[jsonList.length - 1];
-			if (typeof dates !== 'undefined') {
-				var begin = dates.split(',')[0];
-				var end = dates.split(',')[1];
-				console.log("begin", begin.split('_').join('/'));
-				renderNavPane(begin, end);
-				$("#begin_date").datepicker('setDate', begin.split('_').join('/'));
-			}
-			else {
-				renderNavPane();
-			}
-		});
-};
-
-// Check if user has submitted any date for strategy graphs
-document.getElementById('submit_date').onclick = function(){
-	begin_date = $("#begin_date").datepicker("getDate");
-
-	// User is asked to input the range of dates
-	if($("#end_date").is(":visible")){
-		end_date = $("#end_date").datepicker("getDate");
-	}
-
-	// User is only allowed to pick begin date, set the end date as the next working day by default
-	else{
-		end_date = new Date(begin_date.getFullYear(), begin_date.getMonth(), begin_date.getDate()+1);
-
-		while(end_date.getDay()>5 | end_date.getDay()<=0){
-			end_date  = new Date(end_date.setDate(end_date.getDate()+1));
+			renderNavPane();
 		}
-    }
-
-	begin_date = [begin_date.getMonth()+1, begin_date.getDate(), begin_date.getFullYear()].join('_');
-	end_date = [end_date.getMonth()+1, end_date.getDate(), end_date.getFullYear()].join('_');
-
-	renderNavPane(begin_date, end_date)
+	);
 };
 
 // gets data to fill out the nav pane
-// Use default dates as begin / end dates when date picker is not available on the page
-var renderNavPane = function(begin_date = '05_22_2017', end_date = '05_23_2017') {
-	$.getJSON('/navdata?date='+begin_date+'/'+end_date,
+var renderNavPane = function() {
+	$.getJSON('/navdata',
 	function(data) {
 		var tgt = $("#sidebar-nav");
 		tgt.html("");
@@ -163,7 +128,7 @@ var renderNavPane = function(begin_date = '05_22_2017', end_date = '05_23_2017')
 		var tree = tgt.treeview({
 			levels: 1,
 			data: data,
-			onNodeSelected: function(event, node){treeNodeSelect(event, node, begin_date, end_date)},
+			onNodeSelected: function(event, node){treeNodeSelect(event, node)},
 			onNodeUnselected: treeNodeUnSelect
 		});
 

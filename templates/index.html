@@ -7,15 +7,6 @@
 	<div class="page-header">
 		<h1 id="page-header-title">Bucephalus Trading Dashboard</h1>
 	</div>
-	<div id="begindata-div">
-		<b>Start Date: <input type="text" name="begin date" id="begin_date"></b>
-	</div>
-    <div id="enddate-div">
-		<b>End Date: <input type="text" name="end date" id="end_date"></b>
-	</div>
-    <div id="submit">
-		<input type="submit" id="submit_date" name="Submit" value="enter">
-    </div>
 	{% for message in get_flashed_messages() %}
 	<div class="alert alert-warning">
 		<button type="button" class="close" data-dismiss="alert">&times;</button>

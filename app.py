@@ -63,19 +63,8 @@ def set_token():
 def get_nav_data():
     """
     Returns data for building the nav pane contents
-    These won't necessarily always be static
     """
-    logging.debug('request: %s', request)
-    date = request.args.get('date')
-    # Convert user input dates from website into datetime
-    begin = dt.datetime.strptime(date.split('/')[0], "%m_%d_%Y")
-    end = dt.datetime.strptime(date.split('/')[1], "%m_%d_%Y")
-    # Convert datetime into string
-    begin = begin.strftime("%Y%m%d")
-    end = end.strftime("%Y%m%d")
-
-    logging.debug('dates: %s, %s', begin, end)
-    data = build_pages(data_provider, begin, end)
+    data = build_pages(data_provider)
     return jsonify(data)
 
 
@@ -100,11 +89,11 @@ def views():
                         # hence can't use np.isnan to check for NaN's
                         if type(data) is not dict and np.isnan(data[1]):
                             data[1] = 0
-                            
+
                 partial_result = ujson.dumps(result)
                 yield(partial_result.encode('utf-8'))
                 yield(';'.encode('utf-8'))
-                
+
             logging.debug('Waiting for worker thread')
             worker_thread.join()
             logging.debug('Call completed')
@@ -132,14 +121,14 @@ if __name__ == '__main__':
     parser.add_argument('--host', type=str, default="0.0.0.0",
         help="IP address to listen on")
     params = parser.parse_args()
-    
+
     app.run(debug=True, host=params.host, port=params.port, threaded=True)
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
+
+
+

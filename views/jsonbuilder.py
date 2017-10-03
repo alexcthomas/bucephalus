@@ -17,10 +17,8 @@ def build_views(viewtype=None, tag=None, row=None):
     return {"viewtype": viewtype, "tags": tag, "row": row}
 
 
-def build_tags(datatype=None, series=None, start_date=None, end_date=None, market=None, axis=""):
+def build_tags(datatype=None, series=None, market=None, axis=""):
     return {"datatype": datatype,
            "series": series,
-           "start_date": start_date,
-           "end_date": end_date,
            "market": market,
            "axis": axis}
