@@ -81,7 +81,7 @@ var renderContentPane = function(views, tags, title)
 	}
 
 	var rows = getViewRows(viewdata);
-	var viewContainers = createViews(rows, pagetags);
+	var viewinfo = createViews(rows, pagetags);
 
 	// Set the page title
 	if (pagetitle == undefined){
@@ -91,6 +91,7 @@ var renderContentPane = function(views, tags, title)
 
 	progressBar.progressbar('value', false);
 	loadingDialog.dialog('open');
+
 	// Send the JSON for this page to the server in one block so we can do all the queries in one go.
 	// We expect to receive back a series of blocks.  Each block will be either a graph block or
 	// a named data block - seems complicated, but means we can combine data (i.e. if graph A and B both
@@ -101,6 +102,7 @@ var renderContentPane = function(views, tags, title)
 	// 3. Note that server-side graphs (e.g. matplotlib) would not have associated data blocks
 	var lastProcessedIdx = 0;
 	var dataBlocks = {};
+
 	$.ajax({
 		type: 'POST',
 		url: '/views',
@@ -117,19 +119,18 @@ var renderContentPane = function(views, tags, title)
 				while (-1 != (nextSemicolonIdx = response.indexOf(';', lastProcessedIdx))) {
 					// Extract a chunk from the data received so far
 					var chunk = response.substring(lastProcessedIdx, nextSemicolonIdx);
+
 					//console.log(Date.now() + ': chunk ' + lastProcessedIdx + '..' + nextSemicolonIdx);
 					var chunkObj = JSON.parse(chunk);
 					lastProcessedIdx = nextSemicolonIdx+1;
 
 					// Process the chunk - generate the view
 					if (chunkObj.category == 'data') {
-						//console.log('Data [' + chunkObj.series + ']');
 						dataBlocks[chunkObj.series] = chunkObj.data;
 					} else if (chunkObj.category == 'graph') {
-                        var reference_id = chunkObj.id;
-                        //console.log('GRAPH ' + reference_id);
-                        var definition = viewContainers[reference_id];
-                        renderView(definition.target, definition.view, chunkObj.result, dataBlocks);
+                        var target = viewinfo.targets[chunkObj.id];
+                        var viewdef = viewinfo.definitions[chunkObj.id];
+                        renderView(target, viewdef, chunkObj.result, dataBlocks);
                     } else if (chunkObj.category == 'status') {
 						progressBar.progressbar('option', 'max', chunkObj.maxIndex);
 						progressBar.progressbar('value', chunkObj.index);
@@ -139,7 +140,7 @@ var renderContentPane = function(views, tags, title)
 				} 
 			}	
 		},
-		data: JSON.stringify(rows),
+		data: JSON.stringify(viewinfo.definitions),
 		contentType: 'application/json; charset=utf-8',
 		dataType: 'json'
 	});
@@ -150,12 +151,13 @@ var createViews = function(rows, pagetags) {
 	tgt.html('');
 	
 	var width = tgt.width();
-	var views = [];
+	var viewTargets = [];
+	var viewsDefs = [];
 
 	$.each(rows, function(i, row) {
 		var nviews = row.length;
 		if (nviews!=0) {
-			var viewWidth =  (width / nviews) - 10; // margin of the views div
+			var viewWidth = (width / nviews) - 10; // margin of the views div
 
 			$.each(row, function(j, view) {
 				var viewTarget = createPanel(viewWidth);
@@ -165,12 +167,13 @@ var createViews = function(rows, pagetags) {
 					viewTarget.addClass("view_row_cont");
 				}
 				tgt.append(viewTarget);
-				views.push({'target': viewTarget, 'view': view});
+				viewTargets.push(viewTarget);
+				viewsDefs.push(view);
 			});
 		}
 	});
 
-	return views;
+	return {'targets': viewTargets, 'definitions': viewsDefs};
 };
 
 

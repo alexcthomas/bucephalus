@@ -8,6 +8,18 @@ import pandas as pd
 import PQTrading
 
 
+
+handlers = {}
+
+def register(cls):
+    handlers[cls.name] = cls
+    return cls
+
+
+def check_handler(hdlr):
+    handlers[hdlr]
+
+
 class SimulatorQuery(object):
     def __init__(self, name):
         self._name = name
@@ -23,23 +35,12 @@ class SimulatorQuery(object):
         return self._name == other._name
 
 
-def split_series(series):
-    """
-    Split series into two parts: manipulator (usually prefix) and specifier (usually suffix)
-    """
-    index = series.find(":")
-    if -1 == index:
-        raise Exception("Colon not found in series '{}'.".format(series))
-    manipulator = series[:index]
-    specifier = series[index+1:]
-    return manipulator, specifier
-
-
+@register
 class RawManipulator(object):
-    PREFIX = 'raw'
+    name = 'raw'
 
-    def generate_queries(self, manipulator, specifier, tags):
-        return [SimulatorQuery(specifier)], (manipulator, specifier, tags)
+    def generate_queries(self, specifier, tags):
+        return [SimulatorQuery(specifier)], (specifier, tags)
 
     def process_queries(self, token, results):
         """
@@ -49,8 +50,9 @@ class RawManipulator(object):
         return results[list(results.keys())[0]]
 
 
+@register
 class AccumManipulator(RawManipulator):
-    PREFIX = 'accum'
+    name = 'accum'
 
     def process_queries(self, token, results):
         """
@@ -65,13 +67,14 @@ class AccumManipulator(RawManipulator):
             return np.column_stack((dates, accum_ret))
 
 
+@register
 class CorrelManipulator(object):
-    PREFIX = 'correl'
+    name = 'correl'
 
     def __init__(self, data_provider):
         self._data_provider = data_provider
 
-    def generate_queries(self, manipulator, specifier, tags):
+    def generate_queries(self, specifier, tags):
         """
         Generates all the queries required to plot the graph
         """
@@ -98,14 +101,15 @@ class CorrelManipulator(object):
         return correl
 
 
+@register
 class StratManipulator(object):
-    PREFIX = 'tradingsystem'
+    name = 'tradingsystem'
 
     def __init__(self, data_provider, sys_to_subsys):
         self._data_provider = data_provider
         self._sys_to_subsys = sys_to_subsys
 
-    def generate_queries(self, manipulator, specifier, tags):
+    def generate_queries(self, specifier, tags):
         """
         Generates all the queries required to plot the graph
         """
@@ -164,13 +168,14 @@ class StratManipulator(object):
             return buckets
 
 
+@register
 class SectorManipulator(object):
-    PREFIX = 'sector'
+    name = 'sector'
 
     def __init__(self, data_provider):
         self._data_provider = data_provider
 
-    def generate_queries(self, manipulator, specifier, tags):
+    def generate_queries(self, specifier, tags):
         all_markets = [i for i in self._data_provider.get_instruments() if not i.startswith("Spread")]
         sector_to_instruments = sectorDict(all_markets)
 
@@ -178,7 +183,7 @@ class SectorManipulator(object):
         pnl_type = specifier.split(".")[1]
 
         queries = [SimulatorQuery(i + 'FinalPL.{}'.format(pnl_type)) for i in sector_to_instruments[sector]]
-        return queries, (manipulator, specifier, tags)
+        return queries, (specifier, tags)
 
     def process_queries(self, token, results):
         """
@@ -205,13 +210,14 @@ class SectorManipulator(object):
         return np.column_stack((dates, data))
 
 
+@register
 class StackManipulator(object):
-    PREFIX = 'stack'
+    name = 'stack'
 
     def __init__(self, data_provider):
         self._data_provider = data_provider
 
-    def generate_queries(self, manipulator, specifier, tags):
+    def generate_queries(self, specifier, tags):
         sector = specifier.split(".")[0]
         pnl_type = specifier.split(".")[1]
         assert(sector == 'all')
@@ -219,7 +225,7 @@ class StackManipulator(object):
         all_markets = [i for i in self._data_provider.get_instruments() if not i.startswith("Spread")]
 
         queries = [SimulatorQuery(i + 'FinalPL.{}'.format(pnl_type)) for i in all_markets]
-        return queries, (manipulator, specifier, tags)
+        return queries, (specifier, tags)
 
     def process_queries(self, token, results):
         '''
@@ -248,23 +254,3 @@ class StackManipulator(object):
             dataset.append(data)
         return dataset
 
-
-def sectorDict(all_markets):
-    sector_to_instruments = {}
-    for i in all_markets:
-        sector_code = PQTrading.instrumentToSector[i[:3]]
-        sector = PQTrading.sectorCodeToName[sector_code]
-        sector_to_instruments[sector] = sector_to_instruments.get(sector, []) + [i]
-    return sector_to_instruments
-
-
-def groupBySector(all_markets):
-    """
-    :param all_markets: list of instrument codes (e.g. ADCC1 etc.)
-    :return: a sorted list of instrument codes by their sector
-    """
-    sector_to_instruments = sectorDict(all_markets)
-    sorted_markets = []
-    for sector in sorted(sector_to_instruments.keys()):
-        sorted_markets += [i for i in sector_to_instruments[sector]]
-    return sorted_markets

@@ -24,6 +24,7 @@ app.config.from_json('app.config')
 
 print('Starting data provider')
 data_provider = ViewDataProvider(app.config)
+
 print('Starting view builder')
 view_defs = ViewBuilder(data_provider)
 
@@ -84,22 +85,23 @@ def views():
     # Flask can send results back piecemeal, but it needs a generator to do this.
     # We block on the callback here by waiting on the result_queue.
     def result_generator():
-        try:
-            while True:
-                result = result_queue.get(block=True)
-                if not result:
-                    break
+#        try:
+        while True:
+            result = result_queue.get(block=True)
 
-                partial_result = ujson.dumps(result)
-                yield(partial_result.encode('utf-8'))
-                yield(';'.encode('utf-8'))
+            if result is None:
+                break
 
-            logging.debug('Waiting for worker thread')
-            worker_thread.join()
-            logging.debug('Call completed')
-        except Exception:
-            ex_type, ex, tb = sys.exc_info()
-            logging.error('Error in result_generator: {}\n{}'.format(ex, "\n".join(traceback.format_tb(tb))))
+            partial_result = ujson.dumps(result)
+            yield(partial_result.encode('utf-8'))
+            yield(';'.encode('utf-8'))
+
+        logging.debug('Waiting for worker thread')
+        worker_thread.join()
+        logging.debug('Call completed')
+#        except Exception:
+#            ex_type, ex, tb = sys.exc_info()
+#            logging.error('Error in result_generator: {}\n{}'.format(ex, "\n".join(traceback.format_tb(tb))))
 
     return app.response_class(result_generator(), mimetype='text/plain', direct_passthrough=True)
 
@@ -122,7 +124,7 @@ if __name__ == '__main__':
         help="IP address to listen on")
     params = parser.parse_args()
 
-    app.run(debug=True, host=params.host, port=params.port, threaded=True)
+    app.run(debug=True, host=params.host, port=params.port, threaded=True, use_reloader=False)
 
 
 

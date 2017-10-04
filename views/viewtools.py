@@ -1,5 +1,6 @@
 import copy, pdb
 
+import numpy as np
 import pandas as pd
 
 
@@ -70,5 +71,32 @@ def encode_pandas_series(series):
         return series.values
 
 def build_error(msg):
-    return {'error': msg.replace('\n','<br/>')}
+    return {'error': '<pre>{}</pre>'.format(msg)}
 
+def level_value_string_sub(s, lspec):
+    ret = s
+
+    for lev, val in lspec.items():
+        tmpl = '#%s#'%lev
+        if tmpl in ret:
+            ret = ret.replace(tmpl, str(val))
+
+    return ret
+
+def freeze_tags(tags):
+    return frozenset(sorted(tags.items()))
+
+def unfreeze_tags(frozen_tags):
+    return dict(frozen_tags)
+
+def parse_result_series(result):
+    """
+    Convert db results to a jsonable format
+    """
+    if result is None or not len(result):
+        return None
+
+    dates, values = zip(*result)
+    dates = pd.DatetimeIndex(dates)
+    ret = pd.Series(np.array(values), dates.astype(int)/1000000)
+    return ret.reset_index().values

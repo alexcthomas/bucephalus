@@ -6,7 +6,10 @@
       {
         "viewtype": "basic_bar",
         "renderer": "highcharts",
-        "tags": {"datatype": "univariate_random_bar"},
+        "handler": "accum",
+        "tags": {"schema": "PortfolioPL"},
+        "series": [{"label": "Gross PL", "output": "grosspl"},
+                   {"label": "Net PL", "output": "netpl"}],
         "row": 1
       }
     ]

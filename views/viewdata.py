@@ -1,6 +1,8 @@
 import logging, pdb
 import datetime
 
+from views.viewtools import level_value_string_sub
+
 from StrategyBuilder import SimLoader
 
 import PQTrading
@@ -45,32 +47,30 @@ class ViewDataProvider(object):
     def get_view_data(self, query_list, callback):
         """
         Loads multiple queries from the database, calling callback(name, series) for each one
-        :param query_list: a set of query objects - either as a string of series name to load, or a tuple of series name, start date, end date
+        :param query_list: a set of query objects - a string of series name to load,
         :param callback: a function that ill be called callback(name, series) once for each series
         :return: None
         """
         queries = []
         for query_obj in query_list:
-            queries.append(query_obj.name)
+            queries.append(query_obj[0])
 
-        logging.debug('Calling getRunData with queries.')
+        logging.debug('Calling getRunData with {} queries.'.format(len(query_list)))
         self._loader.getRunData(self._token, queries, callback)
 
-    # Create a list of all instruments in simulations using the price data
-    def get_instruments(self):
-        instruments_obj = self._meta_obj.match({'category': 'asset'})
-        instruments = sorted(instruments_obj.nodes.keys())
-        return instruments
+    def get_series_names_from_tags(self, tags , series_label):
+        """
+        For a set of sim objects specified by a a category, a sim class, and a set of tags
+        Get the given output series
+        """
+        output_name = tags.pop('output')
+        sim_objects = self._meta_obj.match(tags).nodes
+        queries = []
 
-    def get_trading_sys(self):
-        trading_sys = {}
-        # Retrieve a list of all trading systems
-        trading_obj = self._meta_obj.match({'category':'tradingsystem'})
-        systems = sorted(trading_obj.group('systemName').keys())
+        for obj_name in sim_objects.keys():
+            this_series_label = level_value_string_sub(series_label, tags)
+            series = '.'.join([obj_name, output_name])
+            queries.append((series, obj_name, this_series_label))
 
-        # Retrieve a list of sub systems under each trading system
-        for sys in systems:
-            subSys_obj = self._meta_obj.match({'systemName':'{}'.format(sys)})
-            trading_sys[sys] = sorted(subSys_obj.group('subSystemName').keys())
-        return trading_sys
+        return queries
 
