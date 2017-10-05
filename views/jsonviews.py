@@ -1,11 +1,9 @@
-import os, pdb
+import os
 import copy
+import logging
+
 import yaml
 import ujson
-import logging
-import datetime as dt
-
-import numpy as np
 
 from views.baseviews import BaseViewBuilder
 from views.viewtools import dict_merge, template_recurse
@@ -24,6 +22,7 @@ class JSONView(object):
         self.typ = typ
         self.builder = builder
         self.compiled = False
+        self.view_def = None
         self.prototypes = []
         self.read_view()
 
@@ -71,7 +70,7 @@ class JSONView(object):
         """
         Recursively apply given tags as template arguments
         """
-        tmpl_tags = {'{{'+k+'}}':v for k,v in tags.items()}
+        tmpl_tags = {'{{'+k+'}}': v for k, v in tags.items()}
         tmpl = copy.deepcopy(self.view_def)
         return template_recurse(tmpl, tmpl_tags)
 
@@ -97,7 +96,7 @@ class JSONViewBuilder(BaseViewBuilder):
         only those that have changed.
         """
         logging.debug('Loading views from %s', os.path.abspath(self.location))
-        for r, dirs, files in os.walk(self.location):
+        for r, _, files in os.walk(self.location):
             for file_name in files:
 
                 view_name, _, typ = file_name.rpartition('.')
@@ -123,7 +122,7 @@ class JSONViewBuilder(BaseViewBuilder):
                         continue
 
                 # read the view
-                v = JSONView(view_name,  mtime, file_path, typ, self)
+                v = JSONView(view_name, mtime, file_path, typ, self)
                 logging.debug('Loaded view %s', view_name)
                 self.views_cache[view_name] = v
 
@@ -136,10 +135,6 @@ class JSONViewBuilder(BaseViewBuilder):
         for v in self.views_cache.values():
             v.build()
 
-    def reload_views(self):
-        self.read_views()
-        self.build_views(force=True)
-
 
 class HighChartsViewBuilder(JSONViewBuilder):
     """
@@ -149,33 +144,12 @@ class HighChartsViewBuilder(JSONViewBuilder):
     """
 
     def build_view(self, view_name, tags, data):
+        logging.debug('build_view(%s, %s)', view_name, tags)
+
         view = self.views_cache[view_name]
         ret = view.render_tags(tags)
+
         ret['renderer'] = 'highcharts'
-        logging.debug('build_view(%s, %s)', view_name, tags)
-        
-        if view_name == 'histogram':
-            modified, buckets = {}, []
-            # pdb.set_trace()
-            keys = sorted(data.keys())
-            for item in keys:
-                all_prices = data[item]
-                time_stamp = all_prices[0][0]
-                year_start = dt.date.fromtimestamp(time_stamp/1e3)
-                yearly_prices = []
-                for daily_price in all_prices:
-                    if dt.date.fromtimestamp(daily_price[0]/1e3) - year_start > dt.timedelta(364):
-                        buckets.append([time_stamp, np.average(yearly_prices)])
-                        time_stamp = daily_price[0]
-                        year_start = dt.date.fromtimestamp(time_stamp/1e3)
-                        yearly_prices = []
-                    yearly_prices.append(daily_price[1])
+        ret['series'] = list(data.keys())
 
-            modified['annual return'] = buckets
-            ret['series'] = ['annual return']
-
-        else:
-            modified = data
-            ret['series'] = list(data.keys())
-
-        return ret, modified
+        return ret

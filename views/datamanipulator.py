@@ -34,9 +34,12 @@ class SimulatorQuery(object):
     def __eq__(self, other):
         return self._name == other._name
 
+class BaseHandler(object):
+    pass
+
 
 @register
-class RawManipulator(object):
+class RawManipulator(BaseHandler):
     name = 'raw'
 
     def generate_queries(self, specifier, tags):
@@ -68,7 +71,7 @@ class AccumManipulator(RawManipulator):
 
 
 @register
-class CorrelManipulator(object):
+class CorrelManipulator(BaseHandler):
     name = 'correl'
 
     def __init__(self, data_provider):
@@ -102,7 +105,7 @@ class CorrelManipulator(object):
 
 
 @register
-class StratManipulator(object):
+class StratManipulator(BaseHandler):
     name = 'tradingsystem'
 
     def __init__(self, data_provider, sys_to_subsys):
@@ -169,7 +172,7 @@ class StratManipulator(object):
 
 
 @register
-class SectorManipulator(object):
+class SectorManipulator(BaseHandler):
     name = 'sector'
 
     def __init__(self, data_provider):
@@ -211,7 +214,7 @@ class SectorManipulator(object):
 
 
 @register
-class StackManipulator(object):
+class StackManipulator(BaseHandler):
     name = 'stack'
 
     def __init__(self, data_provider):

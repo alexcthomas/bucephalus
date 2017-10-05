@@ -4,7 +4,7 @@
     "tags": {},
     "views": [
       {
-        "viewtype": "basic_bar",
+        "viewtype": "accumulated",
         "renderer": "highcharts",
         "handler": "accum",
         "tags": {"schema": "PortfolioPL"},

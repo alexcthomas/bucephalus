@@ -51,11 +51,8 @@ class ViewDataProvider(object):
         :param callback: a function that ill be called callback(name, series) once for each series
         :return: None
         """
-        queries = []
-        for query_obj in query_list:
-            queries.append(query_obj[0])
-
-        logging.debug('Calling getRunData with {} queries.'.format(len(query_list)))
+        queries = [q[0] for q in query_list]
+        logging.debug('Calling getRunData with {} queries.'.format(len(queries)))
         self._loader.getRunData(self._token, queries, callback)
 
     def get_series_names_from_tags(self, tags , series_label):

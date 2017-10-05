@@ -3,7 +3,7 @@
 	"prototypes": "basic_timeseries",
 	"viewDefinition": {
 		"title": {
-			"text": "{{market}}"
+			"text": "{{title}}"
 		},
 		"xAxis": {
 			"type": "datetime"

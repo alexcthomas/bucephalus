@@ -5,7 +5,6 @@ import ujson
 import logging
 import traceback
 import threading
-import collections
 
 import networkx
 import pandas as pd
@@ -27,7 +26,7 @@ def build_dependency_graph(views, data_provider):
 
         ret.add_node(i, typ='view', done=False)
 
-        handler_name = view['handler']
+        handler_name = view.get('handler', 'raw')
         dm.check_handler(handler_name)
 
         for seriesgroup in view['series']:
@@ -88,6 +87,14 @@ class ViewBuilder(object):
                 logging.debug('View provider [%s] -> %s', v, vp)
                 self.views[v] = vp
 
+    def get_view(self, viewtype):
+
+        if viewtype not in self.views:
+            msg = 'Unknown viewtype "{}" - valid options are: {}'
+            raise RuntimeError(msg.format(viewtype, sorted(self.views.keys())))
+
+        return self.views[viewtype]
+
     def build_views(self, viewlist, result_queue):
         """
         Extract all the series names so we can query them in one go.
@@ -96,7 +103,9 @@ class ViewBuilder(object):
         panel --> seriesgroup --> series --> query
         """
         deps = build_dependency_graph(viewlist, self.data_provider)
-        series_deps = [k for k, v in deps.nodes.items() if v['typ']=='series']
+        nodes = deps.nodes
+
+        series_deps = [k for k, v in nodes.items() if v['typ']=='series']
         sent_to_client = set()
 
         if not series_deps:
@@ -110,55 +119,52 @@ class ViewBuilder(object):
 
             result = viewtools.parse_result_series(data)
 
-            deps.nodes[sim_series]['done'] = True
-            deps.nodes[sim_series]['data'] = result
+            nodes[sim_series]['done'] = True
+            nodes[sim_series]['data'] = result
 
             result_queue.put({'category': 'status', 'index': currentIndex, 'maxIndex': maxIndex})
 
+            # This iterates first through all queries, then series, seriesgroups and views
             for name in networkx.topological_sort(deps):
-                node = deps.nodes[name]
+                node = nodes[name]
 
                 if node['typ'] == 'query':
                     continue
 
-                if not all(deps.nodes[n]['done'] for n in deps.predecessors(name)):
+                # Check all dependencies are done
+                if not all(nodes[n]['done'] for n in deps.predecessors(name)):
                     continue
 
+                # Mark this node as done
                 node['done'] = True
 
-                if node['typ'] != 'view':
+                # Propagate the data up the graph
+                if node['typ'] == 'series':
+                    node['data'] = nodes[name[0]]['data']
                     continue
 
-                pdb.set_trace()
+                if node['typ'] == 'seriesgroup':
+                    node['data'] = {n: nodes[n]['data'] for n in deps.predecessors(name)}
+                    continue
+
+                # node type is now 'view', which has no dependencies
                 view = viewlist[name]
-
-                # Find a graph that's ready to be plotted, find the series,
-                # then use the results received from
-                # the last for loop to retrieve manipulated data for each series
-                for s in get_series(graph):
-                    _, specifier = dm.split_series(s)
-                    results[specifier] = manipulator_output[s]
-
-                # Use the manipulated data to build view for the graph
                 viewtype = view['viewtype']
-                view_generator = self.views.get(viewtype)
+                view_generator = self.get_view(viewtype)
 
-                if not view_generator:
-                    msg = 'Unknown viewtype "{}" - valid options are: {}'
-                    raise RuntimeError(msg.format(viewtype, self.views.keys()))
+                data_series = {}
+                for n in deps.predecessors(name):
+                    data_series.update(nodes[n]['data'])
 
-                result, data_series = view_generator.build_view(viewtype, view['tags'], results)
+                view_def = view_generator.build_view(viewtype, view['tags'], data_series)
 
-                # Send any new series back to the client
-                if data_series is not None:
-                    for series_name in data_series:
-                        if series_name in sent_to_client:
-                            continue
-                        sent_to_client.add(series_name)
-                        data = data_series[series_name]
-                        result_queue.put({'category': 'data', 'series': series_name, 'data': data})
+                for series_id in data_series:
+                    if series_id in sent_to_client:
+                        continue
+                    sent_to_client.add(series_id)
+                    result_queue.put({'category': 'data', 'series': series_id, 'data': data_series[series_id]})
 
-                result_queue.put({'id': name, 'category': 'graph', 'result': result})
+                result_queue.put({'id': name, 'category': 'graph', 'result': view_def})
 
         # We query for results in a different thread so we can return results in this one
         def worker():
@@ -171,7 +177,4 @@ class ViewBuilder(object):
 
     def set_data_provider(self, provider):
         self.data_provider = provider
-
-    def reload_views(self):
-        self.view_providers[0].reload_views()
 
