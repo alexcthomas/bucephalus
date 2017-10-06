@@ -85,23 +85,23 @@ def views():
     # Flask can send results back piecemeal, but it needs a generator to do this.
     # We block on the callback here by waiting on the result_queue.
     def result_generator():
-#        try:
-        while True:
-            result = result_queue.get(block=True)
+        try:
+            while True:
+                result = result_queue.get(block=True)
 
-            if result is None:
-                break
+                if result is None:
+                    break
 
-            partial_result = ujson.dumps(result)
-            yield(partial_result.encode('utf-8'))
-            yield(';'.encode('utf-8'))
+                partial_result = ujson.dumps(result)
+                yield(partial_result.encode('utf-8'))
+                yield(';'.encode('utf-8'))
 
-        logging.debug('Waiting for worker thread')
-        worker_thread.join()
-        logging.debug('Call completed')
-#        except Exception:
-#            ex_type, ex, tb = sys.exc_info()
-#            logging.error('Error in result_generator: {}\n{}'.format(ex, "\n".join(traceback.format_tb(tb))))
+            logging.debug('Waiting for worker thread')
+            worker_thread.join()
+            logging.debug('Call completed')
+        except Exception:
+            ex_type, ex, tb = sys.exc_info()
+            logging.error('Error in result_generator: {}\n{}'.format(ex, "\n".join(traceback.format_tb(tb))))
 
     return app.response_class(result_generator(), mimetype='text/plain', direct_passthrough=True)
 

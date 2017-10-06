@@ -50,6 +50,7 @@ def template_recurse(tmpl, tags):
             # Try to perform a simple string substitution - this assumes that the value is a string, or can be
             # converted to a string without any issues.
             ret = ret.replace(k, str(v))
+
         return ret
 
     if isinstance(tmpl, list):
@@ -100,3 +101,22 @@ def parse_result_series(result):
     dates = pd.DatetimeIndex(dates)
     ret = pd.Series(np.array(values), dates.astype(int)/1000000)
     return ret.reset_index().values
+
+if __name__ == '__main__':
+
+
+    a = {'a': {'aa': 1,'ab': [2],'ac': {'aca': 3,'acb': 'd'}},
+         'b': 4,
+         'c': 'f'}
+
+    b = {'a': {'ac': {'bca': 5}},
+         'b': 6}
+
+    result = dict_merge([a, b])
+    print(result)
+
+    tags = {'{{asset}}':'adcc'}
+
+    print(template_recurse({'a':'{{asset}} Name'}, tags))
+    print(template_recurse({'a':['{{asset}} Name',{'b': '{{asset}} Vol','c':4}]}, tags))
+

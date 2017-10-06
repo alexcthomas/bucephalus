@@ -1,20 +1,8 @@
-//= require highcharts/highcharts-more
-//= require highcharts/modules/heatmap
 
 var ViewRenderers = {
 	
 	highchartsRenderer: function(target, data) {
-		// Update the x-axis with information in data, if it's not specified
-		if(data.xAxis.categories !== undefined) {
-			if (data.xAxis.categories.length == 0){
-				var new_axis = [];
-				for(var i = 0; i < data.series[0].data.length; i++){
-					new_axis.push(data.series[0].data[i].name)
-				}
-			data.xAxis = {categories: new_axis};
-			}
-		}
-		Highcharts.chart(target[0], data);
+		target.highcharts(data);
 	},
 	
 	highstockRenderer: function(target, data) {

@@ -128,10 +128,10 @@ var renderContentPane = function(views, tags, title)
 					if (chunkObj.category == 'data') {
 						dataBlocks[chunkObj.series] = chunkObj.data;
 					} else if (chunkObj.category == 'graph') {
-                        var target = viewinfo.targets[chunkObj.id];
-                        var viewdef = viewinfo.definitions[chunkObj.id];
-                        renderView(target, viewdef, chunkObj.result, dataBlocks);
-                    } else if (chunkObj.category == 'status') {
+						var target = viewinfo.targets[chunkObj.id];
+						var viewdef = viewinfo.definitions[chunkObj.id];
+						renderView(target, viewdef, chunkObj.result, dataBlocks);
+					} else if (chunkObj.category == 'status') {
 						progressBar.progressbar('option', 'max', chunkObj.maxIndex);
 						progressBar.progressbar('value', chunkObj.index);
 					} else {

@@ -32,10 +32,7 @@ function getJsonFromUrl() {
 	}
 	query.split("&").forEach(function(part) {
 		var item = part.split("=");
-		// Remove + sign with space in strings longer than a word
-		var replaced = item[1].split('+').join(' ');
-		replaced = replaced.split('/');
-		result.push(decodeURIComponent(replaced));
+		result.push(decodeURIComponent(item[1]));
 	});
 	return result;
 }
@@ -80,7 +77,6 @@ var treeNodeSelect = function(event, node) {
 
 	var nodeLocation = getNodeLocation(node);
 	var nodeUrl = "?" + $.param(nodeLocation);
-	console.log(nodeLocation + nodeUrl);
 	window.history.pushState("", "", nodeUrl);
 };
 

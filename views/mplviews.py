@@ -23,28 +23,13 @@ class MPLViewBuilder(BaseViewBuilder):
 
     def build_view(self, viewname, tags, data, extra):
         func = self.views_cache[viewname]
-        result = func(data)
-        return {'result': result}
+        return {'result': func(data)}
 
-    def overview_distribution(self, originalData):
+    def overview_distribution(self, data):
         """
         This really needs the image size as an input
         """
-
-        # The data comes in as a dictionary of series name to list of tuples.  We need a dataframe.
-        # ********* THIS IS AN EVIL HACK THAT PRODUCES THE WRONG VALUES *******
-        if 1 != len(originalData):
-            raise RuntimeError('overview_distribution only works for 1 data series at a time')
-        # ********* THIS IS AN EVIL HACK THAT PRODUCES THE WRONG VALUES *******
-        firstSeries = originalData[list(originalData.keys())[0]]
-        # ********* THIS IS AN EVIL HACK THAT PRODUCES THE WRONG VALUES *******
-        data = list(zip(*firstSeries))[1]
-        # ********* THIS IS AN EVIL HACK THAT PRODUCES THE WRONG VALUES *******
-        if len(data) > 100:
-            data = data[:100]   # Just use the first 100 so the graph is nice and fast.
-        # ********* THIS IS AN EVIL HACK THAT PRODUCES THE WRONG VALUES *******
-
-        name = str(uuid.uuid1()).replace('-', '')
+        name = str(uuid.uuid1()).replace('-','')
         ret = '/'.join([self.image_dir, name+'.png'])
 
         sns.set(style="white", palette="muted", color_codes=True)
@@ -57,4 +42,3 @@ class MPLViewBuilder(BaseViewBuilder):
         f.savefig(ret)
         logging.debug('Saved image %s', ret)
         return ret
-
