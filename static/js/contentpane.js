@@ -25,7 +25,7 @@ var isDataEmpty = function(data) {
 var renderView = function(target, info, definition, seriesNameToData) {
 	var data = [];
 	$.each(definition.series, function(i, series) {
-		data.push({name: series, data: seriesNameToData[series]});
+		data.push({name: series[2], data: seriesNameToData[series]});
 	});
 	definition.series = data;
 
@@ -33,7 +33,7 @@ var renderView = function(target, info, definition, seriesNameToData) {
 		console.log('Data is empty:', data[0].name);
 		target.css('display', 'none');
     } else {
-        ViewRenderers.render(definition.renderer, target, definition);
+        ViewRenderers.render(info.renderer, target, definition);
     }
 };
 

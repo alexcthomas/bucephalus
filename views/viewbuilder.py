@@ -7,15 +7,13 @@ import traceback
 import threading
 
 import networkx
-import pandas as pd
 
 from views import viewtools
+from views import datahandler
 
 from views.jsonviews import HighChartsViewBuilder
 from views.mplviews import MPLViewBuilder
 from views.htmlviews import HTMLViewBuilder
-
-import views.datamanipulator as dm
 
 
 def build_dependency_graph(views, data_provider):
@@ -24,10 +22,8 @@ def build_dependency_graph(views, data_provider):
 
     for i, view in enumerate(views):
 
-        ret.add_node(i, typ='view', done=False)
-
         handler_name = view.get('handler', 'raw')
-        dm.check_handler(handler_name)
+        ret.add_node(i, typ='view', done=False, handler=handler_name)
 
         for seriesgroup in view['series']:
 
@@ -36,7 +32,7 @@ def build_dependency_graph(views, data_provider):
             series_label = tags.pop('label')
             sg_key = viewtools.freeze_tags(tags)
 
-            ret.add_node(sg_key, typ='seriesgroup', handler=handler_name, done=False)
+            ret.add_node(sg_key, typ='seriesgroup', done=False)
             ret.add_edge(sg_key, i)
 
             # Get the simulation queries required, may be more than one
@@ -117,54 +113,62 @@ class ViewBuilder(object):
         def callback(sim_series, data, currentIndex, maxIndex):
             logging.debug('Callback for {}: {}/{}'.format(sim_series, currentIndex, maxIndex))
 
-            result = viewtools.parse_result_series(data)
+            try:
 
-            nodes[sim_series]['done'] = True
-            nodes[sim_series]['data'] = result
+                result = viewtools.parse_result_series(data)
 
-            result_queue.put({'category': 'status', 'index': currentIndex, 'maxIndex': maxIndex})
+                nodes[sim_series]['done'] = True
+                nodes[sim_series]['data'] = result
 
-            # This iterates first through all queries, then series, seriesgroups and views
-            for name in networkx.topological_sort(deps):
-                node = nodes[name]
+                result_queue.put({'category': 'status', 'index': currentIndex, 'maxIndex': maxIndex})
 
-                if node['typ'] == 'query':
-                    continue
+                # This iterates first through all queries, then series, seriesgroups and views
+                for name in networkx.topological_sort(deps):
+                    node = nodes[name]
 
-                # Check all dependencies are done
-                if not all(nodes[n]['done'] for n in deps.predecessors(name)):
-                    continue
-
-                # Mark this node as done
-                node['done'] = True
-
-                # Propagate the data up the graph
-                if node['typ'] == 'series':
-                    node['data'] = nodes[name[0]]['data']
-                    continue
-
-                if node['typ'] == 'seriesgroup':
-                    node['data'] = {n: nodes[n]['data'] for n in deps.predecessors(name)}
-                    continue
-
-                # node type is now 'view', which has no dependencies
-                view = viewlist[name]
-                viewtype = view['viewtype']
-                view_generator = self.get_view(viewtype)
-
-                data_series = {}
-                for n in deps.predecessors(name):
-                    data_series.update(nodes[n]['data'])
-
-                view_def = view_generator.build_view(viewtype, view['tags'], data_series)
-
-                for series_id in data_series:
-                    if series_id in sent_to_client:
+                    if node['typ'] == 'query':
                         continue
-                    sent_to_client.add(series_id)
-                    result_queue.put({'category': 'data', 'series': series_id, 'data': data_series[series_id]})
 
-                result_queue.put({'id': name, 'category': 'graph', 'result': view_def})
+                    # Check all dependencies are done
+                    if not all(nodes[n]['done'] for n in deps.predecessors(name)):
+                        continue
+
+                    # Mark this node as done
+                    node['done'] = True
+
+                    # Propagate the data up the graph
+                    if node['typ'] == 'series':
+                        node['data'] = nodes[name[0]]['data']
+                        continue
+
+                    if node['typ'] == 'seriesgroup':
+                        node['data'] = {n: nodes[n]['data'] for n in deps.predecessors(name)}
+                        continue
+
+                    # node type is now 'view', which has no dependencies
+                    view = viewlist[name]
+                    view_type = view['viewtype']
+                    view_generator = self.get_view(view_type)
+                    view_handler = datahandler.get_handler(view['handler'])
+
+                    data_series = {}
+                    for n in deps.predecessors(name):
+                        data_series.update(nodes[n]['data'])
+
+                    data_series = view_handler.process_queries(data_series)
+                    view_def = view_generator.build_view(view_type, view['tags'], data_series, view['viewoptions'])
+
+                    for series_id in data_series:
+                        if series_id in sent_to_client:
+                            continue
+                        sent_to_client.add(series_id)
+                        result_queue.put({'category': 'data', 'series': series_id, 'data': data_series[series_id]})
+
+                    result_queue.put({'id': name, 'category': 'graph', 'result': view_def})
+
+            except Exception:
+                ex_type, ex, tb = sys.exc_info()
+                logging.error('Error in callback: {}\n{}'.format(ex, "\n".join(traceback.format_tb(tb))))
 
         # We query for results in a different thread so we can return results in this one
         def worker():

@@ -21,13 +21,10 @@ class MPLViewBuilder(BaseViewBuilder):
     def list_views(self):
         return sorted(self.views_cache.keys())
 
-    def build_view(self, viewname, tags, data):
+    def build_view(self, viewname, tags, data, extra):
         func = self.views_cache[viewname]
-        result, data = func(data)
-        return {
-            'renderer': 'img',
-            'result': result
-        }, data
+        result = func(data)
+        return {'result': result}
 
     def overview_distribution(self, originalData):
         """
@@ -59,5 +56,5 @@ class MPLViewBuilder(BaseViewBuilder):
         sns.distplot(data, color="m")
         f.savefig(ret)
         logging.debug('Saved image %s', ret)
-        return ret, None
+        return ret
 

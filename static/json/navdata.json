@@ -6,7 +6,10 @@
       {
         "viewtype": "accumulated",
         "renderer": "highcharts",
-        "handler": "accum",
+        "handler": "accumulate",
+        "viewoptions": {
+          "title": {"text": "Portfolio P&L"}
+        },
         "tags": {"schema": "PortfolioPL"},
         "series": [{"label": "Gross PL", "output": "grosspl"},
                    {"label": "Net PL", "output": "netpl"}],

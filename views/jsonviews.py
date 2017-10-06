@@ -143,13 +143,11 @@ class HighChartsViewBuilder(JSONViewBuilder):
     Different highcharts chart types can need the data labelled in different ways
     """
 
-    def build_view(self, view_name, tags, data):
+    def build_view(self, view_name, tags, data, extra):
         logging.debug('build_view(%s, %s)', view_name, tags)
 
         view = self.views_cache[view_name]
         ret = view.render_tags(tags)
-
-        ret['renderer'] = 'highcharts'
         ret['series'] = list(data.keys())
 
-        return ret
+        return dict_merge([extra, ret])

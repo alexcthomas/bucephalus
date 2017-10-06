@@ -2,9 +2,6 @@
 	"viewName": "accumulated",
 	"prototypes": "basic_timeseries",
 	"viewDefinition": {
-		"title": {
-			"text": "{{title}}"
-		},
 		"xAxis": {
 			"type": "datetime"
 		},

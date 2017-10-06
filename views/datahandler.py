@@ -1,6 +1,5 @@
 import logging
 import operator
-import datetime
 
 import numpy as np
 import pandas as pd
@@ -8,83 +7,59 @@ import pandas as pd
 import PQTrading
 
 
-
 handlers = {}
+
 
 def register(cls):
     handlers[cls.name] = cls
     return cls
 
 
-def check_handler(hdlr):
-    handlers[hdlr]
+def get_handler(hdlr):
+    return handlers[hdlr]
 
-
-class SimulatorQuery(object):
-    def __init__(self, name):
-        self._name = name
-
-    @property
-    def name(self):
-        return  self._name
-
-    def __hash__(self):
-        return hash((self._name, ))
-
-    def __eq__(self, other):
-        return self._name == other._name
 
 class BaseHandler(object):
     pass
 
 
 @register
-class RawManipulator(BaseHandler):
+class RawHandler(BaseHandler):
     name = 'raw'
 
-    def generate_queries(self, specifier, tags):
-        return [SimulatorQuery(specifier)], (specifier, tags)
-
-    def process_queries(self, token, results):
+    def process_queries(self, results):
         """
         We are passed a map from query -> data.  We "process" this by simply returning the data.
         """
-        assert(len(results) == 1)
-        return results[list(results.keys())[0]]
+        return results
 
 
 @register
-class AccumManipulator(RawManipulator):
-    name = 'accum'
+class AccumulateHandler(RawHandler):
+    name = 'accumulate'
 
-    def process_queries(self, token, results):
+    @classmethod
+    def process_queries(cls, results):
         """
         Results contains an single array of arrays, 1st column is date, 2nd column is return
         Calculate cumulative sum for returns
         """
-        assert(len(results) == 1)
-        seriesOrNone = results[list(results.keys())[0]]
-        if seriesOrNone is not None:
-            dates = seriesOrNone[:, 0]
-            accum_ret = seriesOrNone[:, 1].cumsum(axis=0)
-            return np.column_stack((dates, accum_ret))
+
+        ret = {}
+        for k, v in results.items():
+            values = v.copy() # don't modify the original data
+            values[:, 1] = values[:, 1].cumsum(axis=0)
+            ret[k+(cls.name,)] = values
+
+        return ret
 
 
 @register
-class CorrelManipulator(BaseHandler):
-    name = 'correl'
+class CorrelationHandler(BaseHandler):
+    name = 'correlation'
 
-    def __init__(self, data_provider):
-        self._data_provider = data_provider
-
-    def generate_queries(self, specifier, tags):
-        """
-        Generates all the queries required to plot the graph
-        """
-        all_markets = [i for i in self._data_provider.get_instruments() if not i.startswith("Spread")]
-        return [SimulatorQuery(name+'.prices') for name in all_markets], None
-
-    def process_queries(self, token, results):
+    @classmethod
+    def process_queries(cls, results):
         """
         Loop through results to calculate the correlation between any two assets
         """
@@ -105,39 +80,13 @@ class CorrelManipulator(BaseHandler):
 
 
 @register
-class StratManipulator(BaseHandler):
+class StrategyHandler(BaseHandler):
     name = 'tradingsystem'
 
-    def __init__(self, data_provider, sys_to_subsys):
-        self._data_provider = data_provider
-        self._sys_to_subsys = sys_to_subsys
-
-    def generate_queries(self, specifier, tags):
-        """
-        Generates all the queries required to plot the graph
-        """
-        queries = []
-
-        instrument, sys = split_series(specifier)
-        all_markets = [i for i in self._data_provider.get_instruments() if not i.startswith("Spread")]
-
-        if 'all' == instrument and any(sys in subsys for subsys in self._sys_to_subsys.values()):
-            # If specific instruments are not given, loop through all instruments given a certain sub trading system
-            # Sort the instruments by sector
-            instrument_list = groupBySector(all_markets)
-            queries = [SimulatorQuery(i + 'Combiner.' + sys) for i in instrument_list]
-
-        elif sys in self._sys_to_subsys.keys():
-            # If given a specific instrument, but only a trading system category,
-            # loop through all sub-systems within the system
-            queries = [SimulatorQuery(instrument + 'Combiner.' + s) for s in self._sys_to_subsys[sys]]
-            instrument_list = [instrument]
-        return queries, instrument_list
-
-    def process_queries(self, token, results):
+    @classmethod
+    def process_queries(cls, results):
         """
         Divide data (i.e. results) into buckets, in order to be plotted as bar chart
-        token: sorted list of instruments by sector
         """
         buckets = []
         queries = {}
@@ -172,25 +121,12 @@ class StratManipulator(BaseHandler):
 
 
 @register
-class SectorManipulator(BaseHandler):
+class SectorHandler(BaseHandler):
     name = 'sector'
 
-    def __init__(self, data_provider):
-        self._data_provider = data_provider
-
-    def generate_queries(self, specifier, tags):
-        all_markets = [i for i in self._data_provider.get_instruments() if not i.startswith("Spread")]
-        sector_to_instruments = sectorDict(all_markets)
-
-        sector = specifier.split(".")[0]
-        pnl_type = specifier.split(".")[1]
-
-        queries = [SimulatorQuery(i + 'FinalPL.{}'.format(pnl_type)) for i in sector_to_instruments[sector]]
-        return queries, (specifier, tags)
-
-    def process_queries(self, token, results):
+    @classmethod
+    def process_queries(cls, results):
         """
-        :param token: not used
         :param results: daily returns for each of the instruments under a certain sector
         :return: combined cumulative returns of all instruments
         """
@@ -214,26 +150,12 @@ class SectorManipulator(BaseHandler):
 
 
 @register
-class StackManipulator(BaseHandler):
+class StackHandler(BaseHandler):
     name = 'stack'
 
-    def __init__(self, data_provider):
-        self._data_provider = data_provider
-
-    def generate_queries(self, specifier, tags):
-        sector = specifier.split(".")[0]
-        pnl_type = specifier.split(".")[1]
-        assert(sector == 'all')
-
-        all_markets = [i for i in self._data_provider.get_instruments() if not i.startswith("Spread")]
-
-        queries = [SimulatorQuery(i + 'FinalPL.{}'.format(pnl_type)) for i in all_markets]
-        return queries, (specifier, tags)
-
-    def process_queries(self, token, results):
+    @classmethod
+    def process_queries(cls, results):
         '''
-
-        :param token: (manipulator, specifier, tags), not used here
         :param results: Daily PnL of instruments under a certain sector across a chosen date range
         :return: a dataset that maps sector to combined PnL of all instruments within the sector
         '''

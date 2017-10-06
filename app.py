@@ -124,7 +124,7 @@ if __name__ == '__main__':
         help="IP address to listen on")
     params = parser.parse_args()
 
-    app.run(debug=True, host=params.host, port=params.port, threaded=True, use_reloader=False)
+    app.run(host=params.host, port=params.port, threaded=True, debug=True, use_debugger=False, use_reloader=False)
 
 
 
