@@ -94,7 +94,7 @@ var treeNodeUnSelect = function(event, node) {
 
 // gets data to fill out the nav pane
 var renderNavPane = function() {
-	$.getJSON("/navdata", 
+	$.getJSON("/navdata",
 	function(data) {
 		var tgt = $("#sidebar-nav");
 		tgt.html("");

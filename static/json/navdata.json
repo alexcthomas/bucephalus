@@ -4,9 +4,15 @@
     "tags": {},
     "views": [
       {
-        "viewtype": "basic_bar",
+        "viewtype": "accumulated",
         "renderer": "highcharts",
-        "tags": {"datatype": "univariate_random_bar"},
+        "handler": "accumulate",
+        "viewoptions": {
+          "title": {"text": "Portfolio P&L"}
+        },
+        "tags": {"schema": "PortfolioPL"},
+        "series": [{"label": "Gross PL", "output": "grosspl"},
+                   {"label": "Net PL", "output": "netpl"}],
         "row": 1
       }
     ]

@@ -1,0 +1,34 @@
+{
+	"viewName": "histogram",
+  	"prototypes": "basic_col",
+	"plotOptions": {
+      "series": {
+        "animation": false
+      }
+    },
+	"viewDefinition": {
+		"title": {
+			"text": "{{market}}"
+		},
+		"xAxis": {
+			"type": "datetime",
+            "dateTimeLabelFormats": {"month": "%b %Y"}
+			},
+		"yAxis": [
+          {
+            "title": {
+              "text": "Average Return"
+            }
+          },
+          {
+				"opposite": true
+			}],
+		"series": [{
+			"name": "Histogram",
+			"type": "column",
+			"pointPadding": 0,
+			"groupPadding": 0,
+			"pointPlacement": "between"
+		}]
+	}
+}

@@ -1,8 +1,9 @@
-import os, pdb
+import os
 import copy
+import logging
+
 import yaml
 import ujson
-import logging
 
 from views.baseviews import BaseViewBuilder
 from views.viewtools import dict_merge, template_recurse
@@ -21,6 +22,7 @@ class JSONView(object):
         self.typ = typ
         self.builder = builder
         self.compiled = False
+        self.view_def = None
         self.prototypes = []
         self.read_view()
 
@@ -68,7 +70,7 @@ class JSONView(object):
         """
         Recursively apply given tags as template arguments
         """
-        tmpl_tags = {'{{'+k+'}}':v for k,v in tags.items()}
+        tmpl_tags = {'{{'+k+'}}': v for k, v in tags.items()}
         tmpl = copy.deepcopy(self.view_def)
         return template_recurse(tmpl, tmpl_tags)
 
@@ -94,7 +96,7 @@ class JSONViewBuilder(BaseViewBuilder):
         only those that have changed.
         """
         logging.debug('Loading views from %s', os.path.abspath(self.location))
-        for r, dirs, files in os.walk(self.location):
+        for r, _, files in os.walk(self.location):
             for file_name in files:
 
                 view_name, _, typ = file_name.rpartition('.')
@@ -120,7 +122,7 @@ class JSONViewBuilder(BaseViewBuilder):
                         continue
 
                 # read the view
-                v = JSONView(view_name,  mtime, file_path, typ, self)
+                v = JSONView(view_name, mtime, file_path, typ, self)
                 logging.debug('Loaded view %s', view_name)
                 self.views_cache[view_name] = v
 
@@ -133,10 +135,6 @@ class JSONViewBuilder(BaseViewBuilder):
         for v in self.views_cache.values():
             v.build()
 
-    def reload_views(self):
-        self.read_views()
-        self.build_views(force=True)
-
 
 class HighChartsViewBuilder(JSONViewBuilder):
     """
@@ -145,9 +143,11 @@ class HighChartsViewBuilder(JSONViewBuilder):
     Different highcharts chart types can need the data labelled in different ways
     """
 
-    def build_view(self, viewname, tags, data):
-        view = self.views_cache[viewname]
-        ret = view.render_tags(tags)
-        ret['series'] = data
-        return ret
+    def build_view(self, view_name, tags, data, extra):
+        logging.debug('build_view(%s, %s)', view_name, tags)
 
+        view = self.views_cache[view_name]
+        ret = view.render_tags(tags)
+        ret['series'] = list(data.keys())
+
+        return dict_merge([extra, ret])

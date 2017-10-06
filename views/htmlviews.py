@@ -10,7 +10,7 @@ class HTMLViewBuilder(BaseViewBuilder):
     def list_views(self):
         return sorted(self.views_cache.keys())
 
-    def build_view(self, viewname, tags, data):
+    def build_view(self, viewname, tags, data, extra):
         func = self.views_cache[viewname]
         return {'result': func(data)}
 

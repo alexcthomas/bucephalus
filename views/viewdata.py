@@ -1,11 +1,10 @@
 import uuid
 import logging
-import datetime
 
 import numpy as np
 import pandas as pd
 
-from views.viewtools import encode_series, encode_pandas_series
+from views.viewtools import level_value_string_sub, encode_pandas_series, encode_series
 
 
 class ViewDataProvider(object):
@@ -16,10 +15,10 @@ class ViewDataProvider(object):
     Connection settings can be modified by changing the "token"
     which could be e.g. a db schema/instance or computation output
     """
-    
+
     def __init__(self, config):
         logging.info("Initialising ViewDataProvider with config:".format(config))
-        
+
         # Default to the latest token retrieved
         self.set_token(self.get_tokens()[0])
 
@@ -39,11 +38,11 @@ class ViewDataProvider(object):
         logging.debug('Setting token to %s', token)
         # TODO - validate token
         self._token = token
-        
+
         # Reload the db connection here
         # connection.reload()
 
-    def get_view_data(self, tags, **kwargs):
+    def get_single_view_data(self, tags, **kwargs):
 
         typ = tags.pop('datatype', None)
 
@@ -114,14 +113,30 @@ class ViewDataProvider(object):
 
         raise RuntimeError('No data found for type {}'.format(typ))
 
+    def get_view_data(self, query_list, callback):
+        """
+        Loads multiple queries from the database, calling callback(name, series) for each one
+        :param query_list: a set of query objects - a string of series name to load,
+        :param callback: a function that ill be called callback(name, series) once for each series
+        :return: None
+        """
+        queries = [q[0] for q in query_list]
+        logging.debug('Calling getRunData with {} queries.'.format(len(queries)))
+        self._loader.getRunData(self._token, queries, callback)
 
+    def get_series_names_from_tags(self, tags , series_label):
+        """
+        For a set of sim objects specified by a a category, a sim class, and a set of tags
+        Get the given output series
+        """
+        output_name = tags.pop('output')
+        sim_objects = self._meta_obj.match(tags).nodes
+        queries = []
 
+        for obj_name in sim_objects.keys():
+            this_series_label = level_value_string_sub(series_label, tags)
+            series = '.'.join([obj_name, output_name])
+            queries.append((series, obj_name, this_series_label))
 
-
-
-
-
-
-
-
+        return queries
 

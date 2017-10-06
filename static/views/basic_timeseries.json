@@ -23,8 +23,15 @@
 				"type": "all",
 				"text": "All"
 			}],
+			"enabled": true,
 			"inputEnabled": false,
 			"selected": 4
+		},
+		"navigator": {
+			"enabled": true
+		},
+		"scrollbar": {
+			"enabled": true
 		}
 	}
 }

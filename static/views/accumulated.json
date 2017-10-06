@@ -1,0 +1,14 @@
+{
+	"viewName": "accumulated",
+	"prototypes": "basic_timeseries",
+	"viewDefinition": {
+		"xAxis": {
+			"type": "datetime"
+		},
+		"yAxis": {
+			"title": {
+				"text": "PnL"
+			}
+		}
+	}
+}
