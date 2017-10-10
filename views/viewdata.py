@@ -1,4 +1,4 @@
-import logging, pdb
+import logging
 import datetime
 
 from views.viewtools import level_value_string_sub
@@ -48,26 +48,20 @@ class ViewDataProvider(object):
         """
         Loads multiple queries from the database, calling callback(name, series) for each one
         :param query_list: a set of query objects - a string of series name to load,
-        :param callback: a function that ill be called callback(name, series) once for each series
+        :param callback: a function that will be called as callback(name, series) once for each series
         :return: None
         """
         queries = [q[0] for q in query_list]
         logging.debug('Calling getRunData with {} queries.'.format(len(queries)))
         self._loader.getRunData(self._token, queries, callback)
 
-    def get_series_names_from_tags(self, tags , series_label):
+    def get_series_key_from_tags(self, tags, series_label):
         """
         For a set of sim objects specified by a a category, a sim class, and a set of tags
         Get the given output series
         """
         output_name = tags.pop('output')
-        sim_objects = self._meta_obj.match(tags).nodes
-        queries = []
-
-        for obj_name in sim_objects.keys():
-            this_series_label = level_value_string_sub(series_label, tags)
-            series = '.'.join([obj_name, output_name])
-            queries.append((series, obj_name, this_series_label))
-
-        return queries
-
+        obj_name = list(self._meta_obj.match(tags).nodes.keys())[0]
+        this_series_label = level_value_string_sub(series_label, tags)
+        query = '.'.join([obj_name, output_name])
+        return query, obj_name, this_series_label
