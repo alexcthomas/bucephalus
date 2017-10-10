@@ -32,13 +32,15 @@ class MPLViewBuilder(BaseViewBuilder):
         name = str(uuid.uuid1()).replace('-','')
         ret = '/'.join([self.image_dir, name+'.png'])
 
+        key, values = list(data.items())[0]
+
         sns.set(style="white", palette="muted", color_codes=True)
         f, axes = plt.subplots(1, 4, figsize=(20, 5))
         sns.despine(left=True)
-        sns.distplot(data, kde=False, color="b", ax=axes[0])
-        sns.distplot(data, hist=False, rug=True, color="r", ax=axes[1])
-        sns.distplot(data, hist=False, color="g", kde_kws={"shade": True}, ax=axes[2])
-        sns.distplot(data, color="m")
+        sns.distplot(values, kde=False, color="b", ax=axes[0])
+        sns.distplot(values, hist=False, rug=True, color="r", ax=axes[1])
+        sns.distplot(values, hist=False, color="g", kde_kws={"shade": True}, ax=axes[2])
+        sns.distplot(values, color="m")
         f.savefig(ret)
         logging.debug('Saved image %s', ret)
         return ret

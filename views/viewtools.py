@@ -62,7 +62,7 @@ def template_recurse(tmpl, tags):
     return tmpl
 
 def encode_series(dates, data):
-    return list(zip(dates.astype(int)/1000000, data))
+    return np.vstack([dates.astype(int)/1000000, data]).T
 
 def encode_pandas_series(series):
     try:

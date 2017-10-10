@@ -25,6 +25,9 @@ def build_dependency_graph(views, data_provider):
         handler_name = view.get('handler', 'raw')
         ret.add_node(i, typ='view', done=False, handler=handler_name)
 
+        if 'series' not in view:
+            continue
+
         for seriesgroup in view['series']:
 
             tags = viewtools.dict_merge([view['tags'], seriesgroup])
@@ -49,7 +52,7 @@ def build_dependency_graph(views, data_provider):
                 ret.add_node(query, typ='query', done=False)
                 ret.add_edge(query, series)
 
-        return ret
+    return ret
 
 
 class ViewBuilder(object):
@@ -146,6 +149,8 @@ class ViewBuilder(object):
                     # node type is now 'view', which has no dependents
                     view = viewlist[name]
                     view_type = view['viewtype']
+                    view_tags = view.get('tags', {})
+                    view_options = view.get('viewoptions', {})
                     view_generator = self.get_view(view_type)
                     view_handler = datahandler.get_handler(view.get('handler', 'raw'))
 
@@ -154,7 +159,7 @@ class ViewBuilder(object):
                         data_series.update(nodes[n]['data'])
 
                     data_series = view_handler.process_queries(data_series)
-                    view_def = view_generator.build_view(view_type, view['tags'], data_series, view['viewoptions'])
+                    view_def = view_generator.build_view(view_type, view_tags, data_series, view_options)
 
                     for series_id in data_series:
                         if series_id in sent_to_client:

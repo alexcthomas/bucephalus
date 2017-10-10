@@ -79,8 +79,8 @@ class ViewDataProvider(object):
         if typ == "random_vol":
             vals = np.random.randn(2000)
             dates = pd.bdate_range('2000-01-01', periods=2000, freq='B')
-            ts = pd.Series(np.sqrt(pd.ewma(vals*vals,span=5)), dates)
-            return encode_pandas_series(ts)
+            data = np.sqrt(pd.ewma(vals*vals, span=5))
+            return encode_series(dates, data)
 
         raise RuntimeError('No data found for type {}'.format(query))
 

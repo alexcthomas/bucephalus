@@ -34,7 +34,7 @@
         "row": 1
       },
       {
-        "viewtype": "accumulate",
+        "viewtype": "accumulated",
         "renderer": "highstock",
         "handler": "accumulate",
         "tags": {"datatype": "random_timeseries"},
@@ -52,15 +52,11 @@
         },
         "views": [
           {
-            "viewtype": "parabola",
-            "renderer": "img",
-            "row": 1
-          },
-          {
             "viewtype": "overview_distribution",
             "tags": {"datatype": "univariate_random"},
+            "series": [{"label": "Random Data"}],
             "renderer": "img",
-            "row": 2
+            "row": 1
           }
         ]
       }
@@ -75,15 +71,18 @@
     },
     "views": [
       {
-        "viewtype": "price",
+        "viewtype": "accumulated",
         "renderer": "highstock",
-        "tags": {"datatype": "random_timeseries", "market": "Random"},
+        "handler": "accumulate",
+        "tags": {"datatype": "random_timeseries"},
+        "series": [{"label": "Random Data"}],
         "row": 1
       },
       {
         "viewtype": "volatility",
         "renderer": "highcharts",
-        "tags": {"datatype": "random_vol", "market": "Random"},
+        "tags": {"datatype": "random_vol"},
+        "series": [{"label": "Random Volatility"}],
         "row": 1
       },
       {
