@@ -28,29 +28,22 @@ def build_dependency_graph(views, data_provider):
         if 'series' not in view:
             continue
 
-        for seriesgroup in view['series']:
+        for series in view['series']:
 
-            tags = viewtools.dict_merge([view['tags'], seriesgroup])
+            tags = viewtools.dict_merge([view['tags'], series])
 
             series_label = tags.pop('label')
-            sg_key = viewtools.freeze_tags(tags)
+            series_key = data_provider.get_series_key_from_tags(tags.copy(), series_label)
 
-            ret.add_node(sg_key, typ='seriesgroup', done=False)
-            ret.add_edge(sg_key, i)
+            ret.add_node(series_key, typ='series', done=False)
+            ret.add_edge(series_key, i)
 
-            # Get the simulation queries required, may be more than one
-            series_queries = data_provider.get_series_names_from_tags(tags.copy(), series_label)
+            query, object_name, label = series_key
 
-            for series in series_queries:
-                ret.add_node(series, typ='series', done=False)
-                ret.add_edge(series, sg_key)
-
-                query, object_name, label = series
-
-                # networkx ignores adding the same node twice
-                # so we don't need to check if this query is already there
-                ret.add_node(query, typ='query', done=False)
-                ret.add_edge(query, series)
+            # networkx ignores adding the same node twice
+            # so we don't need to check if this query is already there
+            ret.add_node(query, typ='query', done=False)
+            ret.add_edge(query, series_key)
 
     return ret
 
@@ -142,10 +135,6 @@ class ViewBuilder(object):
                         node['data'] = nodes[name[0]]['data']
                         continue
 
-                    if node['typ'] == 'seriesgroup':
-                        node['data'] = {n: nodes[n]['data'] for n in deps.predecessors(name)}
-                        continue
-
                     # node type is now 'view', which has no dependents
                     view = viewlist[name]
                     view_type = view['viewtype']
@@ -154,18 +143,18 @@ class ViewBuilder(object):
                     view_generator = self.get_view(view_type)
                     view_handler = datahandler.get_handler(view.get('handler', 'raw'))
 
-                    data_series = {}
+                    data_series = []
                     for n in deps.predecessors(name):
-                        data_series.update(nodes[n]['data'])
+                        data_series.append((n, nodes[n]['data']))
 
                     data_series = view_handler.process_queries(data_series)
                     view_def = view_generator.build_view(view_type, view_tags, data_series, view_options)
 
-                    for series_id in data_series:
+                    for series_id, series_data in data_series:
                         if series_id in sent_to_client:
                             continue
                         sent_to_client.add(series_id)
-                        result_queue.put({'category': 'data', 'series': series_id, 'data': data_series[series_id]})
+                        result_queue.put({'category': 'data', 'series': series_id, 'data': series_data})
 
                     result_queue.put({'id': name, 'category': 'graph', 'result': view_def})
 

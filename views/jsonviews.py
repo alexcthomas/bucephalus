@@ -148,6 +148,6 @@ class HighChartsViewBuilder(JSONViewBuilder):
 
         view = self.views_cache[view_name]
         ret = view.render_tags(tags)
-        ret['series'] = list(data.keys())
+        ret['series'] = [v[0] for v in data]
 
         return dict_merge([extra, ret])
