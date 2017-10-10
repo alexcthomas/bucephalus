@@ -4,15 +4,13 @@
     "tags": {},
     "views": [
       {
-        "viewtype": "accumulated",
+        "viewtype": "basic_col",
         "renderer": "highcharts",
-        "handler": "accumulate",
         "viewoptions": {
-          "title": {"text": "Portfolio P&L"}
+          "title": {"text": "Basic Bar Chart"}
         },
-        "tags": {"schema": "PortfolioPL"},
-        "series": [{"label": "Gross PL", "output": "grosspl"},
-                   {"label": "Net PL", "output": "netpl"}],
+        "tags": {"datatype": "univariate_random"},
+        "series": [{"label": "Random Data"}],
         "row": 1
       }
     ]
@@ -20,18 +18,27 @@
   {
     "text": "Parent1",
     "title": "Title of Parent1 Page",
-    "tags": {"level": "city"},
     "views": [
       {
         "viewtype": "basic_line",
         "renderer": "highcharts",
+        "viewoptions": {
+          "title": {"text": "Basic Line Chart"}
+        },
         "tags": {"datatype": "solar"},
+        "series": [{"label": "Installation", "category": "installation"},
+                   {"label": "Manufacturing", "category": "manufacturing"},
+                   {"label": "Sales & Distribution", "category": "sales"},
+                   {"label": "Project Development", "category": "development"},
+                   {"label": "Other", "category": "other"}],
         "row": 1
       },
       {
-        "viewtype": "price",
+        "viewtype": "accumulate",
         "renderer": "highstock",
-        "tags": {"datatype": "random_timeseries", "market": "Random"},
+        "handler": "accumulate",
+        "tags": {"datatype": "random_timeseries"},
+        "series": [{"label": "Random Data"}],
         "row": 2
       }
     ],

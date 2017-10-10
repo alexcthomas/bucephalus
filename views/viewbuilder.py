@@ -110,12 +110,10 @@ class ViewBuilder(object):
         if not networkx.is_directed_acyclic_graph(deps):
             return ujson.dumps(viewtools.build_error("Circular dependencies found"))
 
-        def callback(sim_series, data, currentIndex, maxIndex):
-            logging.debug('Callback for {}: {}/{}'.format(sim_series, currentIndex, maxIndex))
+        def callback(sim_series, result, currentIndex, maxIndex):
+            logging.debug('Callback for {}: {}/{}'.format(sim_series, currentIndex+1, maxIndex))
 
             try:
-
-                result = viewtools.parse_result_series(data)
 
                 nodes[sim_series]['done'] = True
                 nodes[sim_series]['data'] = result
@@ -145,11 +143,11 @@ class ViewBuilder(object):
                         node['data'] = {n: nodes[n]['data'] for n in deps.predecessors(name)}
                         continue
 
-                    # node type is now 'view', which has no dependencies
+                    # node type is now 'view', which has no dependents
                     view = viewlist[name]
                     view_type = view['viewtype']
                     view_generator = self.get_view(view_type)
-                    view_handler = datahandler.get_handler(view['handler'])
+                    view_handler = datahandler.get_handler(view.get('handler', 'raw'))
 
                     data_series = {}
                     for n in deps.predecessors(name):
@@ -173,7 +171,7 @@ class ViewBuilder(object):
         # We query for results in a different thread so we can return results in this one
         def worker():
             self.data_provider.get_view_data(series_deps, callback)
-            result_queue.put(None)      # Indicates the end of the data
+            result_queue.put(None) # Indicates the end of the data
 
         worker_thread = threading.Thread(target=worker)
         worker_thread.start()

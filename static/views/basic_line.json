@@ -1,7 +1,7 @@
 {
-	"plotOptions": {
-		"series": {
-			"animation": false
-		}
-	}
+    "plotOptions": {
+        "series": {
+            "animation": false
+        }
+    }
 }

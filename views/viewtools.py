@@ -94,6 +94,9 @@ def parse_result_series(result):
     """
     Convert db results to a jsonable format
     """
+    if isinstance(result, np.ndarray):
+        return result
+
     if result is None or not len(result):
         return None
 
