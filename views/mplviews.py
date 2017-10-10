@@ -32,7 +32,7 @@ class MPLViewBuilder(BaseViewBuilder):
         name = str(uuid.uuid1()).replace('-','')
         ret = '/'.join([self.image_dir, name+'.png'])
 
-        key, values = list(data.items())[0]
+        key, values = data[0]
 
         sns.set(style="white", palette="muted", color_codes=True)
         f, axes = plt.subplots(1, 4, figsize=(20, 5))
