@@ -1,10 +1,10 @@
 {
-	"plotOptions": {
-		"series": {
-			"animation": false
-		}
-	},
-	"chart": {
-		"type": "bar"
-	}
+    "plotOptions": {
+        "series": {
+            "animation": false
+        }
+    },
+    "chart": {
+        "type": "bar"
+    }
 }

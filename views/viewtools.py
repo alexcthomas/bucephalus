@@ -62,7 +62,7 @@ def template_recurse(tmpl, tags):
     return tmpl
 
 def encode_series(dates, data):
-    return list(zip(dates.astype(int)/1000000, data))
+    return np.vstack([dates.astype(int)/1000000, data]).T
 
 def encode_pandas_series(series):
     try:
@@ -94,6 +94,9 @@ def parse_result_series(result):
     """
     Convert db results to a jsonable format
     """
+    if isinstance(result, np.ndarray):
+        return result
+
     if result is None or not len(result):
         return None
 

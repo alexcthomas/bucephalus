@@ -10,31 +10,16 @@ var buildTagString = function(tags){
 	return ret;
 }
 
-var isDataEmpty = function(data) {
-	var result = true
-	$.each(data, function (i, obj) {
-		$.each(obj.data, function (index, arr) {
-			if (arr[1] != 0) {
-				result = false;
-			};
-        });
-    });
-	return result;
-};
-
 var renderView = function(target, info, definition, seriesNameToData) {
 	var data = [];
+
 	$.each(definition.series, function(i, series) {
 		data.push({name: series[2], data: seriesNameToData[series]});
 	});
-	definition.series = data;
 
-	if (isDataEmpty(data)) {
-		console.log('Data is empty:', data[0].name);
-		target.css('display', 'none');
-    } else {
-        ViewRenderers.render(info.renderer, target, definition);
-    }
+	definition.series = data;
+	ViewRenderers.render(info.renderer, target, definition);
+
 };
 
 var createPanel = function(width) {

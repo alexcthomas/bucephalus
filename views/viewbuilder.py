@@ -25,6 +25,9 @@ def build_dependency_graph(views, data_provider):
         handler_name = view.get('handler', 'raw')
         ret.add_node(i, typ='view', done=False, handler=handler_name)
 
+        if 'series' not in view:
+            continue
+
         for seriesgroup in view['series']:
 
             tags = viewtools.dict_merge([view['tags'], seriesgroup])
@@ -49,7 +52,7 @@ def build_dependency_graph(views, data_provider):
                 ret.add_node(query, typ='query', done=False)
                 ret.add_edge(query, series)
 
-        return ret
+    return ret
 
 
 class ViewBuilder(object):
@@ -111,7 +114,7 @@ class ViewBuilder(object):
             return ujson.dumps(viewtools.build_error("Circular dependencies found"))
 
         def callback(sim_series, data, currentIndex, maxIndex):
-            logging.debug('Callback for {}: {}/{}'.format(sim_series, currentIndex, maxIndex))
+            logging.debug('Callback for {}: {}/{}'.format(sim_series, currentIndex+1, maxIndex))
 
             try:
 
@@ -145,18 +148,20 @@ class ViewBuilder(object):
                         node['data'] = {n: nodes[n]['data'] for n in deps.predecessors(name)}
                         continue
 
-                    # node type is now 'view', which has no dependencies
+                    # node type is now 'view', which has no dependents
                     view = viewlist[name]
                     view_type = view['viewtype']
+                    view_tags = view.get('tags', {})
+                    view_options = view.get('viewoptions', {})
                     view_generator = self.get_view(view_type)
-                    view_handler = datahandler.get_handler(view['handler'])
+                    view_handler = datahandler.get_handler(view.get('handler', 'raw'))
 
                     data_series = {}
                     for n in deps.predecessors(name):
                         data_series.update(nodes[n]['data'])
 
                     data_series = view_handler.process_queries(data_series)
-                    view_def = view_generator.build_view(view_type, view['tags'], data_series, view['viewoptions'])
+                    view_def = view_generator.build_view(view_type, view_tags, data_series, view_options)
 
                     for series_id in data_series:
                         if series_id in sent_to_client:
@@ -173,7 +178,7 @@ class ViewBuilder(object):
         # We query for results in a different thread so we can return results in this one
         def worker():
             self.data_provider.get_view_data(series_deps, callback)
-            result_queue.put(None)      # Indicates the end of the data
+            result_queue.put(None) # Indicates the end of the data
 
         worker_thread = threading.Thread(target=worker)
         worker_thread.start()

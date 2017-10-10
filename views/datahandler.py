@@ -27,7 +27,8 @@ class BaseHandler(object):
 class RawHandler(BaseHandler):
     name = 'raw'
 
-    def process_queries(self, results):
+    @classmethod
+    def process_queries(cls, results):
         """
         We are passed a map from query -> data.  We "process" this by simply returning the data.
         """
