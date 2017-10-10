@@ -1,0 +1,18 @@
+{
+    "plotOptions": {
+        "series": {
+            "animation": false
+        },
+        "pie": {
+            "allowPointSelect": true,
+            "cursor": "pointer",
+            "dataLabels": {
+                "enabled": false
+            },
+            "showInLegend": true
+        }
+    },
+    "chart": {
+        "type": "pie"
+    }
+}

@@ -1,14 +1,10 @@
 {
-	"plotOptions": {
-		"series": {
-			"animation": false
-		},
-		"column": {
-			"pointPadding": 0.2,
-			"borderWidth": 0
-		}
-	},
-	"chart": {
-		"type": "column"
-	}
+    "plotOptions": {
+        "series": {
+            "animation": false
+        }
+    },
+    "chart": {
+        "type": "bar"
+    }
 }

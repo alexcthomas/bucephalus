@@ -6,9 +6,11 @@
 {{ super() }}
 <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}" type="image/x-icon">
 <link rel="icon" href="{{ url_for('static', filename='img/favicon.ico') }}" type="image/x-icon">
+<link href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet">
 <link href="static/css/bootstrap-select.min.css" rel="stylesheet">
 <link href="static/css/simple-sidebar.css" rel="stylesheet">
 <link href="static/css/main.css" rel="stylesheet">
+
 {% endblock %}
 
 {% block content %}
@@ -19,18 +21,22 @@
 		<div id="sidebar-token">
 			<div id="sidebar-token-header" style="color:#FFFFFF;">Data Token:</div>
 			
-            <div id="sidebar-token-body" data-width="100%">
-                <form id="sidebar-token-form" action="" data-width="100%">
+			<div id="sidebar-token-body" data-width="100%">
+				<form id="sidebar-token-form" action="" data-width="100%">
 					<select name="sidebar-token-picker" class="selectpicker show-tick" data-width="100%" onchange="if (this.selectedIndex) changeToken(this, event);">
 					{%  for token in tokens %}
 						<option value={{ token }}>{{ token }}</option>
 					{% endfor %}
 					</select>
-                </form>
-            </div>
+				</form>
+			</div>
 				  
 		</div>
 		<div id="sidebar-nav"></div>
+	</div>
+
+	<div id="progress-dialog" title="Loading data">
+		<div id="progress-bar"></div>
 	</div>
 
 	<div class="page-content-wrapper">
@@ -44,16 +50,38 @@
 
 {% block scripts %}
 {{ super() }}
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script src="https://code.highcharts.com/stock/highstock.js"></script>
+<script src="https://code.highcharts.com/modules/heatmap.js"></script>
 <script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
 
+<script>
+	var loadingDialog, progressBar;
+
+	$(function() {
+		loadingDialog = $("#progress-dialog").dialog({
+			autoOpen: false,
+			resizable: false,
+			draggable: false,
+			modal: true,
+			minHeight: '60px'
+		});
+
+		loadingDialog.dialog('widget').find('.ui-dialog-titlebar-close').hide();
+
+		progressBar = $("#progress-bar").progressbar({
+			value: false
+		});
+	});
+</script>
+
 <script type="text/javascript">
-    function changeToken(form, event){
-        var token = $("#sidebar-token-form :selected").text();
-        console.log("selected token: %s", token);
-        $.getJSON('/set_token?token=' + token);
-        renderNavPane() //Refresh the page with updated token
-    }
+	function changeToken(form, event){
+		var token = $("#sidebar-token-form :selected").text();
+		console.log("selected token: %s", token);
+		$.getJSON('/set_token?token=' + token);
+		renderNavPane() //Refresh the page with updated token
+	}
 </script>
 
 <script type=text/javascript>
@@ -61,9 +89,9 @@ $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
 </script>
 
 <script>
-$("#menu-toggle").click(function(e) {
-	e.preventDefault();
-	$("#wrapper").toggleClass("toggled");
-});
+	$("#menu-toggle").click(function(e) {
+		e.preventDefault();
+		$("#wrapper").toggleClass("toggled");
+	});
 </script>
 {% endblock %}
