@@ -55,13 +55,4 @@ class ViewDataProvider(object):
         logging.debug('Calling getRunData with {} queries.'.format(len(queries)))
         self._loader.getRunData(self._token, queries, callback)
 
-    def get_series_key_from_tags(self, tags, series_label):
-        """
-        For a set of sim objects specified by a a category, a sim class, and a set of tags
-        Get the given output series
-        """
-        output_name = tags.pop('output')
-        obj_name = list(self._meta_obj.match(tags).nodes.keys())[0]
-        this_series_label = level_value_string_sub(series_label, tags)
-        query = '.'.join([obj_name, output_name])
-        return query, obj_name, this_series_label
+

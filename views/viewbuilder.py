@@ -30,20 +30,15 @@ def build_dependency_graph(views, data_provider):
 
         for series in view['series']:
 
-            tags = viewtools.dict_merge([view['tags'], series])
-
-            series_label = tags.pop('label')
-            series_key = data_provider.get_series_key_from_tags(tags.copy(), series_label)
+            series_key = series['query'], series['label']
 
             ret.add_node(series_key, typ='series', done=False)
             ret.add_edge(series_key, i)
 
-            query, object_name, label = series_key
-
             # networkx ignores adding the same node twice
             # so we don't need to check if this query is already there
-            ret.add_node(query, typ='query', done=False)
-            ret.add_edge(query, series_key)
+            ret.add_node(series['query'], typ='query', done=False)
+            ret.add_edge(series['query'], series_key)
 
     return ret
 

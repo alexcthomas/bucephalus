@@ -1,7 +1,6 @@
 [
   {
     "text": "Root",
-    "tags": {},
     "views": [
       {
         "viewtype": "accumulated",
@@ -10,9 +9,8 @@
         "viewoptions": {
           "title": {"text": "Portfolio P&L"}
         },
-        "tags": {"schema": "PortfolioPL"},
-        "series": [{"label": "Gross PL", "output": "grosspl"},
-                   {"label": "Net PL", "output": "netpl"}],
+        "series": [{"label": "Gross PL", "query": "PortfolioPL.grosspl"},
+                   {"label": "Net PL", "query": "PortfolioPL.netpl"}],
         "row": 1
       }
     ]
@@ -20,18 +18,25 @@
   {
     "text": "Parent1",
     "title": "Title of Parent1 Page",
-    "tags": {"level": "city"},
     "views": [
       {
         "viewtype": "basic_line",
         "renderer": "highcharts",
-        "tags": {"datatype": "solar"},
+        "viewoptions": {
+          "title": {"text": "Basic Line Chart"}
+        },
+        "series": [{"label": "Installation", "query": "solar.installation"},
+                   {"label": "Manufacturing", "query": "solar.manufacturing"},
+                   {"label": "Sales & Distribution", "query": "solar.sales"},
+                   {"label": "Project Development", "query": "solar.development"},
+                   {"label": "Other", "query": "solar.other"}],
         "row": 1
       },
       {
-        "viewtype": "price",
+        "viewtype": "accumulated",
         "renderer": "highstock",
-        "tags": {"datatype": "random_timeseries", "market": "Random"},
+        "handler": "accumulate",
+        "series": [{"label": "Random Data", "query": "random_timeseries"}],
         "row": 2
       }
     ],
@@ -39,21 +44,12 @@
       {
         "text": "Child1",
         "title": "Title of Child1 Page",
-        "tags": {
-          "tag1": "value12",
-          "tag2": "value22"
-        },
         "views": [
           {
-            "viewtype": "parabola",
+            "viewtype": "overview_distribution",
+            "series": [{"label": "Random Data", "query": "univariate_random"}],
             "renderer": "img",
             "row": 1
-          },
-          {
-            "viewtype": "overview_distribution",
-            "tags": {"datatype": "univariate_random"},
-            "renderer": "img",
-            "row": 2
           }
         ]
       }
@@ -62,21 +58,18 @@
   {
     "text": "Parent2",
     "title": "Title of Parent2 Page",
-    "tags": {
-      "tag1": "value11",
-      "tag2": "value21"
-    },
     "views": [
       {
-        "viewtype": "price",
+        "viewtype": "accumulated",
         "renderer": "highstock",
-        "tags": {"datatype": "prices", "series": "ADCC1.prices, BPCC1.prices"},
+        "handler": "accumulate",
+        "series": [{"label": "Random Data", "query": "random_timeseries"}],
         "row": 1
       },
       {
         "viewtype": "volatility",
         "renderer": "highcharts",
-        "tags": {"datatype": "volatility", "series": "ADCC1PositionVol.volatility, BPCC1PositionVol.volatility"},
+        "series": [{"label": "Random Volatility", "query": "random_vol"}],
         "row": 1
       },
       {
