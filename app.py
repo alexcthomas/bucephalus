@@ -5,23 +5,33 @@ import ujson
 import logging
 import argparse
 import traceback
+import datetime as dt
+from queue import Queue
 
-from flask import Flask, render_template, request, make_response, send_file
+import numpy as np
+
+from flask import Flask, render_template, request, jsonify, send_file
 from flask_bootstrap import Bootstrap, WebCDN
 
 from views.viewbuilder import ViewBuilder
 from views.viewdata import ViewDataProvider
-from views.viewtools import parse_tags
+from views.navdata import build_pages
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 app = Flask(__name__)
 app.config.from_json('app.config')
 
+print('Starting data provider')
 data_provider = ViewDataProvider(app.config)
+
+print('Starting view builder')
 view_defs = ViewBuilder(data_provider)
 
+print('Building bootstrap')
 bootstrap = Bootstrap(app)
+
+print('Starting app')
 
 # use jQuery3 instead of jQuery 1 shipped with Flask-Bootstrap
 app.extensions['bootstrap']['cdns']['jquery'] = WebCDN('//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.0/')
@@ -39,7 +49,19 @@ def internal_server_error(e):
 
 @app.route('/', methods=['GET'])
 def index():
-    return render_template('index.html')
+    return render_template('index.html', tokens=data_provider.get_tokens())
+
+
+@app.route('/get_tokens', methods=['GET'])
+def get_tokens():
+    return json.dumps(data_provider.get_tokens())
+
+
+@app.route('/set_token', methods=['GET'])
+def set_token():
+    token = request.args.get('token')
+    data_provider.set_token(token)
+    return json.dumps({'token': token})
 
 
 # return a json response upon request
@@ -47,24 +69,41 @@ def index():
 def get_nav_data():
     """
     Returns data for building the nav pane contents
-    These won't necessarily always be static
     """
-    return app.send_static_file(r'json/navdata.json')
+    data = build_pages(data_provider)
+    return jsonify(data)
 
 
-# return the individual view data
-@app.route('/view', methods=['GET'])
-def view():
-    """
-    Returns a json response containing instructions for
-    the javascript to render a single pane
-    """
-    args = dict(request.args)
-    typ = args.pop('type')[0]
-    argtags = args.pop('tags', [])
-    tags = parse_tags(argtags)
-    kwargs = {k:v[0] for k,v in args.items()}
-    return view_defs.build_view(typ, tags, **kwargs)
+@app.route('/views', methods=['POST'])
+def views():
+
+    result_queue = Queue()
+
+    # This function does not block until the results are all back
+    worker_thread = view_defs.build_views(request.json, result_queue)
+
+    # Flask can send results back piecemeal, but it needs a generator to do this.
+    # We block on the callback here by waiting on the result_queue.
+    def result_generator():
+        try:
+            while True:
+                result = result_queue.get(block=True)
+
+                if result is None:
+                    break
+
+                partial_result = ujson.dumps(result)
+                yield(partial_result.encode('utf-8'))
+                yield(';'.encode('utf-8'))
+
+            logging.debug('Waiting for worker thread')
+            worker_thread.join()
+            logging.debug('Call completed')
+        except Exception:
+            ex_type, ex, tb = sys.exc_info()
+            logging.error('Error in result_generator: {}\n{}'.format(ex, "\n".join(traceback.format_tb(tb))))
+
+    return app.response_class(result_generator(), mimetype='text/plain', direct_passthrough=True)
 
 
 @app.route("/img/<path:path>")
@@ -76,21 +115,6 @@ def images(path):
     return send_file(fullpath, mimetype='image/png')
 
 
-def reload_views_provider(path):
-    """For reloading the views"""
-    view_defs.reload_views()
-
-
-def reload_data_provider(path):
-    """
-    For reloading the data provider
-    e.g. switching database
-    """
-    global data_provider
-    data_provider = ViewDataProvider()
-    view_defs.set_data_provider(data_provider)
-
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Bucephalus',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -99,14 +123,14 @@ if __name__ == '__main__':
     parser.add_argument('--host', type=str, default="0.0.0.0",
         help="IP address to listen on")
     params = parser.parse_args()
-    
-    app.run(debug=True, host=params.host, port=params.port, threaded=True)
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
+    app.run(host=params.host, port=params.port, threaded=True, debug=True, use_debugger=False, use_reloader=False)
+
+
+
+
+
+
+
+
+

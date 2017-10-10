@@ -1,5 +1,6 @@
 import copy, pdb
 
+import numpy as np
 import pandas as pd
 
 
@@ -40,8 +41,16 @@ def template_recurse(tmpl, tags):
     """
     if isinstance(tmpl, str):
         ret = tmpl
-        for k,v in tags.items():
-            ret = ret.replace(k, v)
+        for k, v in tags.items():
+            # If the value we are replacing is an exact match for a key, return the value as-is - we're assuming
+            # here that we are NOT replacing a substring in a larger string "hello {{name}}", but that the
+            # value should be used as-is, i.e. not converted into a string - i.e. it is a KEY in the JSON, not a VALUE.
+            if ret == k:
+                return v
+            # Try to perform a simple string substitution - this assumes that the value is a string, or can be
+            # converted to a string without any issues.
+            ret = ret.replace(k, str(v))
+
         return ret
 
     if isinstance(tmpl, list):
@@ -53,15 +62,48 @@ def template_recurse(tmpl, tags):
     return tmpl
 
 def encode_series(dates, data):
-    return list(zip(dates.astype(int)/1000000, data))
+    return np.vstack([dates.astype(int)/1000000, data]).T
 
 def encode_pandas_series(series):
-    ret = pd.Series(series.values, series.index.astype(int)/1000000)
-    return ret.reset_index().values
+    try:
+        ret = pd.Series(series.values, series.index.astype(int)/1000000)
+        return ret.reset_index().values
+    except:
+        return series.values
 
 def build_error(msg):
-    return {'error': msg.replace('\n','<br/>')}
+    return {'error': '<pre>{}</pre>'.format(msg)}
 
+def level_value_string_sub(s, lspec):
+    ret = s
+
+    for lev, val in lspec.items():
+        tmpl = '#%s#'%lev
+        if tmpl in ret:
+            ret = ret.replace(tmpl, str(val))
+
+    return ret
+
+def freeze_tags(tags):
+    return frozenset(sorted(tags.items()))
+
+def unfreeze_tags(frozen_tags):
+    return dict(frozen_tags)
+
+def parse_result_series(result):
+    """
+    Convert db results to a jsonable format
+    """
+    if isinstance(result, np.ndarray):
+        return result
+
+    if result is None or not len(result):
+        return None
+
+    dates, values = zip(*result)
+    dates = pd.DatetimeIndex(dates)
+    ret = pd.Series(np.array(values), dates.astype(int)/1000000)
+    return ret.reset_index().values
 
 if __name__ == '__main__':
 
@@ -80,3 +122,4 @@ if __name__ == '__main__':
 
     print(template_recurse({'a':'{{asset}} Name'}, tags))
     print(template_recurse({'a':['{{asset}} Name',{'b': '{{asset}} Vol','c':4}]}, tags))
+

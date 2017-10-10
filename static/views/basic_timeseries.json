@@ -1,30 +1,43 @@
 {
-	"viewName": "basic_timeseries",
-	"prototypes": "basic_line",
-	"viewDefinition": {
-		"rangeSelector": {
-			"buttons": [{
-				"count": 1,
-				"type": "month",
-				"text": "1M"
-			}, {
-				"count": 3,
-				"type": "month",
-				"text": "3M"
-			}, {
-				"count": 1,
-				"type": "year",
-				"text": "1Y"
-			}, {
-				"count": 5,
-				"type": "year",
-				"text": "5Y"
-			}, {
-				"type": "all",
-				"text": "All"
-			}],
-			"inputEnabled": false,
-			"selected": 4
-		}
-	}
+    "viewName": "basic_timeseries",
+    "prototypes": "basic_line",
+    "viewDefinition": {
+        "rangeSelector": {
+            "buttons": [
+                {
+                    "count": 1,
+                    "type": "month",
+                    "text": "1M"
+                },
+                {
+                    "count": 3,
+                    "type": "month",
+                    "text": "3M"
+                },
+                {
+                    "count": 1,
+                    "type": "year",
+                    "text": "1Y"
+                },
+                {
+                    "count": 5,
+                    "type": "year",
+                    "text": "5Y"
+                },
+                {
+                    "type": "all",
+                    "text": "All"
+                }
+            ],
+            "enabled": true,
+            "inputEnabled": false,
+            "selected": 4
+        },
+        "navigator": {
+            "enabled": true
+        },
+        "scrollbar": {
+            "enabled": true
+        }
+    }
 }

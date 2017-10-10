@@ -4,48 +4,59 @@
     "tags": {},
     "views": [
       {
-        "viewtype": "basic_bar",
+        "viewtype": "basic_col",
         "renderer": "highcharts",
-        "tags": {"datatype": "univariate_random_bar"},
+        "viewoptions": {
+          "title": {"text": "Basic Bar Chart"}
+        },
+        "tags": {"datatype": "univariate_random"},
+        "series": [{"label": "Random Data"}],
         "row": 1
       }
     ]
   },
   {
     "text": "Parent1",
-    "tags": {"level": "city"},
+    "title": "Title of Parent1 Page",
     "views": [
       {
         "viewtype": "basic_line",
         "renderer": "highcharts",
+        "viewoptions": {
+          "title": {"text": "Basic Line Chart"}
+        },
         "tags": {"datatype": "solar"},
+        "series": [{"label": "Installation", "category": "installation"},
+                   {"label": "Manufacturing", "category": "manufacturing"},
+                   {"label": "Sales & Distribution", "category": "sales"},
+                   {"label": "Project Development", "category": "development"},
+                   {"label": "Other", "category": "other"}],
         "row": 1
       },
       {
-        "viewtype": "price",
+        "viewtype": "accumulated",
         "renderer": "highstock",
-        "tags": {"datatype": "random_timeseries", "market": "Random"},
+        "handler": "accumulate",
+        "tags": {"datatype": "random_timeseries"},
+        "series": [{"label": "Random Data"}],
         "row": 2
       }
     ],
     "nodes": [
       {
         "text": "Child1",
+        "title": "Title of Child1 Page",
         "tags": {
           "tag1": "value12",
           "tag2": "value22"
         },
         "views": [
           {
-            "viewtype": "parabola",
-            "renderer": "img",
-            "row": 1
-          },
-          {
             "viewtype": "overview_distribution",
             "tags": {"datatype": "univariate_random"},
+            "series": [{"label": "Random Data"}],
             "renderer": "img",
-            "row": 2
+            "row": 1
           }
         ]
       }
@@ -53,21 +64,25 @@
   },
   {
     "text": "Parent2",
+    "title": "Title of Parent2 Page",
     "tags": {
       "tag1": "value11",
       "tag2": "value21"
     },
     "views": [
       {
-        "viewtype": "price",
+        "viewtype": "accumulated",
         "renderer": "highstock",
-        "tags": {"datatype": "random_timeseries", "market": "Random"},
+        "handler": "accumulate",
+        "tags": {"datatype": "random_timeseries"},
+        "series": [{"label": "Random Data"}],
         "row": 1
       },
       {
         "viewtype": "volatility",
         "renderer": "highcharts",
-        "tags": {"datatype": "random_vol", "market": "Random"},
+        "tags": {"datatype": "random_vol"},
+        "series": [{"label": "Random Volatility"}],
         "row": 1
       },
       {

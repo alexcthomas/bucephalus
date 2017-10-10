@@ -2,24 +2,24 @@
 // Returns the location of a node for encoding in a url
 var getNodeLocation = function(node) {
 	var tree = $("#sidebar-nav").data("treeview");
-	
+
 	var cnt = 1;
 	var loc = [];
 	var ret = [];
-	
+
 	do {
 		loc.push(node.text);
 		node = tree.getParent(node);
 	}
 	while (node != undefined);
-	
+
 	loc = loc.reverse();
-	
+
 	for (var i = 0; i < loc.length; i++) {
 		ret.push({"name": "level"+cnt.toString(), "value": loc[i]});
 		cnt = cnt + 1;
 	}
-	
+
 	return ret;
 };
 
@@ -51,14 +51,14 @@ var parentMatch = function(tree, node, levels) {
 
 // selects the node that matches the location given in a url
 var selectNode = function(tgt, levels) {
-	
+
 	if (levels.length==0){
 		renderContentPane();
 	} else {
 		var tree = tgt.data("treeview");
 		var nodeName = levels.slice(-1);
 		var nodes = tree.getNodes(nodeName, "g");
-	
+
 		for (var i = 0; i < nodes.length; i++) {
 			var node = nodes[i];
 			if (parentMatch(tree, node, levels)) {
@@ -73,8 +73,8 @@ var selectNode = function(tgt, levels) {
 
 // gets called when a tree node is selected
 var treeNodeSelect = function(event, node) {
-	renderContentPane(node.views, node.tags);
-	
+	renderContentPane(node.views, node.tags, node.title);
+
 	var nodeLocation = getNodeLocation(node);
 	var nodeUrl = "?" + $.param(nodeLocation);
 	window.history.pushState("", "", nodeUrl);
@@ -94,42 +94,34 @@ var treeNodeUnSelect = function(event, node) {
 
 // gets data to fill out the nav pane
 var renderNavPane = function() {
-	$.getJSON("/navdata", 
+	$.getJSON("/navdata",
 	function(data) {
 		var tgt = $("#sidebar-nav");
+		tgt.html("");
 		var viewdata = {};
 		var currentUrl = getJsonFromUrl();
-		
+
 		$.each(data, function(key, val) {
 			viewdata[val.text] = val;
 		});
-		
+
 		// if there's a root page, remove it so it doesn't get put into the tree
 		if (data[0].text == "Root"){
 			data.splice(0,1)
 		}
-		
-		// build the nav tree 
+
+		// build the nav tree
 		var tree = tgt.treeview({
 			levels: 1,
 			data: data,
 			onNodeSelected: treeNodeSelect,
 			onNodeUnselected: treeNodeUnSelect
 		});
-		
+
 		//bind the data to the div element just in case
 		tgt.data("viewdata", viewdata);
-		
+
 		//select the node given by the url
 		selectNode(tgt, currentUrl);
 	});
 };
-
-
-
-
-
-
-
-
-
