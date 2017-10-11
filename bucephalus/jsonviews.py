@@ -5,8 +5,8 @@ import logging
 import yaml
 import ujson
 
-from views.baseviews import BaseViewBuilder
-from views.viewtools import dict_merge, template_recurse
+from bucephalus.baseviews import BaseViewBuilder
+from bucephalus.viewtools import dict_merge, template_recurse
 
 
 class JSONView(object):

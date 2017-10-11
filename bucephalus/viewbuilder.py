@@ -8,12 +8,12 @@ import threading
 
 import networkx
 
-from views import viewtools
-from views import datahandler
+from bucephalus import viewtools
+from bucephalus import datahandler
 
-from views.jsonviews import HighChartsViewBuilder
-from views.mplviews import MPLViewBuilder
-from views.htmlviews import HTMLViewBuilder
+from bucephalus.jsonviews import HighChartsViewBuilder
+from bucephalus.mplviews import MPLViewBuilder
+from bucephalus.htmlviews import HTMLViewBuilder
 
 
 def build_dependency_graph(views, data_provider):
@@ -49,7 +49,8 @@ class ViewBuilder(object):
     can do things like auto-rebuild when files change
     """
     def __init__(self, data_provider):
-        jsonpath = os.path.realpath(os.path.join('static', 'views'))
+        modpath = os.path.dirname(__file__)
+        jsonpath = os.path.join(modpath,'views')
 
         self.view_providers = [HighChartsViewBuilder(jsonpath),
                                MPLViewBuilder(),

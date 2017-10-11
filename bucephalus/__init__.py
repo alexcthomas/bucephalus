@@ -3,7 +3,6 @@ import sys
 import json
 import ujson
 import logging
-import argparse
 import traceback
 import datetime as dt
 from queue import Queue
@@ -13,14 +12,14 @@ import numpy as np
 from flask import Flask, render_template, request, jsonify, send_file
 from flask_bootstrap import Bootstrap, WebCDN
 
-from views.viewbuilder import ViewBuilder
-from views.viewdata import ViewDataProvider
-from views.navdata import build_pages
+from .viewbuilder import ViewBuilder
+from .viewdata import ViewDataProvider
+from .navdata import build_pages
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 app = Flask(__name__)
-app.config.from_json('app.config')
+app.config.from_json('../app.config')
 
 print('Starting data provider')
 data_provider = ViewDataProvider(app.config)
@@ -112,25 +111,5 @@ def images(path):
     Returns an image, if created by a view.
     """
     fullpath = "./img/" + path
-    return send_file(fullpath, mimetype='image/png')
-
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Bucephalus',
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('--port', type=int, default=5000,
-        help="Web port")
-    parser.add_argument('--host', type=str, default="0.0.0.0",
-        help="IP address to listen on")
-    params = parser.parse_args()
-
-    app.run(host=params.host, port=params.port, threaded=True, debug=True, use_debugger=False, use_reloader=False)
-
-
-
-
-
-
-
-
-
+    print(os.path.realpath(fullpath))
+    return send_file(open(fullpath, 'rb'), mimetype='image/png')
