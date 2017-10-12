@@ -92,7 +92,7 @@ def views():
             ex_type, ex, tb = sys.exc_info()
             logging.error('Error in result_generator: {}\n{}'.format(ex, "\n".join(traceback.format_tb(tb))))
 
-    return app.response_class(result_generator(), mimetype='text/plain', direct_passthrough=True)
+    return app.response_class(result_generator(), mimetype='application/json', direct_passthrough=True)
 
 
 @app.route("/img/<path:path>")

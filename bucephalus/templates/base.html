@@ -55,26 +55,6 @@
 <script src="https://code.highcharts.com/modules/heatmap.js"></script>
 <script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
 
-<script>
-	var loadingDialog, progressBar;
-
-	$(function() {
-		loadingDialog = $("#progress-dialog").dialog({
-			autoOpen: false,
-			resizable: false,
-			draggable: false,
-			modal: true,
-			minHeight: '60px'
-		});
-
-		loadingDialog.dialog('widget').find('.ui-dialog-titlebar-close').hide();
-
-		progressBar = $("#progress-bar").progressbar({
-			value: false
-		});
-	});
-</script>
-
 <script type="text/javascript">
 	function changeToken(form, event){
 		var token = $("#sidebar-token-form :selected").text();
