@@ -103,7 +103,7 @@ class ViewBuilder(object):
             return ujson.dumps(viewtools.build_error("Circular dependencies found"))
 
         def callback(sim_series, data, currentIndex, maxIndex):
-            logging.debug('Callback for {}: {}/{}'.format(sim_series, currentIndex+1, maxIndex))
+            logging.debug('Callback for {}: {}/{}'.format(sim_series, currentIndex, maxIndex))
 
             try:
 
@@ -123,6 +123,9 @@ class ViewBuilder(object):
 
                     # Check all dependencies are done
                     if not all(nodes[n]['done'] for n in deps.predecessors(name)):
+                        continue
+
+                    if node['done']:
                         continue
 
                     # Mark this node as done
