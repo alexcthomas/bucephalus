@@ -4,7 +4,7 @@ import logging
 import numpy as np
 import pandas as pd
 
-from bucephalus.viewtools import level_value_string_sub, encode_pandas_series, encode_series
+from bucephalus.viewtools import encode_series
 
 
 class ViewDataProvider(object):

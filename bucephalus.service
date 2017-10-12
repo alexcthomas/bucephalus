@@ -1,0 +1,13 @@
+[Unit]
+Description=Gunicorn instance to serve bucephalus
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/bucephalus
+Environment="PATH=/var/www/bucephalus/venv/bin"
+ExecStart=/var/www/bucephalus/venv/bin/gunicorn --workers 3 --threads 3 --bind unix:bucephalus.sock -m 007 wsgi:app
+
+[Install]
+WantedBy=multi-user.target

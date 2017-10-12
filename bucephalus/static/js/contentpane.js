@@ -74,9 +74,6 @@ var renderContentPane = function(views, tags, title)
 	}
 	$('#page-header-title').text(pagetitle);
 
-	progressBar.progressbar('value', false);
-	loadingDialog.dialog('open');
-
 	// Send the JSON for this page to the server in one block so we can do all the queries in one go.
 	// We expect to receive back a series of blocks.  Each block will be either a graph block or
 	// a named data block - seems complicated, but means we can combine data (i.e. if graph A and B both
@@ -91,9 +88,6 @@ var renderContentPane = function(views, tags, title)
 	$.ajax({
 		type: 'POST',
 		url: '/views',
-		complete: function() {
-			loadingDialog.dialog('close');
-		},
 		xhrFields: {
 			onprogress: function(e) {
 				// We cannot make assumptions about where the data is chunked in transport so we look
@@ -116,9 +110,6 @@ var renderContentPane = function(views, tags, title)
 						var target = viewinfo.targets[chunkObj.id];
 						var viewdef = viewinfo.definitions[chunkObj.id];
 						renderView(target, viewdef, chunkObj.result, dataBlocks);
-					} else if (chunkObj.category == 'status') {
-						progressBar.progressbar('option', 'max', chunkObj.maxIndex);
-						progressBar.progressbar('value', chunkObj.index);
 					} else {
 						console.log('Unknown category "' + chunkObj.category + '"');
 					}
