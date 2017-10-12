@@ -12,6 +12,38 @@
         "series": [{"label": "Gross PL", "query": "PortfolioPL.grosspl"},
                    {"label": "Net PL", "query": "PortfolioPL.netpl"}],
         "row": 1
+      },
+      {
+        "viewtype": "volatility",
+        "renderer": "highcharts",
+        "viewoptions": {
+          "title": {"text": "Portfolio Volatility"},
+          "legend": {"enabled": false}
+        },
+        "series": [{"label": "Portfolio Volatility", "query": "PortfolioVol.volatility"}],
+        "row": 1
+      },
+      {
+        "viewtype": "basic_line",
+        "renderer": "highcharts",
+        "viewoptions": {
+          "title": {"text": "Total Expected Return"}
+        },
+        "series": [{"label": "Live Cattle", "query": "TotalExpectedReturn_LCCC1.exprtn"},
+                   {"label": "Feeder Cattle", "query": "TotalExpectedReturn_FCCC1.exprtn"},
+                   {"label": "Lean Hogs", "query": "TotalExpectedReturn_LHCC1.exprtn"}],
+        "row": 2
+      },
+      {
+        "viewtype": "basic_line",
+        "renderer": "highcharts",
+        "viewoptions": {
+          "title": {"text": "Total Position"}
+        },
+        "series": [{"label": "Live Cattle", "query": "Position_LCCC1.position"},
+                   {"label": "Feeder Cattle", "query": "Position_FCCC1.position"},
+                   {"label": "Lean Hogs", "query": "Position_LHCC1.position"}],
+        "row": 2
       }
     ]
   },

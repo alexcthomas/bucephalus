@@ -2,9 +2,6 @@
     "viewName": "volatility",
     "prototypes": "basic_timeseries",
     "viewDefinition": {
-        "title": {
-            "text": "{{market}} Volatility"
-        },
         "xAxis": {
             "type": "datetime"
         },
