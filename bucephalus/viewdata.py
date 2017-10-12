@@ -4,7 +4,7 @@ import logging
 import numpy as np
 import pandas as pd
 
-from views.viewtools import level_value_string_sub, encode_pandas_series, encode_series
+from bucephalus.viewtools import level_value_string_sub, encode_pandas_series, encode_series
 
 
 class ViewDataProvider(object):
@@ -102,20 +102,3 @@ class ViewDataProvider(object):
         for i, q in enumerate(query_list):
             data = self.get_single_query_data(q[0])
             callback(q[0], data, i, n_queries)
-
-    def get_series_key_from_tags(self, tags, series_label):
-        """
-        For a set of sim objects specified by a a category, a sim class, and a set of tags
-        Get the given output series
-        """
-        series = tags['datatype']
-        query = series
-
-        if 'category' in tags:
-            query = '.'.join([series, tags['category']])
-
-        return  query, series, series_label
-
-
-
-

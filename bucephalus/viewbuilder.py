@@ -8,12 +8,12 @@ import threading
 
 import networkx
 
-from views import viewtools
-from views import datahandler
+from bucephalus import viewtools
+from bucephalus import datahandler
 
-from views.jsonviews import HighChartsViewBuilder
-from views.mplviews import MPLViewBuilder
-from views.htmlviews import HTMLViewBuilder
+from bucephalus.jsonviews import HighChartsViewBuilder
+from bucephalus.mplviews import MPLViewBuilder
+from bucephalus.htmlviews import HTMLViewBuilder
 
 
 def build_dependency_graph(views, data_provider):
@@ -30,20 +30,15 @@ def build_dependency_graph(views, data_provider):
 
         for series in view['series']:
 
-            tags = viewtools.dict_merge([view['tags'], series])
-
-            series_label = tags.pop('label')
-            series_key = data_provider.get_series_key_from_tags(tags.copy(), series_label)
+            series_key = series['query'], series['label']
 
             ret.add_node(series_key, typ='series', done=False)
             ret.add_edge(series_key, i)
 
-            query, object_name, label = series_key
-
             # networkx ignores adding the same node twice
             # so we don't need to check if this query is already there
-            ret.add_node(query, typ='query', done=False)
-            ret.add_edge(query, series_key)
+            ret.add_node(series['query'], typ='query', done=False)
+            ret.add_edge(series['query'], series_key)
 
     return ret
 
@@ -54,7 +49,8 @@ class ViewBuilder(object):
     can do things like auto-rebuild when files change
     """
     def __init__(self, data_provider):
-        jsonpath = os.path.realpath(os.path.join('static', 'views'))
+        modpath = os.path.dirname(__file__)
+        jsonpath = os.path.join(modpath,'views')
 
         self.view_providers = [HighChartsViewBuilder(jsonpath),
                                MPLViewBuilder(),

@@ -1,4 +1,4 @@
-from views.baseviews import BaseViewBuilder
+from bucephalus.baseviews import BaseViewBuilder
 
 class HTMLViewBuilder(BaseViewBuilder):
     """
