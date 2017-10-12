@@ -1,13 +1,10 @@
-import os, pdb
+import os
 import sys
 import json
 import ujson
 import logging
 import traceback
-import datetime as dt
 from queue import Queue
-
-import numpy as np
 
 from flask import Flask, render_template, request, jsonify, send_file
 from flask_bootstrap import Bootstrap, WebCDN
@@ -21,16 +18,9 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 app = Flask(__name__)
 app.config.from_json('../app.config')
 
-print('Starting data provider')
 data_provider = ViewDataProvider(app.config)
-
-print('Starting view builder')
 view_defs = ViewBuilder(data_provider)
-
-print('Building bootstrap')
 bootstrap = Bootstrap(app)
-
-print('Starting app')
 
 # use jQuery3 instead of jQuery 1 shipped with Flask-Bootstrap
 app.extensions['bootstrap']['cdns']['jquery'] = WebCDN('//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.0/')
@@ -111,5 +101,4 @@ def images(path):
     Returns an image, if created by a view.
     """
     fullpath = "./img/" + path
-    print(os.path.realpath(fullpath))
     return send_file(open(fullpath, 'rb'), mimetype='image/png')
