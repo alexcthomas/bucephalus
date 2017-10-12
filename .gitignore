@@ -1,10 +1,12 @@
-log/*.log
-venv/*
-img/*
-*.pyc
-*.pyo
-app.db
-search.db
-flask
-*.mo
-*.swp
+# general things to ignore
+build/
+dist/
+log/
+venv/
+img/
+*.egg-info/
+*.egg
+*.py[cod]
+__pycache__/
+*.so
+*~

@@ -14,7 +14,7 @@ var renderView = function(target, info, definition, seriesNameToData) {
 	var data = [];
 
 	$.each(definition.series, function(i, series) {
-		data.push({name: series[2], data: seriesNameToData[series]});
+		data.push({name: series[1], data: seriesNameToData[series]});
 	});
 
 	definition.series = data;
