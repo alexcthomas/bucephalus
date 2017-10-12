@@ -1,8 +1,6 @@
 import logging
 import datetime
 
-from views.viewtools import level_value_string_sub
-
 from StrategyBuilder import SimLoader
 
 import PQTrading

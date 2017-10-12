@@ -54,29 +54,5 @@
         ]
       }
     ]
-  },
-  {
-    "text": "Parent2",
-    "title": "Title of Parent2 Page",
-    "views": [
-      {
-        "viewtype": "accumulated",
-        "renderer": "highstock",
-        "handler": "accumulate",
-        "series": [{"label": "Random Data", "query": "random_timeseries"}],
-        "row": 1
-      },
-      {
-        "viewtype": "volatility",
-        "renderer": "highcharts",
-        "series": [{"label": "Random Volatility", "query": "random_vol"}],
-        "row": 1
-      },
-      {
-        "viewtype": "explanation",
-        "renderer": "html",
-        "row": 2
-      }
-    ]
   }
 ]

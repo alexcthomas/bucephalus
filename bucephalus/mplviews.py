@@ -1,3 +1,4 @@
+import os
 import uuid
 import logging
 import matplotlib as mpl
@@ -6,7 +7,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 plt.ioff()
 
-from views.baseviews import BaseViewBuilder
+from bucephalus.baseviews import BaseViewBuilder
 
 class MPLViewBuilder(BaseViewBuilder):
     """
@@ -14,6 +15,10 @@ class MPLViewBuilder(BaseViewBuilder):
     """
     def __init__(self):
         self.image_dir = 'img'
+
+        if not os.path.exists(self.image_dir):
+            os.mkdir(self.image_dir)
+
         self.views_cache = {
             'overview_distribution': self.overview_distribution
         }
