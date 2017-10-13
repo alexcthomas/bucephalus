@@ -1,6 +1,7 @@
 import os
 import pdb
 import sys
+import time
 import ujson
 import logging
 import traceback
@@ -103,6 +104,7 @@ class ViewBuilder(object):
             return ujson.dumps(viewtools.build_error("Circular dependencies found"))
 
         def callback(sim_series, data, currentIndex, maxIndex):
+            t0 = time.time()
             logging.debug('Callback for {}: {}/{}'.format(sim_series, currentIndex, maxIndex))
 
             try:
@@ -158,6 +160,8 @@ class ViewBuilder(object):
                         result_queue.put({'category': 'data', 'series': series_id, 'data': series_data})
 
                     result_queue.put({'id': name, 'category': 'graph', 'result': view_def})
+
+                logging.debug('Callback for {} completed in {}'.format(sim_series, time.time()-t0))
 
             except Exception:
                 ex_type, ex, tb = sys.exc_info()

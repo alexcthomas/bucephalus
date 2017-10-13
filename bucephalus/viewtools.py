@@ -1,5 +1,6 @@
 import copy, pdb
 
+import ujson
 import numpy as np
 import pandas as pd
 
@@ -103,7 +104,17 @@ def parse_result_series(result):
     dates, values = zip(*result)
     dates = pd.DatetimeIndex(dates)
     ret = pd.Series(np.array(values), dates.astype(int)/1000000)
-    return ret.reset_index().values
+    return ret.reset_index()
+
+def to_json(obj):
+    if 'data' not in obj:
+        return ujson.dumps(obj)+';'
+
+    dfjson = obj['data'].to_json(orient='values')
+    obj['data'] = [[[]]]
+    objson = ujson.dumps(obj)+';'
+    return objson.replace('[[[]]]', dfjson)
+
 
 if __name__ == '__main__':
 

@@ -12,6 +12,7 @@ from flask_bootstrap import Bootstrap, WebCDN
 from .viewbuilder import ViewBuilder
 from .viewdata import ViewDataProvider
 from .navdata import build_pages
+from .viewtools import to_json
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -81,9 +82,8 @@ def views():
                 if result is None:
                     break
 
-                partial_result = ujson.dumps(result)
+                partial_result = to_json(result)
                 yield(partial_result.encode('utf-8'))
-                yield(';'.encode('utf-8'))
 
             logging.debug('Waiting for worker thread')
             worker_thread.join()

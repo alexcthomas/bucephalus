@@ -1,3 +1,4 @@
+import time
 import logging
 import datetime
 
@@ -40,7 +41,9 @@ class ViewDataProvider(object):
     def set_token(self, token):
         logging.debug('Setting token to %s', token)
         self._token = token
+        t0 = time.time()
         self._meta_obj = self._loader.getRunMeta(self._token)
+        logging.debug('got meta data in {}s'.format(time.time()-t0))
 
     def get_view_data(self, query_list, callback):
         """
@@ -51,6 +54,8 @@ class ViewDataProvider(object):
         """
         queries = [q[0] for q in query_list]
         logging.debug('Calling getRunData with {} queries.'.format(len(queries)))
+        t0 = time.time()
         self._loader.getRunData(self._token, queries, callback)
+        logging.debug('getRunData took {}s'.format(time.time()-t0))
 
 

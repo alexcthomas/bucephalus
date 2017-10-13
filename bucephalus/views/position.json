@@ -5,9 +5,6 @@
 		"title": {
 			"text": "{{market}} Position"
 		},
-		"xAxis": {
-			"type": "datetime"
-		},
 		"yAxis": {
 			"title": {
 				"text": "Position"
