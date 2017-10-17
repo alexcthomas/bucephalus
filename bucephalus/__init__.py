@@ -12,6 +12,7 @@ from flask_bootstrap import Bootstrap, WebCDN
 from .viewbuilder import ViewBuilder
 from .viewdata import ViewDataProvider
 from .navdata import build_pages
+from .viewtools import to_json, build_json_msg, build_error, build_error_message
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -66,31 +67,34 @@ def get_nav_data():
 @app.route('/views', methods=['POST'])
 def views():
 
-    result_queue = Queue()
+    try:
+        result_queue = Queue()
 
-    # This function does not block until the results are all back
-    worker_thread = view_defs.build_views(request.json, result_queue)
+        # This function does not block until the results are all back
+        worker_thread = view_defs.build_views(request.json, result_queue)
+
+    except Exception:
+        msg = build_error_message('There was an error building the page views:')
+        logging.error(msg)
+        result = (build_json_msg(build_error(msg)), )
+        return app.response_class(result, mimetype='application/json', direct_passthrough=True)
 
     # Flask can send results back piecemeal, but it needs a generator to do this.
     # We block on the callback here by waiting on the result_queue.
     def result_generator():
-        try:
-            while True:
-                result = result_queue.get(block=True)
+        while True:
+            result = result_queue.get(block=True)
 
-                if result is None:
-                    break
+            # finished the queue
+            if result is None:
+                break
 
-                partial_result = ujson.dumps(result)
-                yield(partial_result.encode('utf-8'))
-                yield(';'.encode('utf-8'))
+            partial_result = to_json(result)+';'
+            yield(partial_result.encode('utf-8'))
 
-            logging.debug('Waiting for worker thread')
-            worker_thread.join()
-            logging.debug('Call completed')
-        except Exception:
-            ex_type, ex, tb = sys.exc_info()
-            logging.error('Error in result_generator: {}\n{}'.format(ex, "\n".join(traceback.format_tb(tb))))
+        logging.debug('Waiting for worker thread')
+        worker_thread.join()
+        logging.debug('Call completed')
 
     return app.response_class(result_generator(), mimetype='application/json', direct_passthrough=True)
 

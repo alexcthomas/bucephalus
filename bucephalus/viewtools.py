@@ -1,5 +1,9 @@
-import copy, pdb
+import sys
+import copy
+import logging
+import traceback
 
+import ujson
 import numpy as np
 import pandas as pd
 
@@ -62,7 +66,8 @@ def template_recurse(tmpl, tags):
     return tmpl
 
 def encode_series(dates, data):
-    return np.vstack([dates.astype(int)/1000000, data]).T
+    ret = pd.Series(np.array(data), dates.astype(int)/1000000)
+    return ret.reset_index()
 
 def encode_pandas_series(series):
     try:
@@ -70,9 +75,6 @@ def encode_pandas_series(series):
         return ret.reset_index().values
     except:
         return series.values
-
-def build_error(msg):
-    return {'error': '<pre>{}</pre>'.format(msg)}
 
 def level_value_string_sub(s, lspec):
     ret = s
@@ -103,7 +105,37 @@ def parse_result_series(result):
     dates, values = zip(*result)
     dates = pd.DatetimeIndex(dates)
     ret = pd.Series(np.array(values), dates.astype(int)/1000000)
-    return ret.reset_index().values
+    return ret.reset_index()
+
+def to_json(obj):
+    try:
+        if 'data' not in obj:
+            return ujson.dumps(obj)
+
+        dfjson = obj['data'].to_json(orient='values')
+        obj['data'] = [[[]]]
+        objson = ujson.dumps(obj)
+        return objson.replace('[[[]]]', dfjson)
+
+    except Exception:
+        print(obj)
+        msg = build_error_message('There was an error encoding data for view {}:'.format(obj['id']))
+        logging.error(msg)
+        return ujson.dumps(build_error(msg))
+
+def build_error_message(msg):
+    ex_type, ex, tb = sys.exc_info()
+    return "\n".join([msg, str(ex)] + traceback.format_tb(tb))
+
+def build_error(msg, view_id=None):
+    ret = {'category': 'error', 'data': msg}
+    if view_id is not None:
+        ret['id'] = view_id
+    return ret
+
+def build_json_msg(msg):
+    return (ujson.dumps(msg)+';').encode('utf-8')
+
 
 if __name__ == '__main__':
 

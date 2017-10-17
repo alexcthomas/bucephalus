@@ -43,7 +43,7 @@ class AccumulateHandler(RawHandler):
         ret = []
         for k, v in results:
             values = v.copy() # don't modify the original data
-            values[:, 1] = values[:, 1].cumsum(axis=0)
+            values.values[:, 1] = values.values[:, 1].cumsum(axis=0)
             ret.append((k+(cls.name,), values))
 
         return ret

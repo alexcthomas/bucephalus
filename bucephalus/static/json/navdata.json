@@ -1,80 +1,449 @@
 [
   {
-    "text": "Root",
-    "views": [
-      {
-        "viewtype": "basic_col",
-        "renderer": "highcharts",
-        "viewoptions": {
-          "title": {"text": "Basic Bar Chart"}
+     "text": "Root",
+     "views": [
+        {
+           "handler": "accumulate",
+           "renderer": "highcharts",
+           "row": 1,
+           "series": [
+              {
+                 "label": "Gross PL",
+                 "query": "PortfolioPL.grosspl"
+              },
+              {
+                 "label": "Net PL",
+                 "query": "PortfolioPL.netpl"
+              }
+           ],
+           "viewoptions": {
+              "title": {
+                 "text": "Portfolio P&L"
+              }
+           },
+           "viewtype": "accumulated"
         },
-        "series": [{"label": "Random Data", "query": "univariate_random"}],
-        "row": 1
-      }
-    ]
+        {
+           "renderer": "highcharts",
+           "row": 1,
+           "series": [
+              {
+                 "label": "Portfolio Volatility",
+                 "query": "PortfolioVol.volatility"
+              }
+           ],
+           "viewoptions": {
+              "legend": {
+                 "enabled": false
+              },
+              "title": {
+                 "text": "Portfolio Volatility"
+              }
+           },
+           "viewtype": "volatility"
+        },
+        {
+           "renderer": "highcharts",
+           "row": 2,
+           "series": [
+              {
+                 "label": "Live Cattle",
+                 "query": "TotalExpectedReturn_LCCC1.exprtn"
+              },
+              {
+                 "label": "Feeder Cattle",
+                 "query": "TotalExpectedReturn_FCCC1.exprtn"
+              },
+              {
+                 "label": "Lean Hogs",
+                 "query": "TotalExpectedReturn_LHCC1.exprtn"
+              }
+           ],
+           "viewoptions": {
+              "title": {
+                 "text": "Total Expected Return"
+              }
+           },
+           "viewtype": "basic_timeseries"
+        },
+        {
+           "renderer": "highcharts",
+           "row": 2,
+           "series": [
+              {
+                 "label": "Live Cattle",
+                 "query": "Position_LCCC1.position"
+              },
+              {
+                 "label": "Feeder Cattle",
+                 "query": "Position_FCCC1.position"
+              },
+              {
+                 "label": "Lean Hogs",
+                 "query": "Position_LHCC1.position"
+              }
+           ],
+           "viewoptions": {
+              "title": {
+                 "text": "Total Position"
+              }
+           },
+           "viewtype": "basic_timeseries"
+        }
+     ]
   },
   {
-    "text": "Parent1",
-    "title": "Title of Parent1 Page",
-    "views": [
-      {
-        "viewtype": "basic_line",
-        "renderer": "highcharts",
-        "viewoptions": {
-          "title": {"text": "Basic Line Chart"}
+     "text": "Live Cattle",
+     "title": "Live Cattle",
+     "views": [
+        {
+           "renderer": "highcharts",
+           "row": 1,
+           "series": [
+              {
+                 "label": "Price",
+                 "query": "FuturesPrice_LCCC1.close"
+              }
+           ],
+           "viewoptions": {
+              "legend": {
+                 "enabled": false
+              },
+              "title": {
+                 "text": "Price"
+              }
+           },
+           "viewtype": "basic_timeseries"
         },
-        "series": [{"label": "Installation", "query": "solar.installation"},
-                   {"label": "Manufacturing", "query": "solar.manufacturing"},
-                   {"label": "Sales & Distribution", "query": "solar.sales"},
-                   {"label": "Project Development", "query": "solar.development"},
-                   {"label": "Other", "query": "solar.other"}],
-        "row": 1
-      },
-      {
-        "viewtype": "accumulated",
-        "renderer": "highstock",
-        "handler": "accumulate",
-        "series": [{"label": "Random Data", "query": "random_timeseries"}],
-        "row": 2
-      }
-    ],
-    "nodes": [
-      {
-        "text": "Child1",
-        "title": "Title of Child1 Page",
-        "views": [
-          {
-            "viewtype": "overview_distribution",
-            "series": [{"label": "Random Data", "query": "univariate_random"}],
-            "renderer": "img",
-            "row": 1
-          }
-        ]
-      }
-    ]
+        {
+           "renderer": "highcharts",
+           "row": 1,
+           "series": [
+              {
+                 "label": "Random Data",
+                 "query": "Volatility_LCCC1.volatility"
+              }
+           ],
+           "viewoptions": {
+              "legend": {
+                 "enabled": false
+              },
+              "title": {
+                 "text": "Volatility"
+              }
+           },
+           "viewtype": "volatility"
+        },
+        {
+           "renderer": "highcharts",
+           "row": 2,
+           "series": [
+              {
+                 "label": "TFTS",
+                 "query": "TFOscillatorCombiner_LCCC1_TFTS.exprtn"
+              },
+              {
+                 "label": "SpotRatio",
+                 "query": "SpotRatioOscillatorCombiner_LCCC1_SPGSCN_SpotRatio.exprtn"
+              }
+           ],
+           "viewoptions": {
+              "title": {
+                 "text": "Expected Return"
+              }
+           },
+           "viewtype": "basic_timeseries"
+        },
+        {
+           "renderer": "highcharts",
+           "row": 2,
+           "series": [
+              {
+                 "label": "Trade",
+                 "query": "Position_LCCC1.trade"
+              }
+           ],
+           "viewoptions": {
+              "title": {
+                 "text": "Trades"
+              }
+           },
+           "viewtype": "basic_timeseries"
+        },
+        {
+           "renderer": "highcharts",
+           "row": 3,
+           "series": [
+              {
+                 "label": "Volume",
+                 "query": "FuturesPrice_LCCC1.volume"
+              }
+           ],
+           "viewoptions": {
+              "legend": {
+                 "enabled": false
+              },
+              "title": {
+                 "text": "Volume"
+              }
+           },
+           "viewtype": "basic_timeseries"
+        },
+        {
+           "renderer": "highcharts",
+           "row": 3,
+           "series": [
+              {
+                 "label": "OI",
+                 "query": "FuturesPrice_LCCC1.openinterest"
+              }
+           ],
+           "viewoptions": {
+              "legend": {
+                 "enabled": false
+              },
+              "title": {
+                 "text": "Open Interest"
+              }
+           },
+           "viewtype": "basic_timeseries"
+        }
+     ]
   },
   {
-    "text": "Parent2",
-    "title": "Title of Parent2 Page",
-    "views": [
-      {
-        "viewtype": "accumulated",
-        "renderer": "highstock",
-        "handler": "accumulate",
-        "series": [{"label": "Random Data", "query": "random_timeseries"}],
-        "row": 1
-      },
-      {
-        "viewtype": "volatility",
-        "renderer": "highcharts",
-        "series": [{"label": "Random Volatility", "query": "random_vol"}],
-        "row": 1
-      },
-      {
-        "viewtype": "explanation",
-        "renderer": "html",
-        "row": 2
-      }
-    ]
+     "text": "Feeder Cattle",
+     "title": "Feeder Cattle",
+     "views": [
+        {
+           "renderer": "highcharts",
+           "row": 1,
+           "series": [
+              {
+                 "label": "Price",
+                 "query": "FuturesPrice_FCCC1.close"
+              }
+           ],
+           "viewoptions": {
+              "legend": {
+                 "enabled": false
+              },
+              "title": {
+                 "text": "Price"
+              }
+           },
+           "viewtype": "basic_timeseries"
+        },
+        {
+           "renderer": "highcharts",
+           "row": 1,
+           "series": [
+              {
+                 "label": "Random Data",
+                 "query": "Volatility_FCCC1.volatility"
+              }
+           ],
+           "viewoptions": {
+              "legend": {
+                 "enabled": false
+              },
+              "title": {
+                 "text": "Volatility"
+              }
+           },
+           "viewtype": "volatility"
+        },
+        {
+           "renderer": "highcharts",
+           "row": 2,
+           "series": [
+              {
+                 "label": "TFTS",
+                 "query": "TFOscillatorCombiner_FCCC1_TFTS.exprtn"
+              },
+              {
+                 "label": "SpotRatio",
+                 "query": "SpotRatioOscillatorCombiner_FCCC1_SPGSCN_SpotRatio.exprtn"
+              }
+           ],
+           "viewoptions": {
+              "title": {
+                 "text": "Expected Return"
+              }
+           },
+           "viewtype": "basic_timeseries"
+        },
+        {
+           "renderer": "highcharts",
+           "row": 2,
+           "series": [
+              {
+                 "label": "Trade",
+                 "query": "Position_FCCC1.trade"
+              }
+           ],
+           "viewoptions": {
+              "title": {
+                 "text": "Trades"
+              }
+           },
+           "viewtype": "basic_timeseries"
+        },
+        {
+           "renderer": "highcharts",
+           "row": 3,
+           "series": [
+              {
+                 "label": "Volume",
+                 "query": "FuturesPrice_FCCC1.volume"
+              }
+           ],
+           "viewoptions": {
+              "legend": {
+                 "enabled": false
+              },
+              "title": {
+                 "text": "Volume"
+              }
+           },
+           "viewtype": "basic_timeseries"
+        },
+        {
+           "renderer": "highcharts",
+           "row": 3,
+           "series": [
+              {
+                 "label": "OI",
+                 "query": "FuturesPrice_FCCC1.openinterest"
+              }
+           ],
+           "viewoptions": {
+              "legend": {
+                 "enabled": false
+              },
+              "title": {
+                 "text": "Open Interest"
+              }
+           },
+           "viewtype": "basic_timeseries"
+        }
+     ]
+  },
+  {
+     "text": "Lean Hogs",
+     "title": "Lean Hogs",
+     "views": [
+        {
+           "renderer": "highcharts",
+           "row": 1,
+           "series": [
+              {
+                 "label": "Price",
+                 "query": "FuturesPrice_LHCC1.close"
+              }
+           ],
+           "viewoptions": {
+              "legend": {
+                 "enabled": false
+              },
+              "title": {
+                 "text": "Price"
+              }
+           },
+           "viewtype": "basic_timeseries"
+        },
+        {
+           "renderer": "highcharts",
+           "row": 1,
+           "series": [
+              {
+                 "label": "Random Data",
+                 "query": "Volatility_LHCC1.volatility"
+              }
+           ],
+           "viewoptions": {
+              "legend": {
+                 "enabled": false
+              },
+              "title": {
+                 "text": "Volatility"
+              }
+           },
+           "viewtype": "volatility"
+        },
+        {
+           "renderer": "highcharts",
+           "row": 2,
+           "series": [
+              {
+                 "label": "TFTS",
+                 "query": "TFOscillatorCombiner_LHCC1_TFTS.exprtn"
+              },
+              {
+                 "label": "SpotRatio",
+                 "query": "SpotRatioOscillatorCombiner_LHCC1_SPGSCN_SpotRatio.exprtn"
+              }
+           ],
+           "viewoptions": {
+              "title": {
+                 "text": "Expected Return"
+              }
+           },
+           "viewtype": "basic_timeseries"
+        },
+        {
+           "renderer": "highcharts",
+           "row": 2,
+           "series": [
+              {
+                 "label": "Trade",
+                 "query": "Position_LHCC1.trade"
+              }
+           ],
+           "viewoptions": {
+              "title": {
+                 "text": "Trades"
+              }
+           },
+           "viewtype": "basic_timeseries"
+        },
+        {
+           "renderer": "highcharts",
+           "row": 3,
+           "series": [
+              {
+                 "label": "Volume",
+                 "query": "FuturesPrice_LHCC1.volume"
+              }
+           ],
+           "viewoptions": {
+              "legend": {
+                 "enabled": false
+              },
+              "title": {
+                 "text": "Volume"
+              }
+           },
+           "viewtype": "basic_timeseries"
+        },
+        {
+           "renderer": "highcharts",
+           "row": 3,
+           "series": [
+              {
+                 "label": "OI",
+                 "query": "FuturesPrice_LHCC1.openinterest"
+              }
+           ],
+           "viewoptions": {
+              "legend": {
+                 "enabled": false
+              },
+              "title": {
+                 "text": "Open Interest"
+              }
+           },
+           "viewtype": "basic_timeseries"
+        }
+     ]
   }
 ]
