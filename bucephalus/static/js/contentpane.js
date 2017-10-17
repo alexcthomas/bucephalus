@@ -47,6 +47,23 @@ var getViewRows = function(viewdata) {
 	return rows;
 }
 
+var getErrorTarget = function(viewdata, viewinfo) {
+
+	// if this error is relevant to a particular view, then get the target
+	if ('id' in viewdata) {
+		return viewinfo.definitions[viewdata.id];
+	}
+
+	// else it's a page error, so reset the target divs
+	var tgt = $("#page-content");
+	tgt.html('');
+	var width = tgt.width();
+	var viewTarget = createPanel(width - 10);
+	viewTarget.addClass("view_row_start");
+	tgt.append(viewTarget);
+	return viewTarget;
+}
+
 // figures out the content pane layout
 // and hands off the view rendering to renderView
 var renderContentPane = function(views, tags, title) 
@@ -110,8 +127,9 @@ var renderContentPane = function(views, tags, title)
 						var target = viewinfo.targets[chunkObj.id];
 						var viewdef = viewinfo.definitions[chunkObj.id];
 						renderView(target, viewdef, chunkObj.result, dataBlocks);
-					} else {
-						console.log('Unknown category "' + chunkObj.category + '"');
+					} else if (chunkObj.category == 'error') {
+						var target = getErrorTarget(chunkObj, viewinfo);
+						ViewRenderers.render('error', target, chunkObj.data);
 					}
 				} 
 			}	

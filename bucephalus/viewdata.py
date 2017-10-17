@@ -59,17 +59,17 @@ class ViewDataProvider(object):
                     'development':   [None, None, 7988, 12169, 15112, 22452, 34400, 34227],
                     'other':         [12908, 5948, 8105, 11248, 8989, 11816, 18274, 18111]
                     }
-            return data[parts[1]]
+            return pd.Series(data[parts[1]])
 
         if typ == "population":
             data = {'1800': [107, 31, 635, 203, 2],
                     '1900': [133, 156, 947, 408, 6],
                     '2012': [1052, 954, 4250, 740, 38],
                     }
-            return data[parts[1]]
+            return pd.Series(data[parts[1]])
 
         if typ == "univariate_random":
-            return np.random.randn(200)
+            return pd.Series(np.random.randn(200))
 
         if typ == "random_timeseries":
             data = np.random.randn(2000)
@@ -101,4 +101,4 @@ class ViewDataProvider(object):
         # invoking the callback as we go
         for i, q in enumerate(query_list):
             data = self.get_single_query_data(q[0])
-            callback(q[0], data, i, n_queries)
+            callback(q[0], data, i+1, n_queries)
