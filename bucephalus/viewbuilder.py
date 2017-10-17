@@ -98,10 +98,10 @@ class ViewBuilder(object):
         sent_to_client = set()
 
         if not series_deps:
-            return ujson.dumps(viewtools.build_error("No queries were generated"))
+            raise RuntimeError("No queries were generated")
 
         if not networkx.is_directed_acyclic_graph(deps):
-            return ujson.dumps(viewtools.build_error("Circular dependencies found"))
+            raise RuntimeError("Circular dependencies found")
 
         def callback(sim_series, data, currentIndex, maxIndex):
             t0 = time.time()
@@ -114,7 +114,7 @@ class ViewBuilder(object):
                 nodes[sim_series]['done'] = True
                 nodes[sim_series]['data'] = result
 
-                result_queue.put({'category': 'status', 'index': currentIndex, 'maxIndex': maxIndex})
+                result_queue.put({'id': 0, 'category': 'status', 'index': currentIndex, 'maxIndex': maxIndex})
 
                 # This iterates first through all queries, then series, seriesgroups and views
                 for name in networkx.topological_sort(deps):
@@ -157,15 +157,17 @@ class ViewBuilder(object):
                         if series_id in sent_to_client:
                             continue
                         sent_to_client.add(series_id)
-                        result_queue.put({'category': 'data', 'series': series_id, 'data': series_data})
+                        result_queue.put({'id': name, 'category': 'data', 'series': series_id, 'data': series_data})
 
                     result_queue.put({'id': name, 'category': 'graph', 'result': view_def})
 
                 logging.debug('Callback for {} completed in {}'.format(sim_series, time.time()-t0))
 
             except Exception:
-                ex_type, ex, tb = sys.exc_info()
-                logging.error('Error in callback: {}\n{}'.format(ex, "\n".join(traceback.format_tb(tb))))
+                msg1 = 'There was an error getting data series for view {}:'
+                msg = viewtools.build_error_message(msg1.format(name))
+                logging.error(msg)
+                result_queue.put(viewtools.build_error(msg, name))
 
         # We query for results in a different thread so we can return results in this one
         def worker():

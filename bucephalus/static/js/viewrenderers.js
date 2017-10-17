@@ -23,13 +23,11 @@ var ViewRenderers = {
 	},
 
 	errorRenderer: function(target, data) {
-		target.html(data.error);
+		$('<pre/>').html(data)
+			.appendTo(target);
 	},
 
 	render: function(rendererName, target, data) {
-		if ("error" in data){
-			rendererName = "error"
-		}
 		this.renderers[rendererName](target, data);
 	}
 };
