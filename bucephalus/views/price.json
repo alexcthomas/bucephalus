@@ -2,12 +2,6 @@
     "viewName": "price",
     "prototypes": "basic_timeseries",
     "viewDefinition": {
-        "title": {
-            "text": "{{market}} Price"
-        },
-        "xAxis": {
-            "type": "datetime"
-        },
         "yAxis": {
             "title": {
                 "text": "Price"

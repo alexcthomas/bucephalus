@@ -2,6 +2,9 @@
     "viewName": "basic_timeseries",
     "prototypes": "basic_line",
     "viewDefinition": {
+        "xAxis": {
+            "type": "datetime"
+        },
         "rangeSelector": {
             "buttons": [
                 {
