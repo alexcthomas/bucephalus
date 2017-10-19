@@ -1,13 +1,10 @@
 import os
 import sys
 import json
-import ujson
 import logging
-import traceback
 from queue import Queue
 
-from flask import Flask, render_template, request, jsonify, send_file
-from flask_bootstrap import Bootstrap, WebCDN
+from flask import Flask, render_template, request, jsonify, send_file, send_from_directory
 
 from .viewbuilder import ViewBuilder
 from .viewdata import ViewDataProvider
@@ -21,10 +18,6 @@ app.config.from_json('../app.config')
 
 data_provider = ViewDataProvider(app.config)
 view_defs = ViewBuilder(data_provider)
-bootstrap = Bootstrap(app)
-
-# use jQuery3 instead of jQuery 1 shipped with Flask-Bootstrap
-app.extensions['bootstrap']['cdns']['jquery'] = WebCDN('//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.0/')
 
 
 @app.errorhandler(404)
@@ -39,7 +32,7 @@ def internal_server_error(e):
 
 @app.route('/', methods=['GET'])
 def index():
-    return render_template('index.html', tokens=data_provider.get_tokens())
+    return send_from_directory('static', 'index.html')
 
 
 @app.route('/get_tokens', methods=['GET'])
