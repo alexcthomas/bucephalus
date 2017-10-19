@@ -1,4 +1,26 @@
 
+function changeToken(form, event){
+	var token = $("#sidebar-token-form :selected").text();
+	$.getJSON('/set_token?token=' + token,
+		function(data) {
+			renderNavPane()
+		}
+	);
+}
+
+function showTokens() {
+	var target = $("#sidebar-token-picker");
+	$.getJSON('/get_tokens',
+		function(items) {
+			$.each(items, function (i, item) {
+				target.append($('<option>', {value: item,text : item}))
+			});
+			target.selectpicker('refresh');
+			changeToken();
+		}
+	);
+}
+
 // Returns the location of a node for encoding in a url
 var getNodeLocation = function(node) {
 	var tree = $("#sidebar-nav").data("treeview");
