@@ -115,8 +115,6 @@ var renderContentPane = function(views, tags, title)
 				while (-1 != (nextSemicolonIdx = response.indexOf(';', lastProcessedIdx))) {
 					// Extract a chunk from the data received so far
 					var chunk = response.substring(lastProcessedIdx, nextSemicolonIdx);
-
-					//console.log(Date.now() + ': chunk ' + lastProcessedIdx + '..' + nextSemicolonIdx);
 					var chunkObj = JSON.parse(chunk);
 					lastProcessedIdx = nextSemicolonIdx+1;
 

@@ -20,23 +20,11 @@ data_provider = ViewDataProvider(app.config)
 view_defs = ViewBuilder(data_provider)
 
 
-@app.errorhandler(404)
-def page_not_found(e):
-    return render_template('404.html'), 404
-
-
-@app.errorhandler(500)
-def internal_server_error(e):
-    return render_template('500.html'), 500
-
-
-@app.route('/', methods=['GET'])
-def index():
-    return send_from_directory('static', 'index.html')
-
-
 @app.route('/get_tokens', methods=['GET'])
 def get_tokens():
+    """
+    Returns a list of data source connection tokens
+    """
     return json.dumps(data_provider.get_tokens())
 
 
@@ -92,10 +80,23 @@ def views():
     return app.response_class(result_generator(), mimetype='application/json', direct_passthrough=True)
 
 
+###################################
+# The following functions should only be used
+# when using a development server
+###################################
+
+
+@app.route('/', methods=['GET'])
+def index():
+    """
+    Index page
+    """
+    return send_from_directory('static', 'index.html')
+
+
 @app.route("/img/<path:path>")
 def images(path):
     """
     Returns an image, if created by a view.
     """
-    fullpath = "./img/" + path
-    return send_file(open(fullpath, 'rb'), mimetype='image/png')
+    return send_from_directory('../img', path, mimetype='image/png')
