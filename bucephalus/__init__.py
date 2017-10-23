@@ -1,10 +1,9 @@
 import os
-import sys
-import json
+import ujson
 import logging
 from queue import Queue
 
-from flask import Flask, render_template, request, jsonify, send_file, send_from_directory
+from flask import Flask, request, send_from_directory, jsonify
 
 from .viewbuilder import ViewBuilder
 from .viewdata import ViewDataProvider
@@ -25,34 +24,28 @@ def get_tokens():
     """
     Returns a list of data source connection tokens
     """
-    return json.dumps(data_provider.get_tokens())
-
-
-@app.route('/set_token', methods=['GET'])
-def set_token():
-    token = request.args.get('token')
-    data_provider.set_token(token)
-    return json.dumps({'token': token})
+    result = (ujson.dumps(data_provider.get_tokens()), )
+    return app.response_class(result, mimetype='application/json')
 
 
 # return a json response upon request
-@app.route('/navdata', methods=['GET'])
-def get_nav_data():
+@app.route('/navdata/<token>', methods=['GET'])
+def get_nav_data(token):
     """
     Returns data for building the nav pane contents
     """
-    data = build_pages(data_provider)
+    data = build_pages(data_provider, token)
     return jsonify(data)
 
 
-@app.route('/views', methods=['POST'])
-def views():
+@app.route('/views/<token>', methods=['POST'])
+def views(token):
 
     try:
         result_queue = Queue()
 
         # This function does not block until the results are all back
-        worker_thread = view_defs.build_views(request.json, result_queue)
+        worker_thread = view_defs.build_views(token, request.json, result_queue)
 
     except Exception:
         msg = build_error_message('There was an error building the page views:')
@@ -81,8 +74,10 @@ def views():
 
 
 ###################################
-# The following functions should only be used
-# when using a development server
+#
+# The following functions should only be
+# called when using a development server
+#
 ###################################
 
 
