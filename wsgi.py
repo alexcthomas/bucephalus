@@ -1,5 +1,8 @@
+"""
+Gunicorn config script
+"""
 
-
+accesslog='-'
 bind = 'unix:bucephalus.sock'
 workers = 1
 threads = 4

@@ -84,7 +84,7 @@ class ViewBuilder(object):
 
         return self.views[viewtype]
 
-    def build_views(self, viewlist, result_queue):
+    def build_views(self, token, viewlist, result_queue):
         """
         Extract all the series names so we can query them in one go.
         Data manipulators generate queries that are then passed on for execution.
@@ -171,7 +171,7 @@ class ViewBuilder(object):
 
         # We query for results in a different thread so we can return results in this one
         def worker():
-            self.data_provider.get_view_data(series_deps, callback)
+            self.data_provider.get_view_data(token, series_deps, callback)
             result_queue.put(None) # Indicates the end of the data
 
         worker_thread = threading.Thread(target=worker)
