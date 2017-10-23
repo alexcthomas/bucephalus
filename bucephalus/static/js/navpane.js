@@ -1,4 +1,25 @@
 
+function changeToken(form, event) {
+	var token = $("#sidebar-token-form :selected").text();
+	renderNavPane(token);
+}
+
+function showTokens() {
+	var target = $("#sidebar-token-picker");
+	$.getJSON('/get_tokens',
+		function(items) {
+			$.each(items, function (i, item) {
+				target.append($('<option>', {value: item, text : item}))
+			});
+			// if (token != undefined) {
+			// 	target.selectpicker('val', token);
+			// }
+			target.selectpicker('refresh');
+			changeToken();
+		}
+	);
+}
+
 // Returns the location of a node for encoding in a url
 var getNodeLocation = function(node) {
 	var tree = $("#sidebar-nav").data("treeview");
@@ -28,7 +49,7 @@ function getJsonFromUrl() {
 	var query = location.search.substr(1);
 	var result = [];
 	if (query.length==0){
-		return result
+		return result;
 	}
 	query.split("&").forEach(function(part) {
 		var item = part.split("=");
@@ -39,7 +60,7 @@ function getJsonFromUrl() {
 
 // checks whether a node matches a location given in a url
 var parentMatch = function(tree, node, levels) {
-	if (levels.length==0){
+	if (levels.length==0) {
 		return true;
 	}
 	if (node.text!=levels.slice(-1)) {
@@ -86,15 +107,15 @@ var treeNodeUnSelect = function(event, node) {
 	
 	// If this node has been manually deselected, rather than
 	// another node being selected, then render the root page
-	if (node.unselected){
+	if (node.unselected) {
 		renderContentPane();
 		window.history.pushState("", "", "/");
 	}
 };
 
 // gets data to fill out the nav pane
-var renderNavPane = function() {
-	$.getJSON("/navdata",
+var renderNavPane = function(token) {
+	$.getJSON("/navdata/"+token,
 	function(data) {
 		var tgt = $("#sidebar-nav");
 		tgt.html("");
@@ -106,8 +127,8 @@ var renderNavPane = function() {
 		});
 
 		// if there's a root page, remove it so it doesn't get put into the tree
-		if (data[0].text == "Root"){
-			data.splice(0,1)
+		if (data[0].text == "Root") {
+			data.splice(0,1);
 		}
 
 		// build the nav tree

@@ -84,7 +84,7 @@ class ViewDataProvider(object):
 
         raise RuntimeError('No data found for type {}'.format(query))
 
-    def get_view_data(self, query_list, callback):
+    def get_view_data(self, token, query_list, callback):
         """
         Loads multiple queries from the database, calling callback(name, series) for each one
         :param query_list: a set of query objects - a string of series name to load,

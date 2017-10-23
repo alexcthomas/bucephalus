@@ -1,13 +1,9 @@
 import os
-import sys
-import json
 import ujson
 import logging
-import traceback
 from queue import Queue
 
-from flask import Flask, render_template, request, jsonify, send_file
-from flask_bootstrap import Bootstrap, WebCDN
+from flask import Flask, request, send_from_directory, jsonify
 
 from .viewbuilder import ViewBuilder
 from .viewdata import ViewDataProvider
@@ -21,57 +17,35 @@ app.config.from_json('../app.config')
 
 data_provider = ViewDataProvider(app.config)
 view_defs = ViewBuilder(data_provider)
-bootstrap = Bootstrap(app)
-
-# use jQuery3 instead of jQuery 1 shipped with Flask-Bootstrap
-app.extensions['bootstrap']['cdns']['jquery'] = WebCDN('//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.0/')
-
-
-@app.errorhandler(404)
-def page_not_found(e):
-    return render_template('404.html'), 404
-
-
-@app.errorhandler(500)
-def internal_server_error(e):
-    return render_template('500.html'), 500
-
-
-@app.route('/', methods=['GET'])
-def index():
-    return render_template('index.html', tokens=data_provider.get_tokens())
 
 
 @app.route('/get_tokens', methods=['GET'])
 def get_tokens():
-    return json.dumps(data_provider.get_tokens())
-
-
-@app.route('/set_token', methods=['GET'])
-def set_token():
-    token = request.args.get('token')
-    data_provider.set_token(token)
-    return json.dumps({'token': token})
+    """
+    Returns a list of data source connection tokens
+    """
+    result = (ujson.dumps(data_provider.get_tokens()), )
+    return app.response_class(result, mimetype='application/json')
 
 
 # return a json response upon request
-@app.route('/navdata', methods=['GET'])
-def get_nav_data():
+@app.route('/navdata/<token>', methods=['GET'])
+def get_nav_data(token):
     """
     Returns data for building the nav pane contents
     """
-    data = build_pages(data_provider)
+    data = build_pages(data_provider, token)
     return jsonify(data)
 
 
-@app.route('/views', methods=['POST'])
-def views():
+@app.route('/views/<token>', methods=['POST'])
+def views(token):
 
     try:
         result_queue = Queue()
 
         # This function does not block until the results are all back
-        worker_thread = view_defs.build_views(request.json, result_queue)
+        worker_thread = view_defs.build_views(token, request.json, result_queue)
 
     except Exception:
         msg = build_error_message('There was an error building the page views:')
@@ -99,10 +73,25 @@ def views():
     return app.response_class(result_generator(), mimetype='application/json', direct_passthrough=True)
 
 
+###################################
+#
+# The following functions should only be
+# called when using a development server
+#
+###################################
+
+
+@app.route('/', methods=['GET'])
+def index():
+    """
+    Index page
+    """
+    return send_from_directory('static', 'index.html')
+
+
 @app.route("/img/<path:path>")
 def images(path):
     """
     Returns an image, if created by a view.
     """
-    fullpath = "./img/" + path
-    return send_file(open(fullpath, 'rb'), mimetype='image/png')
+    return send_from_directory('../img', path, mimetype='image/png')

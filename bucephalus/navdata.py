@@ -5,7 +5,7 @@ import logging
 logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s', level=logging.DEBUG)
 
 
-def build_pages(data_provider):
+def build_pages(data_provider, token):
     """
     Build JSON pages for the entire website
     """

@@ -69,6 +69,7 @@ var getErrorTarget = function(viewdata, viewinfo) {
 var renderContentPane = function(views, tags, title) 
 {
 	// Create the views up front, then query for their data and initialise them as it arrives
+	var token = $("#sidebar-token-form :selected").text();
 	var navData = $("#sidebar-nav").data("viewdata");
 	var viewdata, pagetags, pagetitle;
 	
@@ -104,7 +105,7 @@ var renderContentPane = function(views, tags, title)
 
 	$.ajax({
 		type: 'POST',
-		url: '/views',
+		url: '/views/'+token,
 		xhrFields: {
 			onprogress: function(e) {
 				// We cannot make assumptions about where the data is chunked in transport so we look
@@ -115,8 +116,6 @@ var renderContentPane = function(views, tags, title)
 				while (-1 != (nextSemicolonIdx = response.indexOf(';', lastProcessedIdx))) {
 					// Extract a chunk from the data received so far
 					var chunk = response.substring(lastProcessedIdx, nextSemicolonIdx);
-
-					//console.log(Date.now() + ': chunk ' + lastProcessedIdx + '..' + nextSemicolonIdx);
 					var chunkObj = JSON.parse(chunk);
 					lastProcessedIdx = nextSemicolonIdx+1;
 
