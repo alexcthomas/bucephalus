@@ -41,7 +41,7 @@ class ViewDataProvider(object):
         queries = [q[0] for q in query_list]
         logging.debug('Calling getRunData with {} queries.'.format(len(queries)))
         t0 = time.time()
-        self._loader.getRunData(token, queries, callback)
-        logging.debug('getRunData took {}s'.format(time.time()-t0))
+        self._loader.getRunArray(token, queries, callback)
+        logging.debug('getRunArray took {}s'.format(time.time()-t0))
 
 

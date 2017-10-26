@@ -148,7 +148,15 @@ class ViewBuilder(object):
 
                     data_series = []
                     for n in deps.predecessors(name):
-                        data_series.append((n, nodes[n]['data']))
+                        data = nodes[n]['data']
+
+                        if data is None:
+                            msg = 'There was an error getting data series {}'.format(n[0])
+                            logging.error(msg)
+                            result_queue.put(viewtools.build_error(msg, name))
+                            return
+
+                        data_series.append((n, data))
 
                     data_series = view_handler.process_queries(data_series)
                     view_def = view_generator.build_view(view_type, view_tags, data_series, view_options)

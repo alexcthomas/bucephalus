@@ -51,7 +51,7 @@ var getErrorTarget = function(viewdata, viewinfo) {
 
 	// if this error is relevant to a particular view, then get the target
 	if ('id' in viewdata) {
-		return viewinfo.definitions[viewdata.id];
+		return viewinfo.targets[viewdata.id];
 	}
 
 	// else it's a page error, so reset the target divs
@@ -128,7 +128,7 @@ var renderContentPane = function(views, tags, title)
 						renderView(target, viewdef, chunkObj.result, dataBlocks);
 					} else if (chunkObj.category == 'error') {
 						var target = getErrorTarget(chunkObj, viewinfo);
-						ViewRenderers.render('error', target, chunkObj.data);
+						ViewRenderers.render('error', target, chunkObj.message);
 					}
 				} 
 			}	
