@@ -103,7 +103,7 @@ def parse_result_series(result):
         return None
 
     dates, values = result
-    return pd.DataFrame({0:dates.astype(int)/1000000,1:values})
+    return pd.DataFrame({0:dates.astype(int)/1000,1:values})
 
 def to_json(obj):
     try:
