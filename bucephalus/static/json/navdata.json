@@ -144,7 +144,7 @@
               },
               {
                  "label": "SpotRatio",
-                 "query": "SpotRatioOscillatorCombiner_LCCC1_SPGSCN_SpotRatio.exprtn"
+                 "query": "SpotRatioOscillatorCombiner_LCCC1_SpotRatio.exprtn"
               }
            ],
            "viewoptions": {
@@ -262,7 +262,7 @@
               },
               {
                  "label": "SpotRatio",
-                 "query": "SpotRatioOscillatorCombiner_FCCC1_SPGSCN_SpotRatio.exprtn"
+                 "query": "SpotRatioOscillatorCombiner_FCCC1_SpotRatio.exprtn"
               }
            ],
            "viewoptions": {
@@ -380,7 +380,7 @@
               },
               {
                  "label": "SpotRatio",
-                 "query": "SpotRatioOscillatorCombiner_LHCC1_SPGSCN_SpotRatio.exprtn"
+                 "query": "SpotRatioOscillatorCombiner_LHCC1_SpotRatio.exprtn"
               }
            ],
            "viewoptions": {
