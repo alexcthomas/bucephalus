@@ -102,10 +102,8 @@ def parse_result_series(result):
     if result is None or not len(result):
         return None
 
-    dates, values = zip(*result)
-    dates = pd.DatetimeIndex(dates)
-    ret = pd.Series(np.array(values), dates.astype(int)/1000000)
-    return ret.reset_index()
+    dates, values = result
+    return pd.DataFrame({0:dates.astype(int)/1000,1:values})
 
 def to_json(obj):
     try:
@@ -128,7 +126,7 @@ def build_error_message(msg):
     return "\n".join([msg, str(ex)] + traceback.format_tb(tb))
 
 def build_error(msg, view_id=None):
-    ret = {'category': 'error', 'data': msg}
+    ret = {'category': 'error', 'message': msg}
     if view_id is not None:
         ret['id'] = view_id
     return ret

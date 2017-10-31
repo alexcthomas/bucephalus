@@ -22,12 +22,13 @@ var renderView = function(target, info, definition, seriesNameToData) {
 
 };
 
-var createPanel = function(width) {
+var createPanel = function(width, height) {
 	var inner = $('<div/>')
 		.addClass("panel-body");
 	var ret = $('<div/>')
 		.addClass("panel panel-default")
 		.css('width', width.toString()+'px')
+		.css('height', height.toString()+'px')
 		.append(inner);
 	return ret;
 }
@@ -51,7 +52,7 @@ var getErrorTarget = function(viewdata, viewinfo) {
 
 	// if this error is relevant to a particular view, then get the target
 	if ('id' in viewdata) {
-		return viewinfo.definitions[viewdata.id];
+		return viewinfo.targets[viewdata.id];
 	}
 
 	// else it's a page error, so reset the target divs
@@ -62,6 +63,24 @@ var getErrorTarget = function(viewdata, viewinfo) {
 	viewTarget.addClass("view_row_start");
 	tgt.append(viewTarget);
 	return viewTarget;
+
+}
+
+var parseChunk = function(chunk, dataBlocks, viewinfo) {
+
+	var chunkObj = JSON.parse(chunk);
+
+	// Process the chunk - generate the view
+	if (chunkObj.category == 'data') {
+		dataBlocks[chunkObj.series] = chunkObj.data;
+	} else if (chunkObj.category == 'graph') {
+		var target = viewinfo.targets[chunkObj.id];
+		var viewdef = viewinfo.definitions[chunkObj.id];
+		renderView(target, viewdef, chunkObj.result, dataBlocks);
+	} else if (chunkObj.category == 'error') {
+		var target = getErrorTarget(chunkObj, viewinfo);
+		ViewRenderers.render('error', target, chunkObj.message);
+	}
 }
 
 // figures out the content pane layout
@@ -84,7 +103,7 @@ var renderContentPane = function(views, tags, title)
 	}
 
 	var rows = getViewRows(viewdata);
-	var viewinfo = createViews(rows, pagetags);
+	var viewinfo = createViewDivs(rows, pagetags);
 
 	// Set the page title
 	if (pagetitle == undefined){
@@ -108,42 +127,57 @@ var renderContentPane = function(views, tags, title)
 		url: '/views/'+token,
 		xhrFields: {
 			onprogress: function(e) {
-				// We cannot make assumptions about where the data is chunked in transport so we look
-				// for the separator semicolons. 
-				var current, response = e.currentTarget.response;
-				var nextSemicolonIdx;
+				var nextSemicolonIdx, response = e.currentTarget.response;
 
 				while (-1 != (nextSemicolonIdx = response.indexOf(';', lastProcessedIdx))) {
-					// Extract a chunk from the data received so far
 					var chunk = response.substring(lastProcessedIdx, nextSemicolonIdx);
-					var chunkObj = JSON.parse(chunk);
 					lastProcessedIdx = nextSemicolonIdx+1;
-
-					// Process the chunk - generate the view
-					if (chunkObj.category == 'data') {
-						dataBlocks[chunkObj.series] = chunkObj.data;
-					} else if (chunkObj.category == 'graph') {
-						var target = viewinfo.targets[chunkObj.id];
-						var viewdef = viewinfo.definitions[chunkObj.id];
-						renderView(target, viewdef, chunkObj.result, dataBlocks);
-					} else if (chunkObj.category == 'error') {
-						var target = getErrorTarget(chunkObj, viewinfo);
-						ViewRenderers.render('error', target, chunkObj.data);
-					}
+					parseChunk(chunk, dataBlocks, viewinfo);
 				} 
 			}	
+		},	
+		complete: function(a,b,c) {
+			// IE11 calls the 'complete' callback when the response is complete, rather than onprogress
+			var nextSemicolonIdx, response = a.responseText;
+
+			while (-1 != (nextSemicolonIdx = response.indexOf(';', lastProcessedIdx))) {
+				var chunk = response.substring(lastProcessedIdx, nextSemicolonIdx);
+				lastProcessedIdx = nextSemicolonIdx+1;
+				parseChunk(chunk, dataBlocks, viewinfo);
+			} 
 		},
 		data: JSON.stringify(viewinfo.definitions),
 		contentType: 'application/json; charset=utf-8',
-		dataType: 'json'
+		dataType: 'json',
+		cache: false,
+		timeout: 0,
+		json: true
 	});
 };
 
-var createViews = function(rows, pagetags) {
+// https://stackoverflow.com/questions/288699/get-the-position-of-a-div-span-tag
+function getPos(el) {
+    // yay readability
+    for (var lx=0, ly=0;
+         el != undefined;
+         lx += el.offsetLeft, ly += el.offsetTop, el = el.offsetParent);
+    return {x: lx,y: ly};
+}
+
+var createViewDivs = function(rows, pagetags) {
 	var tgt = $("#page-content");
 	tgt.html('');
 	
+	var viewHeight = 450;
 	var width = tgt.width();
+	var availableHeight = $(window).height() - getPos(tgt[0]).y - 5; // Subtract the header height and bottom padding
+	var nRows = rows.length;
+	var totalViewHeight = nRows * (viewHeight + 10); // (View height plus margin) times # rows
+
+	if (totalViewHeight >= availableHeight) {
+		width = width - 300; // Scroll bar will appear, so remove its width
+	}
+
 	var viewTargets = [];
 	var viewsDefs = [];
 
@@ -153,7 +187,7 @@ var createViews = function(rows, pagetags) {
 			var viewWidth = (width / nviews) - 10; // margin of the views div
 
 			$.each(row, function(j, view) {
-				var viewTarget = createPanel(viewWidth);
+				var viewTarget = createPanel(viewWidth, viewHeight);
 				if (j==0){
 					viewTarget.addClass("view_row_start");
 				} else {

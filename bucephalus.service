@@ -3,8 +3,8 @@ Description=Gunicorn instance to serve bucephalus
 After=network.target
 
 [Service]
-User=www-data
-Group=www-data
+User=nobody
+Group=nogroup
 WorkingDirectory=/var/www/bucephalus
 Environment="PATH=/var/www/bucephalus/venv/bin"
 ExecStart=/var/www/bucephalus/venv/bin/gunicorn -c wsgi.py bucephalus:app

@@ -25,7 +25,7 @@
 					
 					<div id="sidebar-token-body" data-width="100%">
 						<form id="sidebar-token-form" action="" data-width="100%">
-							<select id="sidebar-token-picker" class="selectpicker show-tick" data-width="100%" onchange="if (this.selectedIndex) changeToken(this, event);">
+							<select id="sidebar-token-picker" class="selectpicker show-tick" data-width="100%" onchange="changeToken(this, event);">
 							</select>
 						</form>
 					</div>
@@ -63,6 +63,7 @@
 		<script type="text/javascript">
 			$(function () {
 				$(document).ready(showTokens);
+				$(window).resize(changeToken);
 			});
 		</script>
 
