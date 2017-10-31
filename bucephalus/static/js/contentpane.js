@@ -62,6 +62,24 @@ var getErrorTarget = function(viewdata, viewinfo) {
 	viewTarget.addClass("view_row_start");
 	tgt.append(viewTarget);
 	return viewTarget;
+
+}
+
+var parseChunk = function(chunk, dataBlocks, viewinfo) {
+
+	var chunkObj = JSON.parse(chunk);
+
+	// Process the chunk - generate the view
+	if (chunkObj.category == 'data') {
+		dataBlocks[chunkObj.series] = chunkObj.data;
+	} else if (chunkObj.category == 'graph') {
+		var target = viewinfo.targets[chunkObj.id];
+		var viewdef = viewinfo.definitions[chunkObj.id];
+		renderView(target, viewdef, chunkObj.result, dataBlocks);
+	} else if (chunkObj.category == 'error') {
+		var target = getErrorTarget(chunkObj, viewinfo);
+		ViewRenderers.render('error', target, chunkObj.message);
+	}
 }
 
 // figures out the content pane layout
@@ -108,34 +126,31 @@ var renderContentPane = function(views, tags, title)
 		url: '/views/'+token,
 		xhrFields: {
 			onprogress: function(e) {
-				// We cannot make assumptions about where the data is chunked in transport so we look
-				// for the separator semicolons. 
-				var current, response = e.currentTarget.response;
-				var nextSemicolonIdx;
+				var nextSemicolonIdx, response = e.currentTarget.response;
 
 				while (-1 != (nextSemicolonIdx = response.indexOf(';', lastProcessedIdx))) {
-					// Extract a chunk from the data received so far
 					var chunk = response.substring(lastProcessedIdx, nextSemicolonIdx);
-					var chunkObj = JSON.parse(chunk);
 					lastProcessedIdx = nextSemicolonIdx+1;
-
-					// Process the chunk - generate the view
-					if (chunkObj.category == 'data') {
-						dataBlocks[chunkObj.series] = chunkObj.data;
-					} else if (chunkObj.category == 'graph') {
-						var target = viewinfo.targets[chunkObj.id];
-						var viewdef = viewinfo.definitions[chunkObj.id];
-						renderView(target, viewdef, chunkObj.result, dataBlocks);
-					} else if (chunkObj.category == 'error') {
-						var target = getErrorTarget(chunkObj, viewinfo);
-						ViewRenderers.render('error', target, chunkObj.message);
-					}
+					parseChunk(chunk, dataBlocks, viewinfo);
 				} 
 			}	
+		},	
+		complete: function(a,b,c) {
+			// IE11 calls the 'complete' callback when the response is complete, rather than onprogress
+			var nextSemicolonIdx, response = a.responseText;
+
+			while (-1 != (nextSemicolonIdx = response.indexOf(';', lastProcessedIdx))) {
+				var chunk = response.substring(lastProcessedIdx, nextSemicolonIdx);
+				lastProcessedIdx = nextSemicolonIdx+1;
+				parseChunk(chunk, dataBlocks, viewinfo);
+			} 
 		},
 		data: JSON.stringify(viewinfo.definitions),
 		contentType: 'application/json; charset=utf-8',
-		dataType: 'json'
+		dataType: 'json',
+		cache: false,
+		timeout: 0,
+		json: true
 	});
 };
 
