@@ -22,12 +22,13 @@ var renderView = function(target, info, definition, seriesNameToData) {
 
 };
 
-var createPanel = function(width) {
+var createPanel = function(width, height) {
 	var inner = $('<div/>')
 		.addClass("panel-body");
 	var ret = $('<div/>')
 		.addClass("panel panel-default")
 		.css('width', width.toString()+'px')
+		.css('height', height.toString()+'px')
 		.append(inner);
 	return ret;
 }
@@ -102,7 +103,7 @@ var renderContentPane = function(views, tags, title)
 	}
 
 	var rows = getViewRows(viewdata);
-	var viewinfo = createViews(rows, pagetags);
+	var viewinfo = createViewDivs(rows, pagetags);
 
 	// Set the page title
 	if (pagetitle == undefined){
@@ -154,11 +155,29 @@ var renderContentPane = function(views, tags, title)
 	});
 };
 
-var createViews = function(rows, pagetags) {
+// https://stackoverflow.com/questions/288699/get-the-position-of-a-div-span-tag
+function getPos(el) {
+    // yay readability
+    for (var lx=0, ly=0;
+         el != undefined;
+         lx += el.offsetLeft, ly += el.offsetTop, el = el.offsetParent);
+    return {x: lx,y: ly};
+}
+
+var createViewDivs = function(rows, pagetags) {
 	var tgt = $("#page-content");
 	tgt.html('');
 	
+	var viewHeight = 450;
 	var width = tgt.width();
+	var availableHeight = $(window).height() - getPos(tgt[0]).y - 5; // Subtract the header height and bottom padding
+	var nRows = rows.length;
+	var totalViewHeight = nRows * (viewHeight + 10); // (View height plus margin) times # rows
+
+	if (totalViewHeight >= availableHeight) {
+		width = width - 20; // Scroll bar will appear, so remove its width
+	}
+
 	var viewTargets = [];
 	var viewsDefs = [];
 
@@ -168,7 +187,7 @@ var createViews = function(rows, pagetags) {
 			var viewWidth = (width / nviews) - 10; // margin of the views div
 
 			$.each(row, function(j, view) {
-				var viewTarget = createPanel(viewWidth);
+				var viewTarget = createPanel(viewWidth, viewHeight);
 				if (j==0){
 					viewTarget.addClass("view_row_start");
 				} else {

@@ -6,18 +6,20 @@ function changeToken(form, event) {
 
 function showTokens() {
 	var target = $("#sidebar-token-picker");
-	$.getJSON('/get_tokens',
-		function(items) {
+	$.ajax({
+		type: 'GET',
+		url: '/get_tokens',
+		contentType: 'application/json; charset=utf-8',
+		dataType: 'json',
+		cache: false,
+		success: function(items) {
 			$.each(items, function (i, item) {
 				target.append($('<option>', {value: item, text : item}))
 			});
-			// if (token != undefined) {
-			// 	target.selectpicker('val', token);
-			// }
 			target.selectpicker('refresh');
 			changeToken();
 		}
-	);
+	});
 }
 
 // Returns the location of a node for encoding in a url
@@ -115,34 +117,40 @@ var treeNodeUnSelect = function(event, node) {
 
 // gets data to fill out the nav pane
 var renderNavPane = function(token) {
-	$.getJSON("/navdata/"+token,
-	function(data) {
-		var tgt = $("#sidebar-nav");
-		tgt.html("");
-		var viewdata = {};
-		var currentUrl = getJsonFromUrl();
+	$.ajax({
+		type: 'GET',
+		url: "/navdata/"+token,
+		contentType: 'application/json; charset=utf-8',
+		dataType: 'json',
+		cache: false,
+		success: function(data) {
+			var tgt = $("#sidebar-nav");
+			tgt.html("");
+			var viewdata = {};
+			var currentUrl = getJsonFromUrl();
 
-		$.each(data, function(key, val) {
-			viewdata[val.text] = val;
-		});
+			$.each(data, function(key, val) {
+				viewdata[val.text] = val;
+			});
 
-		// if there's a root page, remove it so it doesn't get put into the tree
-		if (data[0].text == "Root") {
-			data.splice(0,1);
+			// if there's a root page, remove it so it doesn't get put into the tree
+			if (data[0].text == "Root") {
+				data.splice(0,1);
+			}
+
+			// build the nav tree
+			var tree = tgt.treeview({
+				levels: 1,
+				data: data,
+				onNodeSelected: treeNodeSelect,
+				onNodeUnselected: treeNodeUnSelect
+			});
+
+			//bind the data to the div element just in case
+			tgt.data("viewdata", viewdata);
+
+			//select the node given by the url
+			selectNode(tgt, currentUrl);
 		}
-
-		// build the nav tree
-		var tree = tgt.treeview({
-			levels: 1,
-			data: data,
-			onNodeSelected: treeNodeSelect,
-			onNodeUnselected: treeNodeUnSelect
-		});
-
-		//bind the data to the div element just in case
-		tgt.data("viewdata", viewdata);
-
-		//select the node given by the url
-		selectNode(tgt, currentUrl);
 	});
 };
